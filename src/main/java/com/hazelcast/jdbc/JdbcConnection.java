@@ -1,6 +1,5 @@
 package com.hazelcast.jdbc;
 
-import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 
 import java.sql.Array;
@@ -11,7 +10,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.NClob;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -38,7 +36,7 @@ class JdbcConnection implements Connection {
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        return null;
+        return new HazelcastJdbcPreparedStatement(sql, client);
     }
 
     @Override
@@ -173,7 +171,6 @@ class JdbcConnection implements Connection {
 
     @Override
     public void rollback(Savepoint savepoint) throws SQLException {
-
     }
 
     @Override

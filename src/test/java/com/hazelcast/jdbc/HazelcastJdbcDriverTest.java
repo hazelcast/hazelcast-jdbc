@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -62,5 +63,46 @@ public class HazelcastJdbcDriverTest {
 
         assertThat(actualResult).containsExactlyInAnyOrder(
                 new Person("Jack0", 0), new Person("Jack1", 1), new Person("Jack2", 2));
+    }
+
+    @Test
+    public void shouldUnwrapResultSet() throws SQLException {
+        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
+        resultSet.next();
+
+        assertThat(resultSet.isWrapperFor(HazelcastJdbcResultSet.class)).isTrue();
+        assertThat(resultSet.unwrap(HazelcastJdbcResultSet.class)).isNotNull();
+    }
+
+    @Test
+    public void shouldNotHaveTimeoutIfNotSetExplicitly() throws SQLException {
+        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
+        resultSet.next();
+        assertThat(resultSet.getString("name")).isNotNull();
+    }
+
+    @Test
+    public void shouldReturnResultSet() throws SQLException {
+        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
+
+        assertThat(resultSet).isSameAs(statement.getResultSet());
+    }
+
+    @Test
+    public void shouldExecuteSimplePreparedStatement() throws SQLException {
+        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701");
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM person WHERE name=? AND age=?");
+        statement.setString(1, "Jack1");
+        statement.setInt(2, 1);
+        ResultSet resultSet = statement.executeQuery();
+        resultSet.next();
+
+        assertThat(Person.valueOf(resultSet)).isEqualTo(new Person("Jack1", 1));
     }
 }

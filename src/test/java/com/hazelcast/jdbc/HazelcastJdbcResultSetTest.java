@@ -45,4 +45,8 @@ public class HazelcastJdbcResultSetTest {
         assertThat(name).isNull();
         assertThat(resultSet.wasNull()).isTrue();
     }
+
+    @Test
+    public void shouldFallByTimeoutIfQueryExecutesLonger() {
+    }
 }

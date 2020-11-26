@@ -9,8 +9,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.util.Collections;
+import java.util.List;
 
 class HazelcastJdbcStatement implements Statement {
+
+    /** Number of milliseconds in second. */
+    private static final int MILLIS_IN_SECOND = 1_000;
+
+    /** Query timeout. */
+    private int queryTimeout;
+
+    /** Fetch size. */
+    private int fetchSize;
+
+    ResultSet resultSet;
 
     private final HazelcastInstance client;
 
@@ -20,9 +33,8 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
-        SqlStatement query = new SqlStatement(sql);
-        SqlResult sqlResult = client.getSql().execute(query);
-        return new HazelcastJdbcResultSet(sqlResult);
+        doExecute(sql, Collections.emptyList());
+        return resultSet;
     }
 
     @Override
@@ -66,12 +78,11 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public void setQueryTimeout(int seconds) throws SQLException {
-
+        this.queryTimeout = seconds;
     }
 
     @Override
     public void cancel() throws SQLException {
-
     }
 
     @Override
@@ -81,12 +92,10 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public void clearWarnings() throws SQLException {
-
     }
 
     @Override
     public void setCursorName(String name) throws SQLException {
-
     }
 
     @Override
@@ -96,7 +105,7 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public ResultSet getResultSet() throws SQLException {
-        return null;
+        return resultSet;
     }
 
     @Override
@@ -121,12 +130,12 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public void setFetchSize(int rows) throws SQLException {
-
+        this.fetchSize = rows;
     }
 
     @Override
     public int getFetchSize() throws SQLException {
-        return 0;
+        return fetchSize;
     }
 
     @Override
@@ -237,5 +246,17 @@ class HazelcastJdbcStatement implements Statement {
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return false;
+    }
+
+    protected void doExecute(String sql, List<Object> parameters) {
+        SqlStatement query = new SqlStatement(sql).setParameters(parameters);
+        if (queryTimeout != 0) {
+            query.setTimeoutMillis(queryTimeout * MILLIS_IN_SECOND);
+        }
+        if (fetchSize != 0) {
+            query.setCursorBufferSize(fetchSize);
+        }
+        SqlResult sqlResult = client.getSql().execute(query);
+        resultSet = new HazelcastJdbcResultSet(sqlResult);
     }
 }

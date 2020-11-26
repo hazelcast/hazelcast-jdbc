@@ -101,7 +101,7 @@ class HazelcastJdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-        return null;
+        return getBigDecimal(columnIndex).setScale(scale, BigDecimal.ROUND_UNNECESSARY);
     }
 
     @Override
@@ -181,7 +181,7 @@ class HazelcastJdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
-        return null;
+        return getBigDecimal(columnLabel).setScale(scale, BigDecimal.ROUND_UNNECESSARY);
     }
 
     @Override
@@ -241,12 +241,12 @@ class HazelcastJdbcResultSet implements ResultSet {
 
     @Override
     public Object getObject(int columnIndex) throws SQLException {
-        return null;
+        return get(columnIndex);
     }
 
     @Override
     public Object getObject(String columnLabel) throws SQLException {
-        return null;
+        return get(columnLabel);
     }
 
     @Override
@@ -266,12 +266,12 @@ class HazelcastJdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-        return null;
+        return get(columnIndex);
     }
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
-        return null;
+        return get(columnLabel);
     }
 
     @Override
@@ -771,7 +771,6 @@ class HazelcastJdbcResultSet implements ResultSet {
 
     @Override
     public void updateNString(int columnIndex, String nString) throws SQLException {
-
     }
 
     @Override
@@ -781,12 +780,10 @@ class HazelcastJdbcResultSet implements ResultSet {
 
     @Override
     public void updateNClob(int columnIndex, NClob nClob) throws SQLException {
-
     }
 
     @Override
     public void updateNClob(String columnLabel, NClob nClob) throws SQLException {
-
     }
 
     @Override
@@ -976,27 +973,26 @@ class HazelcastJdbcResultSet implements ResultSet {
 
     @Override
     public void updateNClob(String columnLabel, Reader reader) throws SQLException {
-
     }
 
     @Override
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-        return null;
+        return get(columnIndex);
     }
 
     @Override
     public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
-        return null;
+        return get(columnLabel);
     }
 
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
-        return null;
+        return JdbcUtils.unwrap(this, iface);
     }
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return false;
+        return JdbcUtils.isWrapperFor(this, iface);
     }
 
     private <T> T get(String columnLabel) {
