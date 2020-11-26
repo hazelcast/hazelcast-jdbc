@@ -106,12 +106,11 @@ class JdbcConnection implements Connection {
 
     @Override
     public void setTransactionIsolation(int level) throws SQLException {
-
     }
 
     @Override
     public int getTransactionIsolation() throws SQLException {
-        return 0;
+        return TRANSACTION_NONE;
     }
 
     @Override

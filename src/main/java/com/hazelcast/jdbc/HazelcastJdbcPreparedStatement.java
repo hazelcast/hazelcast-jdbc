@@ -51,22 +51,22 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
-
+        setParameter(parameterIndex, null);
     }
 
     @Override
     public void setBoolean(int parameterIndex, boolean x) throws SQLException {
-
+        setParameter(parameterIndex, x);
     }
 
     @Override
     public void setByte(int parameterIndex, byte x) throws SQLException {
-
+        setParameter(parameterIndex, x);
     }
 
     @Override
     public void setShort(int parameterIndex, short x) throws SQLException {
-
+        setParameter(parameterIndex, x);
     }
 
     @Override
@@ -76,22 +76,22 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
 
     @Override
     public void setLong(int parameterIndex, long x) throws SQLException {
-
+        setParameter(parameterIndex, x);
     }
 
     @Override
     public void setFloat(int parameterIndex, float x) throws SQLException {
-
+        setParameter(parameterIndex, x);
     }
 
     @Override
     public void setDouble(int parameterIndex, double x) throws SQLException {
-
+        setParameter(parameterIndex, x);
     }
 
     @Override
     public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
-
+        setParameter(parameterIndex, x);
     }
 
     @Override
@@ -101,7 +101,7 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
 
     @Override
     public void setBytes(int parameterIndex, byte[] x) throws SQLException {
-
+        setParameter(parameterIndex, x);
     }
 
     @Override
@@ -141,12 +141,12 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
 
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
-
+        setParameter(parameterIndex, x);
     }
 
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
-
+        setParameter(parameterIndex, x);
     }
 
     @Override
@@ -176,12 +176,12 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
 
     @Override
     public void setClob(int parameterIndex, Clob x) throws SQLException {
-
+        setParameter(parameterIndex, x);
     }
 
     @Override
     public void setArray(int parameterIndex, Array x) throws SQLException {
-
+        setParameter(parameterIndex, x);
     }
 
     @Override
@@ -206,12 +206,11 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
 
     @Override
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
-
+        setParameter(parameterIndex, null);
     }
 
     @Override
     public void setURL(int parameterIndex, URL x) throws SQLException {
-
     }
 
     @Override
