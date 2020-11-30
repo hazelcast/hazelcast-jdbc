@@ -331,13 +331,13 @@ class JdbcConnection implements Connection {
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         checkClosed();
-        return null;
+        return JdbcUtils.unwrap(this, iface);
     }
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         checkClosed();
-        return false;
+        return JdbcUtils.isWrapperFor(this, iface);
     }
 
     private void checkClosed() throws SQLException {
