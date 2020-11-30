@@ -2,25 +2,20 @@ package com.hazelcast.jdbc;
 
 import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlRow;
-import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HazelcastJdbcResultSetTest {
 
     @Mock
@@ -30,10 +25,8 @@ public class HazelcastJdbcResultSetTest {
 
     private HazelcastJdbcResultSet resultSet;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        when(sqlRow.getObject(any()))
-                .thenReturn(null);
         when(sqlResult.iterator()).thenReturn(Collections.singletonList(sqlRow).iterator());
         resultSet = new HazelcastJdbcResultSet(sqlResult);
     }
@@ -44,9 +37,5 @@ public class HazelcastJdbcResultSetTest {
         String name = resultSet.getString("name");
         assertThat(name).isNull();
         assertThat(resultSet.wasNull()).isTrue();
-    }
-
-    @Test
-    public void shouldFallByTimeoutIfQueryExecutesLonger() {
     }
 }

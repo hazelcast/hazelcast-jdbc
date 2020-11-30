@@ -5,9 +5,9 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -27,7 +27,7 @@ public class HazelcastJdbcDriverTest {
 
     private static HazelcastInstance client;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         HazelcastInstance member = Hazelcast.newHazelcastInstance();
         client = HazelcastClient.newHazelcastClient();
@@ -40,7 +40,7 @@ public class HazelcastJdbcDriverTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         HazelcastClient.shutdownAll();
         Hazelcast.shutdownAll();

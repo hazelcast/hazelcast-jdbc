@@ -6,14 +6,11 @@ import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -22,7 +19,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class JdbcConnectionTest {
     private HazelcastInstance client;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         HazelcastInstance member = Hazelcast.newHazelcastInstance();
         client = HazelcastClient.newHazelcastClient();
@@ -35,7 +32,7 @@ public class JdbcConnectionTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         HazelcastClient.shutdownAll();
         Hazelcast.shutdownAll();
