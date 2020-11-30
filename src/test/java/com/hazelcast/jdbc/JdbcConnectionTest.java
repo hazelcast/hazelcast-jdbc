@@ -23,7 +23,7 @@ public class JdbcConnectionTest {
     private HazelcastInstance client;
 
     @Before
-    public void beforeClass() {
+    public void setUp() {
         HazelcastInstance member = Hazelcast.newHazelcastInstance();
         client = HazelcastClient.newHazelcastClient();
 
@@ -36,7 +36,7 @@ public class JdbcConnectionTest {
     }
 
     @After
-    public void afterClass() {
+    public void tearDown() {
         HazelcastClient.shutdownAll();
         Hazelcast.shutdownAll();
     }

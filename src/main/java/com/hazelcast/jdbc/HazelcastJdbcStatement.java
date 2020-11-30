@@ -23,6 +23,12 @@ class HazelcastJdbcStatement implements Statement {
     /** Fetch size. */
     private int fetchSize;
 
+    /** Whether the statement is closed. */
+    private boolean closed;
+
+    /** Poolable flag. */
+    private boolean poolable;
+
     ResultSet resultSet;
 
     private final HazelcastInstance client;
@@ -44,6 +50,11 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public void close() throws SQLException {
+        if (!isClosed()) {
+            closed = true;
+            resultSet.close();
+            resultSet = null;
+        }
     }
 
     @Override
@@ -63,7 +74,6 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public void setMaxRows(int max) throws SQLException {
-
     }
 
     @Override
@@ -73,7 +83,7 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public int getQueryTimeout() throws SQLException {
-        return 0;
+        return queryTimeout;
     }
 
     @Override
@@ -215,22 +225,21 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public boolean isClosed() throws SQLException {
-        return false;
+        return closed;
     }
 
     @Override
     public void setPoolable(boolean poolable) throws SQLException {
-
+        this.poolable = poolable;
     }
 
     @Override
     public boolean isPoolable() throws SQLException {
-        return false;
+        return poolable;
     }
 
     @Override
     public void closeOnCompletion() throws SQLException {
-
     }
 
     @Override

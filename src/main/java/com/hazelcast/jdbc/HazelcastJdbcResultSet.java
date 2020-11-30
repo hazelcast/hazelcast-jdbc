@@ -35,6 +35,10 @@ class HazelcastJdbcResultSet implements ResultSet {
     /** Whether the last read column was null. */
     private boolean wasNull;
 
+    /** Whether the result set is closed. */
+    private boolean closed;
+
+
     HazelcastJdbcResultSet(SqlResult sqlResult) {
         this.sqlResult = sqlResult;
         iterator = sqlResult.iterator();
@@ -51,7 +55,10 @@ class HazelcastJdbcResultSet implements ResultSet {
 
     @Override
     public void close() throws SQLException {
-        sqlResult.close();
+        if (!isClosed()) {
+            closed = true;
+            sqlResult.close();
+        }
     }
 
     @Override
@@ -766,7 +773,7 @@ class HazelcastJdbcResultSet implements ResultSet {
 
     @Override
     public boolean isClosed() throws SQLException {
-        return false;
+        return closed;
     }
 
     @Override
