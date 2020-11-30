@@ -156,7 +156,7 @@ class JdbcConnection implements Connection {
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         checkClosed();
-        return null;
+        throw JdbcUtils.unsupported("CallableStatement not supported");
     }
 
     @Override
@@ -217,7 +217,8 @@ class JdbcConnection implements Connection {
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return null;
+        checkClosed();
+        throw JdbcUtils.unsupported("CallableStatement not supported");
     }
 
     @Override
