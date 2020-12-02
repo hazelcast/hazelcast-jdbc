@@ -9,16 +9,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 
 class HazelcastJdbcStatement implements Statement {
 
-    /** Number of milliseconds in second. */
-    private static final int MILLIS_IN_SECOND = 1_000;
-
     /** Query timeout. */
-    private int queryTimeout;
+    private Duration queryTimeout = Duration.ZERO;
 
     /** Fetch size. */
     private int fetchSize;
@@ -83,12 +82,12 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public int getQueryTimeout() throws SQLException {
-        return queryTimeout;
+        return Math.toIntExact(queryTimeout.getSeconds());
     }
 
     @Override
     public void setQueryTimeout(int seconds) throws SQLException {
-        this.queryTimeout = seconds;
+        this.queryTimeout = Duration.ofSeconds(seconds);
     }
 
     @Override
@@ -259,8 +258,8 @@ class HazelcastJdbcStatement implements Statement {
 
     protected void doExecute(String sql, List<Object> parameters) {
         SqlStatement query = new SqlStatement(sql).setParameters(parameters);
-        if (queryTimeout != 0) {
-            query.setTimeoutMillis(queryTimeout * MILLIS_IN_SECOND);
+        if (!queryTimeout.isZero()) {
+            query.setTimeoutMillis(queryTimeout.get(ChronoUnit.MILLIS));
         }
         if (fetchSize != 0) {
             query.setCursorBufferSize(fetchSize);

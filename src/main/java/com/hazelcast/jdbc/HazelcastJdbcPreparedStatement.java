@@ -29,12 +29,11 @@ import java.util.List;
 
 class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements PreparedStatement {
 
-    private final List<Object> parameters;
+    private final List<Object> parameters = new ArrayList<>();
     private final String sql;
 
     HazelcastJdbcPreparedStatement(String sql, HazelcastInstance client) {
         super(client);
-        parameters = new ArrayList<>();
         this.sql = sql;
     }
 

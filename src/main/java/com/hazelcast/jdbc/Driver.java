@@ -5,6 +5,8 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.core.HazelcastInstance;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
@@ -77,7 +79,7 @@ public class Driver implements java.sql.Driver {
                 registered = true;
             }
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            throw new ExceptionInInitializerError(exception);
         }
     }
 }

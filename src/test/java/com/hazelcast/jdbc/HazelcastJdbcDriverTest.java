@@ -32,8 +32,6 @@ public class HazelcastJdbcDriverTest {
         HazelcastInstance member = Hazelcast.newHazelcastInstance();
         client = HazelcastClient.newHazelcastClient();
 
-        MapConfig config = new MapConfig("person");
-        member.getConfig().addMapConfig(config);
         IMap<Integer, Person> personMap = member.getMap("person");
         for (int i = 0; i < 3; i++) {
             personMap.put(i, new Person("Jack" + i, i));
