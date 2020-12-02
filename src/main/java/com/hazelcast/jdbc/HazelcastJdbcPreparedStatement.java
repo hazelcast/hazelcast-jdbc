@@ -45,7 +45,7 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
 
     @Override
     public int executeUpdate() throws SQLException {
-        return 0;
+        throw JdbcUtils.unsupported("Updates not supported");
     }
 
     @Override
