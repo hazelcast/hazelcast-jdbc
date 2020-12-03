@@ -5,8 +5,7 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.core.HazelcastInstance;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
@@ -18,6 +17,7 @@ import java.util.logging.Logger;
 
 public class Driver implements java.sql.Driver {
 
+    private static final String JDBC_URL_PREFIX = "jdbc:";
     private static final String URL_PREFIX = "jdbc:hazelcast://";
 
     /** Major version. */
@@ -35,8 +35,11 @@ public class Driver implements java.sql.Driver {
 
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
-        String hostPort = url.substring(URL_PREFIX.length());
-        ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(Collections.singletonList(hostPort));
+        URI uri = pareUrl(url);
+        if (uri == null) {
+            throw new SQLException("URL " + url + " is not supported");
+        }
+        ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(Collections.singletonList(uri.getAuthority()));
         ClientConfig clientConfig = new ClientConfig().setNetworkConfig(networkConfig);
         HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
         return new JdbcConnection(client);
@@ -44,7 +47,7 @@ public class Driver implements java.sql.Driver {
 
     @Override
     public boolean acceptsURL(String url) throws SQLException {
-        return url != null && url.toLowerCase().startsWith(URL_PREFIX);
+        return pareUrl(url) != null;
     }
 
     @Override
@@ -70,6 +73,16 @@ public class Driver implements java.sql.Driver {
     @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new SQLFeatureNotSupportedException("The driver does not use java.util.logging");
+    }
+
+    private URI pareUrl(String url) throws SQLException {
+        if (url == null) {
+            throw new SQLException("URL cannot be null.");
+        }
+        if (!url.toLowerCase().startsWith(URL_PREFIX)) {
+            return null;
+        }
+        return URI.create(url.substring(JDBC_URL_PREFIX.length()));
     }
 
     private static synchronized void load() {
