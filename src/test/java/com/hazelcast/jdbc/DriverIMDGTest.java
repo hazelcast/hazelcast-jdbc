@@ -115,7 +115,6 @@ public class DriverIMDGTest {
         statement.close();
 
         assertThat(statement.isClosed()).isTrue();
-        assertThat(statement.getResultSet()).isNull();
         assertThat(resultSet.isClosed()).isTrue();
     }
 
@@ -123,5 +122,21 @@ public class DriverIMDGTest {
     void shouldSupportSchemaFromConnectionString() throws SQLException {
         Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701/public");
         assertThat(connection.getSchema()).isEqualTo("public");
+    }
+
+    @Test
+    void shouldExecuteSql() throws SQLException {
+        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701/public");
+        Statement statement = connection.createStatement();
+        assertThat(statement).isNotNull();
+        statement.executeQuery("SELECT * FROM person");
+        ResultSet resultSet = statement.getResultSet();
+        List<Person> actualResult = new ArrayList<>();
+        while (resultSet.next()) {
+            actualResult.add(Person.valueOf(resultSet));
+        }
+
+        assertThat(actualResult).containsExactlyInAnyOrder(
+                new Person("Jack0", 0), new Person("Jack1", 1), new Person("Jack2", 2));
     }
 }
