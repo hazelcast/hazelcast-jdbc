@@ -21,7 +21,7 @@ public class Driver implements java.sql.Driver {
     private static final String URL_PREFIX = "jdbc:hazelcast://";
 
     /** Major version. */
-    private static final int VER_MAJOR = 1;
+    private static final int VER_MAJOR = 4;
 
     /** Minor version. */
     private static final int VER_MINOR = 0;
@@ -42,7 +42,9 @@ public class Driver implements java.sql.Driver {
         ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(Collections.singletonList(uri.getAuthority()));
         ClientConfig clientConfig = new ClientConfig().setNetworkConfig(networkConfig);
         HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
-        return new JdbcConnection(client);
+        JdbcConnection jdbcConnection = new JdbcConnection(client);
+        jdbcConnection.setSchema(uri.getPath().substring(1));
+        return jdbcConnection;
     }
 
     @Override

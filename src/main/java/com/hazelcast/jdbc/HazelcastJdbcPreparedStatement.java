@@ -11,6 +11,7 @@ import java.net.URL;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
+import java.sql.Connection;
 import java.sql.Date;
 import java.sql.NClob;
 import java.sql.ParameterMetaData;
@@ -32,8 +33,8 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
     private final List<Object> parameters = new ArrayList<>();
     private final String sql;
 
-    HazelcastJdbcPreparedStatement(String sql, HazelcastInstance client) {
-        super(client);
+    HazelcastJdbcPreparedStatement(String sql, HazelcastInstance client, Connection connection) {
+        super(client, connection);
         this.sql = sql;
     }
 

@@ -1,6 +1,7 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.internal.util.Preconditions;
 import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlStatement;
 
@@ -31,9 +32,11 @@ class HazelcastJdbcStatement implements Statement {
     ResultSet resultSet;
 
     private final HazelcastInstance client;
+    private final Connection connection;
 
-    HazelcastJdbcStatement(HazelcastInstance client) {
+    HazelcastJdbcStatement(HazelcastInstance client, Connection connection) {
         this.client = client;
+        this.connection = connection;
     }
 
     @Override
@@ -51,8 +54,10 @@ class HazelcastJdbcStatement implements Statement {
     public void close() throws SQLException {
         if (!isClosed()) {
             closed = true;
-            resultSet.close();
-            resultSet = null;
+            if (resultSet != null) {
+                resultSet.close();
+                resultSet = null;
+            }
         }
     }
 
@@ -87,11 +92,13 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public void setQueryTimeout(int seconds) throws SQLException {
+        Preconditions.checkPositive("Timeout", seconds);
         this.queryTimeout = Duration.ofSeconds(seconds);
     }
 
     @Override
     public void cancel() throws SQLException {
+        throw JdbcUtils.unsupported("Cancelation is not supported");
     }
 
     @Override
@@ -105,6 +112,7 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public void setCursorName(String name) throws SQLException {
+        throw JdbcUtils.unsupported("Cursor Name is not supported");
     }
 
     @Override
@@ -114,6 +122,7 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public ResultSet getResultSet() throws SQLException {
+        checkClosed();
         return resultSet;
     }
 
@@ -169,12 +178,12 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public int[] executeBatch() throws SQLException {
-        return new int[0];
+        throw JdbcUtils.unsupported("Batch execution is not supported");
     }
 
     @Override
     public Connection getConnection() throws SQLException {
-        return null;
+        return connection;
     }
 
     @Override
@@ -184,7 +193,7 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public ResultSet getGeneratedKeys() throws SQLException {
-        return null;
+        throw JdbcUtils.unsupported("Generated Keys are not supported");
     }
 
     @Override
@@ -248,12 +257,12 @@ class HazelcastJdbcStatement implements Statement {
 
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
-        return null;
+        return JdbcUtils.unwrap(this, iface);
     }
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return false;
+        return JdbcUtils.isWrapperFor(this, iface);
     }
 
     protected void doExecute(String sql, List<Object> parameters) {
@@ -266,5 +275,11 @@ class HazelcastJdbcStatement implements Statement {
         }
         SqlResult sqlResult = client.getSql().execute(query);
         resultSet = new HazelcastJdbcResultSet(sqlResult);
+    }
+
+    private void checkClosed() throws SQLException {
+        if (isClosed()) {
+            throw new SQLException("Statement is closed", "STATE", -1);
+        }
     }
 }

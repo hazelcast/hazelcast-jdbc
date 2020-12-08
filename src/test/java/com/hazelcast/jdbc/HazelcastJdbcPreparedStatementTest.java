@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLFeatureNotSupportedException;
 
@@ -15,10 +16,12 @@ public class HazelcastJdbcPreparedStatementTest {
 
     @Mock
     private HazelcastInstance client;
+    @Mock
+    private Connection connection;
 
     @Test
     void shouldThrowUnsupportedForUpdateQuery() {
-        PreparedStatement statement = new HazelcastJdbcPreparedStatement("INSERT INTO person VALUES (?, ?, ?)", client);
+        PreparedStatement statement = new HazelcastJdbcPreparedStatement("INSERT INTO person VALUES (?, ?, ?)", client, connection);
         Assertions.assertThatThrownBy(statement::executeUpdate)
                 .isInstanceOf(SQLFeatureNotSupportedException.class)
                 .hasMessage("Updates not supported");

@@ -1,6 +1,7 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.sql.SqlStatement;
 
 import java.sql.Array;
 import java.sql.Blob;
@@ -26,8 +27,11 @@ class JdbcConnection implements Connection {
 
     private final HazelcastInstance client;
 
-    /** Close the gateway. */
+    /** Is connection closed. */
     private boolean closed;
+
+    /** DB Schema */
+    private String schema;
 
     JdbcConnection(HazelcastInstance client) {
         this.client = client;
@@ -36,13 +40,13 @@ class JdbcConnection implements Connection {
     @Override
     public Statement createStatement() throws SQLException {
         checkClosed();
-        return new HazelcastJdbcStatement(client);
+        return new HazelcastJdbcStatement(client, this);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         checkClosed();
-        return new HazelcastJdbcPreparedStatement(sql, client);
+        return new HazelcastJdbcPreparedStatement(sql, client, this);
     }
 
     @Override
@@ -94,7 +98,7 @@ class JdbcConnection implements Connection {
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
         checkClosed();
-        return null;
+        throw JdbcUtils.unsupported("DatabaseMetaData not supported");
     }
 
     @Override
@@ -162,12 +166,13 @@ class JdbcConnection implements Connection {
     @Override
     public Map<String, Class<?>> getTypeMap() throws SQLException {
         checkClosed();
-        return null;
+        throw JdbcUtils.unsupported("Type Map not supported");
     }
 
     @Override
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
         checkClosed();
+        throw JdbcUtils.unsupported("Type Map not supported");
     }
 
     @Override
@@ -184,13 +189,13 @@ class JdbcConnection implements Connection {
     @Override
     public Savepoint setSavepoint() throws SQLException {
         checkClosed();
-        return null;
+        throw JdbcUtils.unsupported("Savepoint is not supported.");
     }
 
     @Override
     public Savepoint setSavepoint(String name) throws SQLException {
         checkClosed();
-        return null;
+        throw JdbcUtils.unsupported("Savepoint is not supported.");
     }
 
     @Override
@@ -242,7 +247,7 @@ class JdbcConnection implements Connection {
     @Override
     public Clob createClob() throws SQLException {
         checkClosed();
-        return null;
+        throw JdbcUtils.unsupported("Clob is not supported.");
     }
 
     @Override
@@ -254,7 +259,7 @@ class JdbcConnection implements Connection {
     @Override
     public NClob createNClob() throws SQLException {
         checkClosed();
-        return null;
+        throw JdbcUtils.unsupported("NClob is not supported.");
     }
 
     @Override
@@ -292,51 +297,52 @@ class JdbcConnection implements Connection {
     @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
         checkClosed();
-        return null;
+        throw JdbcUtils.unsupported("Array is not supported.");
     }
 
     @Override
     public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
         checkClosed();
-        return null;
+        throw JdbcUtils.unsupported("Struct is not supported.");
     }
 
     @Override
     public void setSchema(String schema) throws SQLException {
         checkClosed();
+        this.schema = schema;
     }
 
     @Override
     public String getSchema() throws SQLException {
         checkClosed();
-        return null;
+        return schema;
     }
 
     @Override
     public void abort(Executor executor) throws SQLException {
         checkClosed();
+        close();
     }
 
     @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
         checkClosed();
+        throw JdbcUtils.unsupported("Network timeout is not supported");
     }
 
     @Override
     public int getNetworkTimeout() throws SQLException {
         checkClosed();
-        return 0;
+        throw JdbcUtils.unsupported("Network timeout is not supported");
     }
 
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
-        checkClosed();
         return JdbcUtils.unwrap(this, iface);
     }
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        checkClosed();
         return JdbcUtils.isWrapperFor(this, iface);
     }
 
