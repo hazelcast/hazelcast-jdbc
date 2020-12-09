@@ -33,7 +33,7 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
     private final List<Object> parameters = new ArrayList<>();
     private final String sql;
 
-    HazelcastJdbcPreparedStatement(String sql, HazelcastInstance client, Connection connection) {
+    HazelcastJdbcPreparedStatement(String sql, HazelcastJdbcClient client, Connection connection) {
         super(client, connection);
         this.sql = sql;
     }

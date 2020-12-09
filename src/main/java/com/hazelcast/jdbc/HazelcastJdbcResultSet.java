@@ -1010,7 +1010,7 @@ class HazelcastJdbcResultSet implements ResultSet {
         return result;
     }
 
-    private <T> T get(int columnIndex) {
+    private <T> T get(int columnIndex) throws SQLException {
         T result = currentCursorPosition.getObject(columnIndex);
         if (result == null) {
             wasNull = true;

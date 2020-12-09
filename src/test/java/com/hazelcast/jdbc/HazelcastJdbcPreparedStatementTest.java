@@ -15,7 +15,7 @@ import java.sql.SQLFeatureNotSupportedException;
 public class HazelcastJdbcPreparedStatementTest {
 
     @Mock
-    private HazelcastInstance client;
+    private HazelcastJdbcClient client;
     @Mock
     private Connection connection;
 

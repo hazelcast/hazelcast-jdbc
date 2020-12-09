@@ -13,17 +13,19 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Objects;
+import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class JdbcConnectionIntegrationTest {
-    private HazelcastInstance client;
+    private HazelcastJdbcClient client;
 
     @BeforeEach
     public void setUp() {
         HazelcastInstance member = Hazelcast.newHazelcastInstance();
-        client = HazelcastClient.newHazelcastClient();
+        client = new HazelcastJdbcClient(Objects.requireNonNull(JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public", new Properties())));
 
         IMap<Integer, Person> personMap = member.getMap("person");
         for (int i = 0; i < 3; i++) {
@@ -44,7 +46,7 @@ public class JdbcConnectionIntegrationTest {
         assertThatThrownBy(connection::createStatement)
                 .isInstanceOf(SQLException.class)
                 .hasMessage("Connection is closed");
-        assertThat(client.getLifecycleService().isRunning()).isFalse();
+        assertThat(client.isRunning()).isFalse();
     }
 
     @Test

@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class HazelcastJdbcStatementTest {
 
     @Mock
-    private HazelcastInstance client;
+    private HazelcastJdbcClient client;
     @Mock
     private Connection connection;
 

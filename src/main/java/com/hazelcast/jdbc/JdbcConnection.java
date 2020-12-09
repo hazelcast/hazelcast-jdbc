@@ -1,6 +1,7 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.sql.SqlResult;
 
 import java.sql.Array;
 import java.sql.Blob;
@@ -10,6 +11,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.NClob;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
@@ -24,7 +26,7 @@ import java.util.concurrent.Executor;
 
 class JdbcConnection implements Connection {
 
-    private final HazelcastInstance client;
+    private final HazelcastJdbcClient client;
 
     /** Is connection closed. */
     private boolean closed;
@@ -35,7 +37,7 @@ class JdbcConnection implements Connection {
     /** Read-only flag. JDBC driver doesn't use it except for the getter/setter. */
     private boolean readOnly = true;
 
-    JdbcConnection(HazelcastInstance client) {
+    JdbcConnection(HazelcastJdbcClient client) {
         this.client = client;
     }
 
@@ -181,12 +183,15 @@ class JdbcConnection implements Connection {
     @Override
     public void setHoldability(int holdability) throws SQLException {
         checkClosed();
+        if (holdability != ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+            throw JdbcUtils.unsupported("Value for holdability not supported" + holdability);
+        }
     }
 
     @Override
     public int getHoldability() throws SQLException {
         checkClosed();
-        return 0;
+        return ResultSet.CLOSE_CURSORS_AT_COMMIT;
     }
 
     @Override
@@ -204,11 +209,13 @@ class JdbcConnection implements Connection {
     @Override
     public void rollback(Savepoint savepoint) throws SQLException {
         checkClosed();
+        throw JdbcUtils.unsupported("Rollback is not supported.");
     }
 
     @Override
     public void releaseSavepoint(Savepoint savepoint) throws SQLException {
         checkClosed();
+        throw JdbcUtils.unsupported("Savepoint is not supported.");
     }
 
     @Override
@@ -323,7 +330,6 @@ class JdbcConnection implements Connection {
 
     @Override
     public void abort(Executor executor) throws SQLException {
-        checkClosed();
         close();
     }
 

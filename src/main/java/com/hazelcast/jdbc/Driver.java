@@ -1,17 +1,11 @@
 package com.hazelcast.jdbc;
 
-import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.config.ClientNetworkConfig;
-import com.hazelcast.core.HazelcastInstance;
-
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.Collections;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -35,21 +29,24 @@ public class Driver implements java.sql.Driver {
 
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
-        URI uri = pareUrl(url);
-        if (uri == null) {
+        if (url == null) {
+            throw new SQLException("Url is null");
+        }
+        JdbcUrl jdbcUrl = JdbcUrl.valueOf(url, info);
+        if (jdbcUrl == null) {
             throw new SQLException("URL " + url + " is not supported");
         }
-        ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(Collections.singletonList(uri.getAuthority()));
-        ClientConfig clientConfig = new ClientConfig().setNetworkConfig(networkConfig);
-        HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
-        JdbcConnection jdbcConnection = new JdbcConnection(client);
-        jdbcConnection.setSchema(uri.getPath().substring(1));
+        JdbcConnection jdbcConnection = new JdbcConnection(new HazelcastJdbcClient(jdbcUrl));
+        jdbcConnection.setSchema(jdbcUrl.getSchema());
         return jdbcConnection;
     }
 
     @Override
     public boolean acceptsURL(String url) throws SQLException {
-        return pareUrl(url) != null;
+        if (url == null) {
+            throw new SQLException("Url is null");
+        }
+        return JdbcUrl.acceptsUrl(url);
     }
 
     @Override

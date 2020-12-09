@@ -16,7 +16,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <hazelcast.version>4.1.1-SNAPSHOT</hazelcast.version>
-        <hazelcast.jet.version>4.3</hazelcast.jet.version>
+        <hazelcast.jet.version>4.4-SNAPSHOT</hazelcast.jet.version>
         <mockito.version>3.6.28</mockito.version>
     </properties>
 
@@ -83,6 +83,12 @@
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-sql</artifactId>
             <version>${hazelcast.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast.jet</groupId>
+            <artifactId>hazelcast-jet</artifactId>
+            <version>${hazelcast.jet.version}</version>
             <scope>test</scope>
         </dependency>
 
