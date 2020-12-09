@@ -46,7 +46,8 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
 
     @Override
     public int executeUpdate() throws SQLException {
-        throw JdbcUtils.unsupported("Updates not supported");
+        doExecute(sql, parameters);
+        return updateCount;
     }
 
     @Override
@@ -151,12 +152,13 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
 
     @Override
     public boolean execute() throws SQLException {
-        return false;
+        doExecute(sql, parameters);
+        return true;
     }
 
     @Override
     public void addBatch() throws SQLException {
-
+        throw unsupportedBatch();
     }
 
     @Override
@@ -171,7 +173,6 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
 
     @Override
     public void setBlob(int parameterIndex, Blob x) throws SQLException {
-
     }
 
     @Override

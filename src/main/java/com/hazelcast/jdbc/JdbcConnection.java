@@ -1,8 +1,5 @@
 package com.hazelcast.jdbc;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.sql.SqlResult;
-
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;

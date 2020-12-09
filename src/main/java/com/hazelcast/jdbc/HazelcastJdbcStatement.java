@@ -33,9 +33,10 @@ class HazelcastJdbcStatement implements Statement {
     /** Fetch direction hint. */
     private int fetchDirection = ResultSet.FETCH_FORWARD;
 
-    /** Current result as an update cound */
-    private int updateCount = -1;
+    /** Current result as an update count */
+    int updateCount = -1;
 
+    /** Current result as a result set */
     ResultSet resultSet;
 
     private final HazelcastJdbcClient client;
@@ -340,7 +341,7 @@ class HazelcastJdbcStatement implements Statement {
         }
     }
 
-    private SQLException unsupportedBatch() {
+    SQLException unsupportedBatch() {
         return JdbcUtils.unsupported("Batch updates is not supported");
     }
 
