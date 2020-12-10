@@ -11,8 +11,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.sql.Statement;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -57,4 +59,14 @@ public class JdbcConnectionIntegrationTest {
                 .hasMessage("CallableStatement not supported");
     }
 
+    @Test
+    void shouldAutoCloseStatementWhenResultSetIsClosed() throws SQLException {
+        Connection connection = new JdbcConnection(client);
+        Statement statement = connection.createStatement();
+        statement.closeOnCompletion();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
+        resultSet.close();
+
+        assertThat(statement.isClosed()).isTrue();
+    }
 }

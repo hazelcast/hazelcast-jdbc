@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,13 +23,15 @@ public class HazelcastJdbcResultSetTest {
     private SqlResult sqlResult;
     @Mock
     private SqlRow sqlRow;
+    @Mock
+    private HazelcastJdbcStatement statement;
 
     private HazelcastJdbcResultSet resultSet;
 
     @BeforeEach
     public void setUp() throws Exception {
         when(sqlResult.iterator()).thenReturn(Collections.singletonList(sqlRow).iterator());
-        resultSet = new HazelcastJdbcResultSet(sqlResult);
+        resultSet = new HazelcastJdbcResultSet(sqlResult, statement);
     }
 
     @Test
