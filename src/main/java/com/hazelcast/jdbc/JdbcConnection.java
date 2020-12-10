@@ -17,6 +17,7 @@ import java.sql.SQLXML;
 import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Struct;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
@@ -33,6 +34,9 @@ class JdbcConnection implements Connection {
 
     /** Read-only flag. JDBC driver doesn't use it except for the getter/setter. */
     private boolean readOnly = true;
+
+    /** Auto-commit flag */
+    private boolean autoCommit;
 
     JdbcConnection(HazelcastJdbcClient client) {
         this.client = client;
@@ -65,22 +69,29 @@ class JdbcConnection implements Connection {
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         checkClosed();
+        this.autoCommit = autoCommit;
     }
 
     @Override
     public boolean getAutoCommit() throws SQLException {
         checkClosed();
-        return false;
+        return autoCommit;
     }
 
     @Override
     public void commit() throws SQLException {
         checkClosed();
+        if (autoCommit) {
+            throw new SQLException("Auto-commit is set to true");
+        }
     }
 
     @Override
     public void rollback() throws SQLException {
         checkClosed();
+        if (autoCommit) {
+            throw new SQLException("Auto-commit is set to true");
+        }
     }
 
     @Override
@@ -92,7 +103,7 @@ class JdbcConnection implements Connection {
     }
 
     @Override
-    public boolean isClosed() throws SQLException {
+    public boolean isClosed() {
         return closed;
     }
 
@@ -283,10 +294,16 @@ class JdbcConnection implements Connection {
 
     @Override
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
+        if (isClosed()) {
+            throw new SQLClientInfoException("Connection is closed", Collections.emptyMap());
+        }
     }
 
     @Override
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
+        if (isClosed()) {
+            throw new SQLClientInfoException("Connection is closed", Collections.emptyMap());
+        }
     }
 
     @Override
@@ -327,6 +344,9 @@ class JdbcConnection implements Connection {
 
     @Override
     public void abort(Executor executor) throws SQLException {
+        if (executor == null) {
+            throw new SQLException("Executor cannot be null");
+        }
         close();
     }
 
