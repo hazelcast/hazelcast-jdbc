@@ -2,6 +2,7 @@ package com.hazelcast.jdbc;
 
 import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlRow;
+import com.hazelcast.sql.SqlRowMetadata;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -22,11 +23,16 @@ import java.sql.SQLXML;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 class JdbcResultSet implements ResultSet {
+
+    static final JdbcResultSet EMPTY = new EmptyJdbcResultSet();
 
     private final SqlResult sqlResult;
     private final Iterator<SqlRow> iterator;
@@ -1205,6 +1211,32 @@ class JdbcResultSet implements ResultSet {
     private void checkClosed() throws SQLException {
         if (isClosed()) {
             throw new SQLException("Result set is closed");
+        }
+    }
+
+    /**
+     * ResultSet with empty results
+     */
+    private static class EmptyJdbcResultSet extends JdbcResultSet {
+        EmptyJdbcResultSet() {
+            super(new SqlResult() {
+                @SuppressWarnings("ConstantConditions")
+                @Override
+                public SqlRowMetadata getRowMetadata() {
+                    return null;
+                }
+                @Override
+                public Iterator<SqlRow> iterator() {
+                    return Collections.emptyIterator();
+                }
+                @Override
+                public long updateCount() {
+                    return -1;
+                }
+                @Override
+                public void close() {
+                }
+            }, null);
         }
     }
 }
