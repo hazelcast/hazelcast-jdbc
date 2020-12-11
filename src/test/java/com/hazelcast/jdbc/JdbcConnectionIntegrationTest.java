@@ -2,7 +2,6 @@ package com.hazelcast.jdbc;
 
 
 import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
@@ -22,12 +21,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class JdbcConnectionIntegrationTest {
-    private HazelcastJdbcClient client;
+    private HazelcastSqlClient client;
 
     @BeforeEach
     public void setUp() {
         HazelcastInstance member = Hazelcast.newHazelcastInstance();
-        client = new HazelcastJdbcClient(Objects.requireNonNull(JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public", new Properties())));
+        client = new HazelcastSqlClient(Objects.requireNonNull(JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public", new Properties())));
 
         IMap<Integer, Person> personMap = member.getMap("person");
         for (int i = 0; i < 3; i++) {

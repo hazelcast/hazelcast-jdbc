@@ -9,11 +9,11 @@ import com.hazelcast.sql.SqlStatement;
 
 import java.util.Collections;
 
-class HazelcastJdbcClient {
+class HazelcastSqlClient {
 
     private final HazelcastInstance client;
 
-    HazelcastJdbcClient(JdbcUrl url) {
+    HazelcastSqlClient(JdbcUrl url) {
         ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(Collections.singletonList(url.getAuthority()));
         ClientConfig clientConfig = new ClientConfig().setNetworkConfig(networkConfig);
         String clusterName = url.getProperties().getProperty("clusterName");

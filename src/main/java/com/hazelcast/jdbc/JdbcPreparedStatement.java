@@ -24,12 +24,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements PreparedStatement {
+class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     private final List<Object> parameters = new ArrayList<>();
     private final String sql;
 
-    HazelcastJdbcPreparedStatement(String sql, HazelcastJdbcClient client, Connection connection) {
+    JdbcPreparedStatement(String sql, HazelcastSqlClient client, Connection connection) {
         super(client, connection);
         this.sql = sql;
     }
@@ -117,20 +117,19 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
     @Override
     public void setDate(int parameterIndex, Date x) throws SQLException {
         checkClosed();
-        setParameter(parameterIndex, x);
+        throw JdbcUtils.unsupported("Date is not supported");
     }
 
     @Override
     public void setTime(int parameterIndex, Time x) throws SQLException {
         checkClosed();
-        setParameter(parameterIndex, x);
+        throw JdbcUtils.unsupported("Time is not supported");
     }
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
         checkClosed();
-        setParameter(parameterIndex, x);
-
+        throw JdbcUtils.unsupported("Timestamp is not supported");
     }
 
     @Override
@@ -160,7 +159,7 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
         checkClosed();
-        setParameter(parameterIndex, x);
+        throw JdbcUtils.unsupported("setObject not implemented");
     }
 
     @Override
@@ -215,22 +214,25 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
         checkClosed();
-        return null;
+        throw JdbcUtils.unsupported("ResultSetMetaData not supported");
     }
 
     @Override
     public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
         checkClosed();
+        throw JdbcUtils.unsupported("Date not supported");
     }
 
     @Override
     public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
         checkClosed();
+        throw JdbcUtils.unsupported("Time not supported");
     }
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
         checkClosed();
+        throw JdbcUtils.unsupported("Timestamp not supported");
     }
 
     @Override
@@ -242,12 +244,13 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
     @Override
     public void setURL(int parameterIndex, URL x) throws SQLException {
         checkClosed();
+        throw JdbcUtils.unsupported("URL is not supported");
     }
 
     @Override
     public ParameterMetaData getParameterMetaData() throws SQLException {
         checkClosed();
-        return null;
+        throw JdbcUtils.unsupported("ParameterMetaData is not supported");
     }
 
     @Override
@@ -301,7 +304,7 @@ class HazelcastJdbcPreparedStatement extends HazelcastJdbcStatement implements P
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
         checkClosed();
-        setParameter(parameterIndex, x);
+        throw JdbcUtils.unsupported("setObject not implemented");
     }
 
     @Override

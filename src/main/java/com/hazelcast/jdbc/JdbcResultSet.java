@@ -26,7 +26,7 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Map;
 
-class HazelcastJdbcResultSet implements ResultSet {
+class JdbcResultSet implements ResultSet {
 
     private final SqlResult sqlResult;
     private final Iterator<SqlRow> iterator;
@@ -38,8 +38,13 @@ class HazelcastJdbcResultSet implements ResultSet {
     /** Whether the result set is closed. */
     private boolean closed;
 
+    /**
+     * Whether the result set is in the closing process.
+     * Needed to break the loop (ResultSet -> Statement -> ResultSet) */
+    private boolean closing;
+
     /** Parent statement */
-    private final HazelcastJdbcStatement statement;
+    private final JdbcStatement statement;
 
     /** Fetch direction. */
     private int fetchDirection;
@@ -47,7 +52,7 @@ class HazelcastJdbcResultSet implements ResultSet {
     private int fetchSize;
 
 
-    HazelcastJdbcResultSet(SqlResult sqlResult, HazelcastJdbcStatement statement) {
+    JdbcResultSet(SqlResult sqlResult, JdbcStatement statement) {
         this.sqlResult = sqlResult;
         iterator = sqlResult.iterator();
         this.statement = statement;
@@ -66,9 +71,13 @@ class HazelcastJdbcResultSet implements ResultSet {
     @Override
     public void close() throws SQLException {
         if (!isClosed()) {
-            closed = true;
+            if (closing) {
+                return;
+            }
+            closing = true;
             sqlResult.close();
             statement.tryCloseOnCompletion();
+            closed = true;
         }
     }
 
@@ -264,7 +273,7 @@ class HazelcastJdbcResultSet implements ResultSet {
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
         checkClosed();
-        return null;
+        throw JdbcUtils.unsupported("ResultSetMetaData not supported");
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.hazelcast.jdbc;
 
-import java.net.URI;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
@@ -34,9 +33,9 @@ public class Driver implements java.sql.Driver {
         }
         JdbcUrl jdbcUrl = JdbcUrl.valueOf(url, info);
         if (jdbcUrl == null) {
-            throw new SQLException("URL " + url + " is not supported");
+            return null;
         }
-        JdbcConnection jdbcConnection = new JdbcConnection(new HazelcastJdbcClient(jdbcUrl));
+        JdbcConnection jdbcConnection = new JdbcConnection(new HazelcastSqlClient(jdbcUrl));
         jdbcConnection.setSchema(jdbcUrl.getSchema());
         return jdbcConnection;
     }
@@ -72,16 +71,6 @@ public class Driver implements java.sql.Driver {
     @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new SQLFeatureNotSupportedException("The driver does not use java.util.logging");
-    }
-
-    private URI pareUrl(String url) throws SQLException {
-        if (url == null) {
-            throw new SQLException("URL cannot be null.");
-        }
-        if (!url.toLowerCase().startsWith(URL_PREFIX)) {
-            return null;
-        }
-        return URI.create(url.substring(JDBC_URL_PREFIX.length()));
     }
 
     private static synchronized void load() {

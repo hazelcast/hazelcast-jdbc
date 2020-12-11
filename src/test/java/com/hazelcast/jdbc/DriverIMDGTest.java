@@ -4,8 +4,6 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
-import com.hazelcast.sql.SqlResult;
-import com.hazelcast.sql.SqlStatement;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -70,8 +68,8 @@ public class DriverIMDGTest {
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
         resultSet.next();
 
-        assertThat(resultSet.isWrapperFor(HazelcastJdbcResultSet.class)).isTrue();
-        assertThat(resultSet.unwrap(HazelcastJdbcResultSet.class)).isNotNull();
+        assertThat(resultSet.isWrapperFor(JdbcResultSet.class)).isTrue();
+        assertThat(resultSet.unwrap(JdbcResultSet.class)).isNotNull();
     }
 
     @Test
