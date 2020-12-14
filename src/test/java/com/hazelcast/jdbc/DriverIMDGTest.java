@@ -48,7 +48,7 @@ public class DriverIMDGTest {
 
     @Test
     public void shouldExecuteSimpleQuery() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701/public");
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         assertThat(statement).isNotNull();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
@@ -63,7 +63,7 @@ public class DriverIMDGTest {
 
     @Test
     public void shouldUnwrapResultSet() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701/public");
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
         resultSet.next();
@@ -74,7 +74,7 @@ public class DriverIMDGTest {
 
     @Test
     public void shouldNotHaveTimeoutIfNotSetExplicitly() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701/public");
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
         resultSet.next();
@@ -83,7 +83,7 @@ public class DriverIMDGTest {
 
     @Test
     public void shouldReturnResultSet() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701/public");
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
 
@@ -92,7 +92,7 @@ public class DriverIMDGTest {
 
     @Test
     public void shouldExecuteSimplePreparedStatement() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701/public");
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM person WHERE name=? AND age=?");
         statement.setString(1, "Jack1");
         statement.setInt(2, 1);
@@ -105,7 +105,7 @@ public class DriverIMDGTest {
 
     @Test
     public void shouldCloseStatement() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701/public");
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
         resultSet.next();
@@ -118,13 +118,13 @@ public class DriverIMDGTest {
 
     @Test
     void shouldSupportSchemaFromConnectionString() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701/public");
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         assertThat(connection.getSchema()).isEqualTo("public");
     }
 
     @Test
     void shouldExecuteSql() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:hazelcast://localhost:5701/public");
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         assertThat(statement).isNotNull();
         statement.executeQuery("SELECT * FROM person");
