@@ -23,14 +23,12 @@ import java.sql.SQLXML;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-class JdbcResultSet implements ResultSet {
+public class JdbcResultSet implements ResultSet {
 
     static final JdbcResultSet EMPTY = new EmptyJdbcResultSet();
 

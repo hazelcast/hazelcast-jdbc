@@ -22,7 +22,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
+public class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
     private ParameterList parameters;
     private final String sql;

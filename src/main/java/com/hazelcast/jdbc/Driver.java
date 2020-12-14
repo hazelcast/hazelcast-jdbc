@@ -10,9 +10,6 @@ import java.util.logging.Logger;
 
 public class Driver implements java.sql.Driver {
 
-    private static final String JDBC_URL_PREFIX = "jdbc:";
-    private static final String URL_PREFIX = "jdbc:hazelcast://";
-
     /** Major version. */
     private static final int VER_MAJOR = 4;
 
@@ -49,7 +46,7 @@ public class Driver implements java.sql.Driver {
     }
 
     @Override
-    public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
+    public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) {
         return new DriverPropertyInfo[0];
     }
 

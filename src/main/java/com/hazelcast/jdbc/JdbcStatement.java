@@ -15,7 +15,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 
-class JdbcStatement implements Statement {
+public class JdbcStatement implements Statement {
 
     /** Query timeout. */
     private Duration queryTimeout = Duration.ZERO;

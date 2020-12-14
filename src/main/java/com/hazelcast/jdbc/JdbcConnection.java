@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-class JdbcConnection implements Connection {
+public class JdbcConnection implements Connection {
 
     private final HazelcastSqlClient client;
 
