@@ -47,7 +47,7 @@ class ParameterList {
         if (parameterIndex > parameters.size()) {
             throw new SQLException("Invalid parameter index value: " + parameterIndex);
         }
-        parameters.add(parameterIndex - 1, new Parameter(parameter));
+        parameters.set(parameterIndex - 1, parameter);
     }
 
     private static class Parameter {
