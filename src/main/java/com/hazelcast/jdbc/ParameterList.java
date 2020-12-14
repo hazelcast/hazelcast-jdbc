@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * Wraps the list of parameters used for {@link java.sql.PreparedStatement}.
- * Validates all the parameters are set and to the correct {@literal parameterIndex}.
+ * Validates all the parameters are set and to the correct {@param parameterIndex}.
  */
 class ParameterList {
 
@@ -40,7 +40,7 @@ class ParameterList {
     }
 
     /**
-     * Sets the parameter value for the given {@literal parameterIndex} of any type
+     * Sets the parameter value for the given {@param parameterIndex} of any type
      * @param parameterIndex first parameter is 1, second parameter is 2...
      * @param parameter parameter value
      * @throws SQLException if {@literal parameterIndex} does not correspond to a parameter
@@ -51,9 +51,9 @@ class ParameterList {
     }
 
     /**
-     * Sets the {@literal null} for the given {@literal parameterIndex} of any type
+     * Sets the {@literal null} for the given {@param parameterIndex} of any type
      * @param parameterIndex first parameter is 1, second parameter is 2...
-     * @throws SQLException if {@literal parameterIndex} does not correspond to a parameter
+     * @throws SQLException if {@param parameterIndex} does not correspond to a parameter
      * marker in the SQL statement
      */
     void setNullValue(int parameterIndex) throws SQLException {
@@ -64,7 +64,7 @@ class ParameterList {
      * Sets the parameter value for the given {@literal parameterIndex} of any type
      * @param parameterIndex first parameter is 1, second parameter is 2...
      * @param parameter {@code Parameter} wrapper for the value
-     * @throws SQLException if {@literal parameterIndex} does not correspond to a parameter
+     * @throws SQLException if {@param parameterIndex} does not correspond to a parameter
      * marker in the SQL statement
      */
     void setParameter(int parameterIndex, Parameter parameter) throws SQLException {

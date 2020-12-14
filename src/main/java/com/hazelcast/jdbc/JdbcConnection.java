@@ -26,16 +26,24 @@ public class JdbcConnection implements Connection {
 
     private final HazelcastSqlClient client;
 
-    /** Is connection closed. */
+    /**
+     * Is connection closed.
+     */
     private boolean closed;
 
-    /** DB Schema */
+    /**
+     * DB Schema
+     */
     private String schema;
 
-    /** Read-only flag. JDBC driver doesn't use it except for the getter/setter. */
+    /**
+     * Read-only flag. JDBC driver doesn't use it except for the getter/setter.
+     */
     private boolean readOnly = true;
 
-    /** Auto-commit flag */
+    /**
+     * Auto-commit flag
+     */
     private boolean autoCommit;
 
     JdbcConnection(HazelcastSqlClient client) {
@@ -139,6 +147,16 @@ public class JdbcConnection implements Connection {
     @Override
     public void setTransactionIsolation(int level) throws SQLException {
         checkClosed();
+        switch (level) {
+            case Connection.TRANSACTION_NONE:
+            case Connection.TRANSACTION_READ_COMMITTED:
+            case Connection.TRANSACTION_READ_UNCOMMITTED:
+            case Connection.TRANSACTION_REPEATABLE_READ:
+            case Connection.TRANSACTION_SERIALIZABLE:
+                return;
+            default:
+                throw new SQLException("Invalid value for transaction isolation: " + level);
+        }
     }
 
     @Override
@@ -192,7 +210,7 @@ public class JdbcConnection implements Connection {
     public void setHoldability(int holdability) throws SQLException {
         checkClosed();
         if (holdability != ResultSet.CLOSE_CURSORS_AT_COMMIT) {
-            throw JdbcUtils.unsupported("Value for holdability not supported" + holdability);
+            throw JdbcUtils.unsupported("Value for holdability not supported " + holdability);
         }
     }
 
@@ -385,7 +403,7 @@ public class JdbcConnection implements Connection {
 
     private void checkClosed() throws SQLException {
         if (isClosed()) {
-            throw new SQLException("Connection is closed", "STATE", -1);
+            throw new SQLException("Connection is closed");
         }
     }
 
