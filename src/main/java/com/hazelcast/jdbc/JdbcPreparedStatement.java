@@ -20,38 +20,37 @@ import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
 
-    private final List<Object> parameters = new ArrayList<>();
+    private ParameterList parameters;
     private final String sql;
 
     JdbcPreparedStatement(String sql, HazelcastSqlClient client, Connection connection) {
         super(client, connection);
         this.sql = sql;
+        parameters = new ParameterList(sql);
     }
 
     @Override
     public ResultSet executeQuery() throws SQLException {
         checkClosed();
-        doExecute(sql, parameters);
+        doExecute(sql, parameters.asParameters());
         return resultSet;
     }
 
     @Override
     public int executeUpdate() throws SQLException {
         checkClosed();
-        doExecute(sql, parameters);
+        doExecute(sql, parameters.asParameters());
         return updateCount;
     }
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
         checkClosed();
-        setParameter(parameterIndex, null);
+        parameters.setNullValue(parameterIndex);
     }
 
     @Override
@@ -153,7 +152,7 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     @Override
     public void clearParameters() throws SQLException {
         checkClosed();
-        parameters.clear();
+        parameters = new ParameterList(sql);
     }
 
     @Override
@@ -171,7 +170,7 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     @Override
     public boolean execute() throws SQLException {
         checkClosed();
-        doExecute(sql, parameters);
+        doExecute(sql, parameters.asParameters());
         return resultSet != null;
     }
 
@@ -367,7 +366,7 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
         throw JdbcUtils.unsupported("NClob is not supported");
     }
 
-    private void setParameter(int parameterIndex, Object parameter) {
-        parameters.add(parameterIndex - 1, parameter);
+    private void setParameter(int parameterIndex, Object parameter) throws SQLException {
+        parameters.setParameter(parameterIndex, parameter);
     }
 }
