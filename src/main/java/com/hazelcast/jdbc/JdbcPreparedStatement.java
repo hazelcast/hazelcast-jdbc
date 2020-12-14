@@ -367,6 +367,9 @@ class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     }
 
     private void setParameter(int parameterIndex, Object parameter) throws SQLException {
+        if (parameterIndex <= 0) {
+            throw new SQLException("Parameter index should be greater than zero");
+        }
         parameters.setParameter(parameterIndex, parameter);
     }
 }

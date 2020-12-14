@@ -20,6 +20,10 @@ class ParameterList {
         parameters = new ArrayList<>(Collections.nCopies(parametersNumber, null));
     }
 
+    /**
+     * @return the list of the parameter values
+     * @throws SQLException if any of the parameters is not set
+     */
     List<Object> asParameters() throws SQLException {
         if (parameters.isEmpty()) {
             return Collections.emptyList();
@@ -35,14 +39,34 @@ class ParameterList {
         return params;
     }
 
+    /**
+     * Sets the parameter value for the given {@literal parameterIndex} of any type
+     * @param parameterIndex first parameter is 1, second parameter is 2...
+     * @param parameter parameter value
+     * @throws SQLException if {@literal parameterIndex} does not correspond to a parameter
+     *      * marker in the SQL statement
+     */
     void setParameter(int parameterIndex, Object parameter) throws SQLException {
         setParameter(parameterIndex, new Parameter(parameter));
     }
 
+    /**
+     * Sets the {@literal null} for the given {@literal parameterIndex} of any type
+     * @param parameterIndex first parameter is 1, second parameter is 2...
+     * @throws SQLException if {@literal parameterIndex} does not correspond to a parameter
+     * marker in the SQL statement
+     */
     void setNullValue(int parameterIndex) throws SQLException {
         setParameter(parameterIndex, NULL_VALUE);
     }
 
+    /**
+     * Sets the parameter value for the given {@literal parameterIndex} of any type
+     * @param parameterIndex first parameter is 1, second parameter is 2...
+     * @param parameter {@code Parameter} wrapper for the value
+     * @throws SQLException if {@literal parameterIndex} does not correspond to a parameter
+     * marker in the SQL statement
+     */
     void setParameter(int parameterIndex, Parameter parameter) throws SQLException {
         if (parameterIndex > parameters.size()) {
             throw new SQLException("Invalid parameter index value: " + parameterIndex);

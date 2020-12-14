@@ -35,4 +35,12 @@ public class JdbcPreparedStatementTest {
                 .isInstanceOf(SQLException.class)
                 .hasMessage("Parameter #1 is not set");
     }
+
+    @Test
+    void shouldFailOfNegativeParameterIndex() throws SQLException {
+        JdbcPreparedStatement statement = new JdbcPreparedStatement("SELECT * FROM person WHERE name=?", client, connection);
+        assertThatThrownBy(() -> statement.setString(-1, "John"))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("Parameter index should be greater than zero");
+    }
 }
