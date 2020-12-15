@@ -31,6 +31,7 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,11 +49,14 @@ public class JdbcResultSetTest {
     @BeforeEach
     public void setUp() {
         when(sqlResult.iterator()).thenReturn(Collections.singletonList(sqlRow).iterator());
+        when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
+                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
         resultSet = new JdbcResultSet(sqlResult, statement);
     }
 
     @Test
     public void shouldReturnTrueWhenFieldWasNull() throws SQLException {
+        when(sqlRow.getObject(anyInt())).thenReturn(null);
         resultSet.next();
         String name = resultSet.getString("name");
         assertThat(name).isNull();
@@ -61,8 +65,6 @@ public class JdbcResultSetTest {
 
     @Test
     void shouldThrowExceptionIfColumnNotFound() {
-        when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
-                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
         assertThatThrownBy(() -> resultSet.findColumn("surname"))
                 .isInstanceOf(SQLException.class)
                 .hasMessage("ResultSet does not contain column \"surname\"");
@@ -70,9 +72,6 @@ public class JdbcResultSetTest {
 
     @Test
     void shouldThrowExceptionOnGetByColumnLabelIfColumnNotFound() {
-        when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
-                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
-
         assertThatThrownBy(() -> resultSet.getString("address"))
                 .isInstanceOf(SQLException.class)
                 .hasMessage("ResultSet does not contain column \"address\"");
@@ -80,9 +79,6 @@ public class JdbcResultSetTest {
 
     @Test
     void shouldThrowExceptionOnGetByColumnIndexIfColumnNotFound() {
-        when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
-                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
-
         assertThatThrownBy(() -> resultSet.getString(2))
                 .isInstanceOf(SQLException.class)
                 .hasMessage("ResultSet does not contain column with index 2");

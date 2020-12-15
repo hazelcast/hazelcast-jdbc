@@ -194,12 +194,14 @@ public class JdbcConnection implements Connection {
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
         checkClosed();
+        checkStatementParameters(resultSetType, resultSetConcurrency, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         return createStatement();
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         checkClosed();
+        checkStatementParameters(resultSetType, resultSetConcurrency, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         return prepareStatement(sql);
     }
 
@@ -262,12 +264,14 @@ public class JdbcConnection implements Connection {
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         checkClosed();
+        checkStatementParameters(resultSetType, resultSetConcurrency, resultSetHoldability);
         return createStatement();
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         checkClosed();
+        checkStatementParameters(resultSetType, resultSetConcurrency, resultSetHoldability);
         return prepareStatement(sql);
     }
 
@@ -407,18 +411,31 @@ public class JdbcConnection implements Connection {
     }
 
     @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    public <T> T unwrap(Class<T> iface) {
         return JdbcUtils.unwrap(this, iface);
     }
 
     @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+    public boolean isWrapperFor(Class<?> iface) {
         return JdbcUtils.isWrapperFor(this, iface);
     }
 
     private void checkClosed() throws SQLException {
         if (isClosed()) {
             throw new SQLException("Connection is closed");
+        }
+    }
+
+    private void checkStatementParameters(int resultSetType, int resultSetConcurrency, int resultSetHoldability)
+            throws SQLException {
+        if (resultSetType != ResultSet.TYPE_FORWARD_ONLY) {
+            throw JdbcUtils.unsupported("Unsupported ResultSet type: " + resultSetType);
+        }
+        if (resultSetConcurrency != ResultSet.CONCUR_READ_ONLY) {
+            throw JdbcUtils.unsupported("Unsupported ResultSet concurrency: " + resultSetConcurrency);
+        }
+        if (resultSetHoldability != ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+            throw JdbcUtils.unsupported("Unsupported ResultSet holdability: " + resultSetHoldability);
         }
     }
 
