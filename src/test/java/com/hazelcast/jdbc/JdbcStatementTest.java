@@ -18,6 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,12 +72,12 @@ public class JdbcStatementTest {
 
     @Test
     void shouldFailForExecuteOnPreparedStatement() {
-        when(client.execute(any())).thenReturn(queryResult());
         Statement statement = new JdbcPreparedStatement("SELECT * FROM person", client, connection);
 
         assertThatThrownBy(() -> statement.executeQuery("SELECT * FROM person"))
                 .isInstanceOf(SQLException.class)
                 .hasMessage("Method not supported by PreparedStatement");
+        verify(client, never()).execute(any());
     }
 
     private SqlResult updateResult() {
