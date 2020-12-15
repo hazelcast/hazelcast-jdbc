@@ -19,12 +19,12 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class JdbcUrl {
+final class JdbcUrl {
 
-    private static final Pattern JDBC_URL_PATTERN = Pattern.compile("^jdbc:hazelcast://" +
-            "(?<host>\\S+?(?=[:/]))(:(?<port>\\d+))?" +
-            "/(?<schema>\\S+?)" +
-            "(\\?(?<parameters>\\S*))?$");
+    private static final Pattern JDBC_URL_PATTERN = Pattern.compile("^jdbc:hazelcast://"
+            + "(?<host>\\S+?(?=[:/]))(:(?<port>\\d+))?"
+            + "/(?<schema>\\S+?)"
+            + "(\\?(?<parameters>\\S*))?$");
 
     private String host;
     private int port = -1;

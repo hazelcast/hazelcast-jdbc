@@ -48,7 +48,7 @@ class ParameterList {
         for (int i = 0; i < parameters.size(); i++) {
             Parameter parameter = parameters.get(i);
             if (parameter == null) {
-                throw new SQLException("Parameter #" + (i+1) + " is not set");
+                throw new SQLException("Parameter #" + (i + 1) + " is not set");
             }
             params.add(parameter.value);
         }
@@ -95,7 +95,7 @@ class ParameterList {
                 .collect(Collectors.toList());
     }
 
-    private static class Parameter {
+    private static final class Parameter {
         private final Object value;
 
         private Parameter(Object value) {
