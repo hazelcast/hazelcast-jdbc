@@ -51,14 +51,14 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     @Override
     public ResultSet executeQuery() throws SQLException {
         checkClosed();
-        doExecute(sql, parameters.asParameters());
+        doExecute(sql, parameters.asParameters(), ResultType.RESULT_SET);
         return resultSet;
     }
 
     @Override
     public int executeUpdate() throws SQLException {
         checkClosed();
-        doExecute(sql, parameters.asParameters());
+        doExecute(sql, parameters.asParameters(), ResultType.UPDATE_COUNT);
         return updateCount;
     }
 
@@ -195,7 +195,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     @Override
     public boolean execute() throws SQLException {
         checkClosed();
-        doExecute(sql, parameters.asParameters());
+        doExecute(sql, parameters.asParameters(), ResultType.ANY);
         return resultSet != null;
     }
 

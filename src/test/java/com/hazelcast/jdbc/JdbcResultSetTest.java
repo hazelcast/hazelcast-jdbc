@@ -1,7 +1,25 @@
+/*
+ * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.hazelcast.jdbc;
 
+import com.hazelcast.sql.SqlColumnMetadata;
+import com.hazelcast.sql.SqlColumnType;
 import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlRow;
+import com.hazelcast.sql.SqlRowMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,7 +30,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,7 +46,7 @@ public class JdbcResultSetTest {
     private JdbcResultSet resultSet;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         when(sqlResult.iterator()).thenReturn(Collections.singletonList(sqlRow).iterator());
         resultSet = new JdbcResultSet(sqlResult, statement);
     }
@@ -39,5 +57,34 @@ public class JdbcResultSetTest {
         String name = resultSet.getString("name");
         assertThat(name).isNull();
         assertThat(resultSet.wasNull()).isTrue();
+    }
+
+    @Test
+    void shouldThrowExceptionIfColumnNotFound() {
+        when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
+                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
+        assertThatThrownBy(() -> resultSet.findColumn("surname"))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("ResultSet does not contain column \"surname\"");
+    }
+
+    @Test
+    void shouldThrowExceptionOnGetByColumnLabelIfColumnNotFound() {
+        when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
+                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
+
+        assertThatThrownBy(() -> resultSet.getString("address"))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("ResultSet does not contain column \"address\"");
+    }
+
+    @Test
+    void shouldThrowExceptionOnGetByColumnIndexIfColumnNotFound() {
+        when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
+                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
+
+        assertThatThrownBy(() -> resultSet.getString(2))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("ResultSet does not contain column with index 2");
     }
 }

@@ -32,6 +32,10 @@ import java.util.List;
 
 public class JdbcStatement implements Statement {
 
+    enum ResultType {
+        RESULT_SET, UPDATE_COUNT, ANY
+    }
+
     /** Query timeout. */
     private Duration queryTimeout = Duration.ZERO;
 
@@ -66,24 +70,14 @@ public class JdbcStatement implements Statement {
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
-        doExecute(sql, Collections.emptyList());
-        if (resultSet == null) {
-            throw new SQLException("Invalid SQL statement");
-        }
+        doExecute(sql, Collections.emptyList(), ResultType.RESULT_SET);
         return resultSet;
     }
 
     @Override
     public int executeUpdate(String sql) throws SQLException {
         checkClosed();
-        doExecute(sql, Collections.emptyList());
-        if (resultSet != null) {
-            throw new SQLException("Invalid SQL statement");
-        }
-
-        if (this instanceof PreparedStatement) {
-            throw new SQLException("Method not supported by PreparedStatement");
-        }
+        doExecute(sql, Collections.emptyList(), ResultType.UPDATE_COUNT);
         return updateCount;
     }
 
@@ -172,7 +166,7 @@ public class JdbcStatement implements Statement {
         if (this instanceof PreparedStatement) {
             throw new SQLException("Method not supported by PreparedStatement");
         }
-        doExecute(sql, Collections.emptyList());
+        doExecute(sql, Collections.emptyList(), ResultType.ANY);
         return resultSet != null;
     }
 
@@ -374,12 +368,12 @@ public class JdbcStatement implements Statement {
     }
 
     @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    public <T> T unwrap(Class<T> iface) {
         return JdbcUtils.unwrap(this, iface);
     }
 
     @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+    public boolean isWrapperFor(Class<?> iface) {
         return JdbcUtils.isWrapperFor(this, iface);
     }
 
@@ -389,7 +383,7 @@ public class JdbcStatement implements Statement {
         }
     }
 
-    protected void doExecute(String sql, List<Object> parameters) throws SQLException {
+    void doExecute(String sql, List<Object> parameters, ResultType expectedResult) throws SQLException {
         checkClosed();
 
         SqlStatement query = new SqlStatement(sql).setParameters(parameters);
@@ -401,9 +395,15 @@ public class JdbcStatement implements Statement {
         }
         SqlResult sqlResult = client.execute(query);
         if (sqlResult.isRowSet()) {
+            if (expectedResult == ResultType.UPDATE_COUNT) {
+                throw new SQLException("Invalid SQL statement");
+            }
             resultSet = new JdbcResultSet(sqlResult, this);
             updateCount = -1;
         } else {
+            if (expectedResult == ResultType.RESULT_SET) {
+                throw new SQLException("Invalid SQL statement");
+            }
             updateCount = Math.toIntExact(sqlResult.updateCount());
             closeResultSet();
         }

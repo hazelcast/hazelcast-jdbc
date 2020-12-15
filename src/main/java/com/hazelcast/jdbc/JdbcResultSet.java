@@ -148,7 +148,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-        return getBigDecimal(columnIndex).setScale(scale, BigDecimal.ROUND_UNNECESSARY);
+        throw JdbcUtils.unsupported("BigDecimal with scale is not supported");
     }
 
     @Override
@@ -231,7 +231,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
-        return getBigDecimal(columnLabel).setScale(scale, BigDecimal.ROUND_UNNECESSARY);
+        throw JdbcUtils.unsupported("BigDecimal with scale is not supported");
     }
 
     @Override
@@ -308,7 +308,11 @@ public class JdbcResultSet implements ResultSet {
     @Override
     public int findColumn(String columnLabel) throws SQLException {
         checkClosed();
-        return sqlResult.getRowMetadata().findColumn(columnLabel);
+        int index = sqlResult.getRowMetadata().findColumn(columnLabel);
+        if (index == -1) {
+            throw new SQLException("ResultSet does not contain column \"" + columnLabel +"\"");
+        }
+        return index;
     }
 
     @Override
@@ -1194,18 +1198,19 @@ public class JdbcResultSet implements ResultSet {
     }
 
     @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    public <T> T unwrap(Class<T> iface) {
         return JdbcUtils.unwrap(this, iface);
     }
 
     @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+    public boolean isWrapperFor(Class<?> iface) {
         return JdbcUtils.isWrapperFor(this, iface);
     }
 
     private <T> T get(String columnLabel) throws SQLException {
         checkClosed();
-        T result = currentCursorPosition.getObject(columnLabel);
+        int columnIndex = findColumn(columnLabel);
+        T result = currentCursorPosition.getObject(columnIndex);
         if (result == null) {
             wasNull = true;
         }
@@ -1214,7 +1219,10 @@ public class JdbcResultSet implements ResultSet {
 
     private <T> T get(int columnIndex) throws SQLException {
         checkClosed();
-        T result = currentCursorPosition.getObject(columnIndex);
+        if (sqlResult.getRowMetadata().getColumnCount() < columnIndex) {
+            throw new SQLException("ResultSet does not contain column with index " + columnIndex);
+        }
+        T result = currentCursorPosition.getObject(columnIndex - 1);
         if (result == null) {
             wasNull = true;
         }
