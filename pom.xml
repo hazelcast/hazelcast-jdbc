@@ -181,6 +181,7 @@
                             <!--  Checkstyle file copied from https://github.com/hazelcast/hazelcast/tree/master/checkstyle -->
                             <failOnViolation>true</failOnViolation>
                             <configLocation>${project.basedir}/checkstyle/checkstyle.xml</configLocation>
+                            <propertyExpansion>main.basedir=${project.basedir}</propertyExpansion>
                         </configuration>
                         <executions>
                             <execution>

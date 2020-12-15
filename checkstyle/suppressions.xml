@@ -21,4 +21,5 @@
         "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
+    <suppress files="com.hazelcast.jdbc.(JdbcResultSet|JdbcConnection|JdbcStatement|JdbcPreparedStatement)" checks="MethodCount"/>
 </suppressions>
