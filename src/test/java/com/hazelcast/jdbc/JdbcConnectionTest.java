@@ -70,7 +70,7 @@ public class JdbcConnectionTest {
                 .isNotNull();
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "With ResultSet type {0}")
     @MethodSource("statementIntValues")
     void shouldValidateResultSetTypeForStatement(int resultSetType) {
         assumeFalse(resultSetType == ResultSet.TYPE_FORWARD_ONLY);
@@ -94,7 +94,7 @@ public class JdbcConnectionTest {
                 .hasMessage("Unsupported ResultSet type: " + resultSetType);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "With ResultSet concurrency {0}")
     @MethodSource("statementIntValues")
     void shouldValidateResultSetConcurrencyForStatement(int resultSetConcurrency) {
         assumeFalse(resultSetConcurrency == ResultSet.CONCUR_READ_ONLY);
@@ -118,7 +118,7 @@ public class JdbcConnectionTest {
                 .hasMessage("Unsupported ResultSet concurrency: " + resultSetConcurrency);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "With ResultSet holdability {0}")
     @MethodSource("statementIntValues")
     void shouldValidateResultSetHoldabilityForStatement(int resultSetHoldability) {
         assumeFalse(resultSetHoldability == ResultSet.CLOSE_CURSORS_AT_COMMIT);
@@ -134,17 +134,16 @@ public class JdbcConnectionTest {
     }
 
     private static Stream<Arguments> statementIntValues() {
-        return Stream.of(
-                Arguments.of(ResultSet.CONCUR_UPDATABLE),
-                Arguments.of(ResultSet.CONCUR_READ_ONLY),
-                Arguments.of(ResultSet.TYPE_FORWARD_ONLY),
-                Arguments.of(ResultSet.FETCH_UNKNOWN),
-                Arguments.of(ResultSet.FETCH_FORWARD),
-                Arguments.of(ResultSet.FETCH_REVERSE),
-                Arguments.of(ResultSet.HOLD_CURSORS_OVER_COMMIT),
-                Arguments.of(ResultSet.CLOSE_CURSORS_AT_COMMIT),
-                Arguments.of(ResultSet.TYPE_SCROLL_INSENSITIVE),
-                Arguments.of(ResultSet.TYPE_SCROLL_SENSITIVE)
-        );
+        return Stream.of(ResultSet.CONCUR_UPDATABLE,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.FETCH_UNKNOWN,
+                ResultSet.FETCH_FORWARD,
+                ResultSet.FETCH_REVERSE,
+                ResultSet.HOLD_CURSORS_OVER_COMMIT,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT,
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_SENSITIVE)
+                .map(Arguments::of);
     }
 }
