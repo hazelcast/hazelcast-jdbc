@@ -59,7 +59,9 @@ public class JdbcResultSet implements ResultSet {
 
     /**
      * Whether the result set is in the closing process.
-     * Needed to break the loop (ResultSet -> Statement -> ResultSet) */
+     * Needed to break the loop (ResultSet -> Statement -> ResultSet)
+     * that may occur when {@link Statement#isCloseOnCompletion()} is set to true.
+     */
     private boolean closing;
 
     /** Parent statement */
