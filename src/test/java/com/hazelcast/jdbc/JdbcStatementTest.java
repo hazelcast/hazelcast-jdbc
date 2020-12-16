@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
@@ -124,6 +125,25 @@ public class JdbcStatementTest {
 
         assertThat(executedStatement.getTimeoutMillis()).isEqualTo(5_000L);
         assertThat(executedStatement.getCursorBufferSize()).isEqualTo(3);
+    }
+
+    @Test
+    void shouldOnlySupportValidFetchDirection() throws SQLException {
+        Statement statement = new JdbcStatement(client, connection);
+
+        statement.setFetchDirection(ResultSet.FETCH_FORWARD);
+        assertThat(statement.getFetchDirection()).isEqualTo(ResultSet.FETCH_FORWARD);
+
+        statement.setFetchDirection(ResultSet.FETCH_REVERSE);
+        assertThat(statement.getFetchDirection()).isEqualTo(ResultSet.FETCH_REVERSE);
+
+        statement.setFetchDirection(ResultSet.FETCH_UNKNOWN);
+        assertThat(statement.getFetchDirection()).isEqualTo(ResultSet.FETCH_UNKNOWN);
+
+        //noinspection MagicConstant
+        assertThatThrownBy(() -> statement.setFetchDirection(3))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("Invalid fetch direction value: 3");
     }
 
     private SqlResult updateResult() {

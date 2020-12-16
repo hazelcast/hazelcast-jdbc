@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 
@@ -49,13 +50,14 @@ public class JdbcResultSetTest {
     @BeforeEach
     public void setUp() {
         when(sqlResult.iterator()).thenReturn(Collections.singletonList(sqlRow).iterator());
-        when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
-                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
         resultSet = new JdbcResultSet(sqlResult, statement);
     }
 
     @Test
     public void shouldReturnTrueWhenFieldWasNull() throws SQLException {
+        when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
+                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
+
         when(sqlRow.getObject(anyInt())).thenReturn(null);
         resultSet.next();
         String name = resultSet.getString("name");
@@ -65,6 +67,9 @@ public class JdbcResultSetTest {
 
     @Test
     void shouldThrowExceptionIfColumnNotFound() {
+        when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
+                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
+
         assertThatThrownBy(() -> resultSet.findColumn("surname"))
                 .isInstanceOf(SQLException.class)
                 .hasMessage("ResultSet does not contain column \"surname\"");
@@ -72,6 +77,9 @@ public class JdbcResultSetTest {
 
     @Test
     void shouldThrowExceptionOnGetByColumnLabelIfColumnNotFound() {
+        when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
+                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
+
         assertThatThrownBy(() -> resultSet.getString("address"))
                 .isInstanceOf(SQLException.class)
                 .hasMessage("ResultSet does not contain column \"address\"");
@@ -79,8 +87,38 @@ public class JdbcResultSetTest {
 
     @Test
     void shouldThrowExceptionOnGetByColumnIndexIfColumnNotFound() {
+        when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
+                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
+
         assertThatThrownBy(() -> resultSet.getString(2))
                 .isInstanceOf(SQLException.class)
                 .hasMessage("ResultSet does not contain column with index 2");
+    }
+
+    @Test
+    void shouldOnlySupportValidFetchDirection() throws SQLException {
+        resultSet.setFetchDirection(ResultSet.FETCH_FORWARD);
+        assertThat(resultSet.getFetchDirection()).isEqualTo(ResultSet.FETCH_FORWARD);
+
+        resultSet.setFetchDirection(ResultSet.FETCH_REVERSE);
+        assertThat(resultSet.getFetchDirection()).isEqualTo(ResultSet.FETCH_REVERSE);
+
+        resultSet.setFetchDirection(ResultSet.FETCH_UNKNOWN);
+        assertThat(resultSet.getFetchDirection()).isEqualTo(ResultSet.FETCH_UNKNOWN);
+
+        //noinspection MagicConstant
+        assertThatThrownBy(() -> resultSet.setFetchDirection(3))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("Invalid fetch direction value: 3");
+    }
+
+    @Test
+    void shouldCloseResultSet() throws SQLException {
+        resultSet.close();
+        assertThat(resultSet.isClosed()).isTrue();
+
+        assertThatThrownBy(() -> resultSet.getLong(1))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("Result set is closed");
     }
 }

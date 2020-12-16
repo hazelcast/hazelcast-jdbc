@@ -399,7 +399,7 @@ public class JdbcResultSet implements ResultSet {
                 this.fetchDirection = direction;
                 break;
             default:
-                throw new SQLException("Invalid fetch direction value: " + fetchDirection);
+                throw new SQLException("Invalid fetch direction value: " + direction);
         }
     }
 
