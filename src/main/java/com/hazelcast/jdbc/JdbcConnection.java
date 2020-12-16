@@ -79,7 +79,6 @@ public class JdbcConnection implements Connection {
 
     @Override
     public CallableStatement prepareCall(String sql) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("CallableStatement not supported");
     }
 
@@ -132,7 +131,6 @@ public class JdbcConnection implements Connection {
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("DatabaseMetaData not supported");
     }
 
@@ -207,19 +205,16 @@ public class JdbcConnection implements Connection {
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("CallableStatement not supported");
     }
 
     @Override
     public Map<String, Class<?>> getTypeMap() throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Type Map not supported");
     }
 
     @Override
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Type Map not supported");
     }
 
@@ -239,25 +234,21 @@ public class JdbcConnection implements Connection {
 
     @Override
     public Savepoint setSavepoint() throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Savepoint is not supported.");
     }
 
     @Override
     public Savepoint setSavepoint(String name) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Savepoint is not supported.");
     }
 
     @Override
     public void rollback(Savepoint savepoint) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Rollback is not supported.");
     }
 
     @Override
     public void releaseSavepoint(Savepoint savepoint) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Savepoint is not supported.");
     }
 
@@ -277,7 +268,6 @@ public class JdbcConnection implements Connection {
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("CallableStatement not supported");
     }
 
@@ -310,25 +300,21 @@ public class JdbcConnection implements Connection {
 
     @Override
     public Clob createClob() throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Clob is not supported.");
     }
 
     @Override
     public Blob createBlob() throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Blob is not supported");
     }
 
     @Override
     public NClob createNClob() throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("NClob is not supported.");
     }
 
     @Override
     public SQLXML createSQLXML() throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("SQLXML is not supported");
     }
 
@@ -356,25 +342,21 @@ public class JdbcConnection implements Connection {
 
     @Override
     public String getClientInfo(String name) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Client Info is not supported");
     }
 
     @Override
     public Properties getClientInfo() throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Client Info is not supported");
     }
 
     @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Array is not supported.");
     }
 
     @Override
     public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Struct is not supported.");
     }
 
@@ -400,13 +382,11 @@ public class JdbcConnection implements Connection {
 
     @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Network timeout is not supported");
     }
 
     @Override
     public int getNetworkTimeout() throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Network timeout is not supported");
     }
 

@@ -140,37 +140,31 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setDate(int parameterIndex, Date x) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Date is not supported");
     }
 
     @Override
     public void setTime(int parameterIndex, Time x) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Time is not supported");
     }
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Timestamp is not supported");
     }
 
     @Override
     public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Ascii Stream not supported");
     }
 
     @Override
     public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Ascii Stream not supported");
     }
 
     @Override
     public void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Ascii Stream not supported");
     }
 
@@ -182,7 +176,6 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("setObject not implemented");
     }
 
@@ -207,55 +200,46 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Character Stream is not supported");
     }
 
     @Override
     public void setRef(int parameterIndex, Ref x) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Ref is not supported");
     }
 
     @Override
     public void setBlob(int parameterIndex, Blob x) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Blob is not supported");
     }
 
     @Override
     public void setClob(int parameterIndex, Clob x) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Clob is not supported");
     }
 
     @Override
     public void setArray(int parameterIndex, Array x) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Array is not supported");
     }
 
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("ResultSetMetaData not supported");
     }
 
     @Override
     public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Date not supported");
     }
 
     @Override
     public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Time not supported");
     }
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Timestamp not supported");
     }
 
@@ -267,19 +251,16 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setURL(int parameterIndex, URL x) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("URL is not supported");
     }
 
     @Override
     public ParameterMetaData getParameterMetaData() throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("ParameterMetaData is not supported");
     }
 
     @Override
     public void setRowId(int parameterIndex, RowId x) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("RowId is not supported");
     }
 
@@ -291,103 +272,86 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("NCharacter Stream is not supported");
     }
 
     @Override
     public void setNClob(int parameterIndex, NClob value) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("NClob Stream is not supported");
     }
 
     @Override
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Clob Stream is not supported");
     }
 
     @Override
     public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Blob Stream is not supported");
     }
 
     @Override
     public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("NClob Stream is not supported");
     }
 
     @Override
     public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("SQLXML Stream is not supported");
     }
 
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("setObject not implemented");
     }
 
     @Override
     public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Ascii Stream is not supported");
     }
 
     @Override
     public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Binary Stream is not supported");
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Character Stream is not supported");
     }
 
     @Override
     public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Ascii Stream is not supported");
     }
 
     @Override
     public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Binary Stream is not supported");
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Character Stream is not supported");
     }
 
     @Override
     public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("NCharacter Stream is not supported");
     }
 
     @Override
     public void setClob(int parameterIndex, Reader reader) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Clob is not supported");
     }
 
     @Override
     public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Blob is not supported");
     }
 
     @Override
     public void setNClob(int parameterIndex, Reader reader) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("NClob is not supported");
     }
 

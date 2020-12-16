@@ -54,7 +54,10 @@ public class JdbcStatement implements Statement {
     /** Whether to close the statement when the result set is closed. */
     private boolean closeOnCompletion;
 
-    /** Current result as an update count */
+    /**
+     * Current result as an update count.
+     * Value -1 means that the result is not an update count or there are no more results.
+     */
     int updateCount = -1;
 
     /** Current result as a result set */
@@ -139,7 +142,6 @@ public class JdbcStatement implements Statement {
 
     @Override
     public void cancel() throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Cancellation is not supported");
     }
 
@@ -156,7 +158,6 @@ public class JdbcStatement implements Statement {
 
     @Override
     public void setCursorName(String name) throws SQLException {
-        checkClosed();
         throw JdbcUtils.unsupported("Cursor Name is not supported");
     }
 
@@ -240,19 +241,16 @@ public class JdbcStatement implements Statement {
 
     @Override
     public void addBatch(String sql) throws SQLException {
-        checkClosed();
         throw unsupportedBatch();
     }
 
     @Override
     public void clearBatch() throws SQLException {
-        checkClosed();
         throw unsupportedBatch();
     }
 
     @Override
     public int[] executeBatch() throws SQLException {
-        checkClosed();
         throw unsupportedBatch();
     }
 

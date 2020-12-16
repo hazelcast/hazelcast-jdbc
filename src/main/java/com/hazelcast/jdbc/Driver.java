@@ -25,10 +25,8 @@ import java.util.logging.Logger;
 
 public class Driver implements java.sql.Driver {
 
-    /** Major version. */
     private static final int VER_MAJOR = 4;
 
-    /** Minor version. */
     private static final int VER_MINOR = 0;
 
     private static final Driver INSTANCE = new Driver();
