@@ -1073,12 +1073,7 @@ public class JdbcResultSet implements ResultSet {
 
     private <T> T get(String columnLabel) throws SQLException {
         checkClosed();
-        int columnIndex = findColumn(columnLabel);
-        T result = currentCursorPosition.getObject(columnIndex);
-        if (result == null) {
-            wasNull = true;
-        }
-        return result;
+        return getByIndex(findColumn(columnLabel));
     }
 
     private <T> T get(int columnIndex) throws SQLException {
@@ -1086,7 +1081,11 @@ public class JdbcResultSet implements ResultSet {
         if (sqlResult.getRowMetadata().getColumnCount() < columnIndex) {
             throw new SQLException("ResultSet does not contain column with index " + columnIndex);
         }
-        T result = currentCursorPosition.getObject(columnIndex - 1);
+        return getByIndex(columnIndex - 1);
+    }
+
+    private <T> T getByIndex(int columnIndex) {
+        T result = currentCursorPosition.getObject(columnIndex);
         if (result == null) {
             wasNull = true;
         }
