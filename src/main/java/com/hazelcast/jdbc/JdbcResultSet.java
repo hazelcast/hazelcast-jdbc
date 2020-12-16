@@ -304,7 +304,7 @@ public class JdbcResultSet implements ResultSet {
         checkClosed();
         int index = sqlResult.getRowMetadata().findColumn(columnLabel);
         if (index == -1) {
-            throw new SQLException("ResultSet does not contain column \"" + columnLabel +"\"");
+            throw new SQLException("ResultSet does not contain column \"" + columnLabel + "\"");
         }
         return index;
     }
