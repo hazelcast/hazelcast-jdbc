@@ -73,6 +73,11 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
+    public boolean execute(String sql) throws SQLException {
+        throw new SQLException("Method not supported by PreparedStatement");
+    }
+
+    @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
         checkClosed();
         parameters.setNullValue(parameterIndex);

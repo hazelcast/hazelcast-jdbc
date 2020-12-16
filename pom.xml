@@ -18,6 +18,10 @@
         <hazelcast.version>4.1.1-SNAPSHOT</hazelcast.version>
         <hazelcast.jet.version>4.4-SNAPSHOT</hazelcast.jet.version>
         <mockito.version>3.6.28</mockito.version>
+        <maven.jacoco.plugin.version>0.8.6</maven.jacoco.plugin.version>
+        <maven.findbugs.plugin.version>3.0.5</maven.findbugs.plugin.version>
+        <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
+        <maven.sonar.plugin.version>5.1</maven.sonar.plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -176,7 +180,7 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-checkstyle-plugin</artifactId>
-                        <version>3.1.1</version>
+                        <version>${maven.checkstyle.plugin.version}</version>
                         <configuration>
                             <!--  Checkstyle file copied from https://github.com/hazelcast/hazelcast/tree/master/checkstyle -->
                             <failOnViolation>true</failOnViolation>
@@ -204,7 +208,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>findbugs-maven-plugin</artifactId>
-                        <version>3.0.5</version>
+                        <version>${maven.findbugs.plugin.version}</version>
                         <configuration>
                             <failOnError>true</failOnError>
                             <excludeFilterFile>${project.basedir}/findbugs/findbugs-exclude.xml</excludeFilterFile>
@@ -215,6 +219,67 @@
                                 <phase>validate</phase>
                                 <goals>
                                     <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>test-coverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${maven.jacoco.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>report</goal>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.22.2</version>
+                        <configuration>
+                            <failIfNoTests>true</failIfNoTests>
+                            <includes>
+                                <include>**/IT*.java</include>
+                                <include>**/*IT.java</include>
+                                <include>**/*ITCase.java</include>
+                            </includes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-integration-test</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <failIfNoTests>true</failIfNoTests>
+                            <includes>
+                                <include>**/Test*.java</include>
+                                <include>**/*Test.java</include>
+                                <include>**/*TestCase.java</include>
+                            </includes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-test</id>
+                                <goals>
+                                    <goal>test</goal>
                                 </goals>
                             </execution>
                         </executions>
