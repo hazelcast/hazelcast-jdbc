@@ -394,13 +394,13 @@ public class JdbcStatement implements Statement {
         SqlResult sqlResult = client.execute(query);
         if (sqlResult.isRowSet()) {
             if (expectedResult == ResultType.UPDATE_COUNT) {
-                throw new SQLException("Invalid SQL statement");
+                throw new SQLException("SQL statement produces result set");
             }
             resultSet = new JdbcResultSet(sqlResult, this);
             updateCount = -1;
         } else {
             if (expectedResult == ResultType.RESULT_SET) {
-                throw new SQLException("Invalid SQL statement");
+                throw new SQLException("SQL statement produces update count");
             }
             updateCount = Math.toIntExact(sqlResult.updateCount());
             closeResultSet();

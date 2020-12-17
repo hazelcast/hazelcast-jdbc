@@ -72,7 +72,7 @@ public class JdbcStatementTest {
 
         assertThatThrownBy(() -> statement.executeQuery("UPDATE person SET name='JOHN' WHERE age=10"))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Invalid SQL statement");
+                .hasMessage("SQL statement produces update count");
     }
 
     @Test
@@ -82,7 +82,7 @@ public class JdbcStatementTest {
 
         assertThatThrownBy(() -> statement.executeUpdate("SELECT * FROM person"))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Invalid SQL statement");
+                .hasMessage("SQL statement produces result set");
     }
 
     @Test
