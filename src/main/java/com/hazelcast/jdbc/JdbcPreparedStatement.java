@@ -45,7 +45,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     JdbcPreparedStatement(String sql, HazelcastSqlClient client, Connection connection) {
         super(client, connection);
         this.sql = sql;
-        parameters = new ParameterList(sql);
+        parameters = new ParameterList();
     }
 
     @Override
@@ -171,7 +171,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     @Override
     public void clearParameters() throws SQLException {
         checkClosed();
-        parameters = new ParameterList(sql);
+        parameters = new ParameterList();
     }
 
     @Override

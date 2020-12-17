@@ -15,6 +15,7 @@
  */
 package com.hazelcast.jdbc;
 
+import com.hazelcast.sql.HazelcastSqlException;
 import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlStatement;
 
@@ -391,7 +392,13 @@ public class JdbcStatement implements Statement {
         if (fetchSize != 0) {
             query.setCursorBufferSize(fetchSize);
         }
-        SqlResult sqlResult = client.execute(query);
+        SqlResult sqlResult;
+        try {
+            sqlResult = client.execute(query);
+        } catch (HazelcastSqlException e) {
+            throw new SQLException(e.getMessage(), e);
+        }
+
         if (sqlResult.isRowSet()) {
             if (expectedResult == ResultType.UPDATE_COUNT) {
                 throw new SQLException("SQL statement produces result set");

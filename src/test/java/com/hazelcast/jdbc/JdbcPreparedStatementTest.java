@@ -15,35 +15,56 @@
  */
 package com.hazelcast.jdbc;
 
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.map.IMap;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@ExtendWith(MockitoExtension.class)
 public class JdbcPreparedStatementTest {
 
-    @Mock
-    private HazelcastSqlClient client;
-    @Mock
-    private Connection connection;
+
+    private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/public";
+
+    @BeforeEach
+    public void setUp() {
+        HazelcastInstance member = Hazelcast.newHazelcastInstance();
+        IMap<Integer, Person> personMap = member.getMap("person");
+        for (int i = 0; i < 3; i++) {
+            personMap.put(i, new Person("Jack"+i, i));
+        }
+    }
+
+    @AfterEach
+    public void tearDown() {
+        HazelcastClient.shutdownAll();
+        Hazelcast.shutdownAll();
+    }
 
     @Test
-    void shouldFailOnAddingMoreParametersThanAllowed() {
-        JdbcPreparedStatement statement = new JdbcPreparedStatement("SELECT * FROM person WHERE name=?", client, connection);
-        assertThatThrownBy(() -> statement.setString(2, "John"))
+    void shouldFailOnAddingMoreParametersThanAllowed() throws SQLException {
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM person WHERE name=?");
+        statement.setString(1, "Sam");
+        statement.setString(2, "John");
+        assertThatThrownBy(statement::execute)
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Invalid parameter index value: 2");
+                .hasMessage("Unexpected parameter count: expected 1, got 2");
     }
 
     @Test
     void shouldFailIfNotAllParametersWhereSet() throws SQLException {
-        JdbcPreparedStatement statement = new JdbcPreparedStatement("SELECT * FROM person WHERE name=? AND age=?", client, connection);
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM person WHERE name=? AND age=?");
         statement.setInt(2, 27);
         assertThatThrownBy(statement::execute)
                 .isInstanceOf(SQLException.class)
@@ -52,7 +73,8 @@ public class JdbcPreparedStatementTest {
 
     @Test
     void shouldFailOfNegativeParameterIndex() throws SQLException {
-        JdbcPreparedStatement statement = new JdbcPreparedStatement("SELECT * FROM person WHERE name=?", client, connection);
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM person WHERE name=?");
         assertThatThrownBy(() -> statement.setString(-1, "John"))
                 .isInstanceOf(SQLException.class)
                 .hasMessage("Parameter index should be greater than zero");

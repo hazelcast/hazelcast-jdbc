@@ -19,6 +19,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Wraps the list of parameters used for {@link java.sql.PreparedStatement}.
@@ -28,11 +30,10 @@ class ParameterList {
 
     private static final Parameter NULL_VALUE = new Parameter(null);
 
-    private final List<Parameter> parameters;
+    private List<Parameter> parameters;
 
-    ParameterList(String sql) {
-        int parametersNumber = Math.toIntExact(sql.chars().filter(c -> c == '?').count());
-        parameters = new ArrayList<>(Collections.nCopies(parametersNumber, null));
+    ParameterList() {
+        parameters = new ArrayList<>(0);
     }
 
     /**
@@ -58,20 +59,16 @@ class ParameterList {
      * Sets the parameter value for the given {@param parameterIndex} of any type
      * @param parameterIndex first parameter is 1, second parameter is 2...
      * @param parameter parameter value
-     * @throws SQLException if {@param parameterIndex} does not correspond to a parameter
-     *         marker in the SQL statement
      */
-    void setParameter(int parameterIndex, Object parameter) throws SQLException {
+    void setParameter(int parameterIndex, Object parameter) {
         setParameter(parameterIndex, new Parameter(parameter));
     }
 
     /**
      * Sets the {@literal null} for the given {@param parameterIndex} of any type
      * @param parameterIndex first parameter is 1, second parameter is 2...
-     * @throws SQLException if {@param parameterIndex} does not correspond to a parameter
-     *         marker in the SQL statement
      */
-    void setNullValue(int parameterIndex) throws SQLException {
+    void setNullValue(int parameterIndex) {
         setParameter(parameterIndex, NULL_VALUE);
     }
 
@@ -79,14 +76,23 @@ class ParameterList {
      * Sets the parameter value for the given {@param parameterIndex} of any type
      * @param parameterIndex first parameter is 1, second parameter is 2...
      * @param parameter {@code Parameter} wrapper for the value
-     * @throws SQLException if {@param parameterIndex} does not correspond to a parameter
-     *         marker in the SQL statement
      */
-    void setParameter(int parameterIndex, Parameter parameter) throws SQLException {
+    void setParameter(int parameterIndex, Parameter parameter) {
         if (parameterIndex > parameters.size()) {
-            throw new SQLException("Invalid parameter index value: " + parameterIndex);
+            resizeParameters(parameterIndex);
         }
         parameters.set(parameterIndex - 1, parameter);
+    }
+
+    private void resizeParameters(int parameterIndex) {
+        parameters = IntStream.range(0, parameterIndex)
+                .mapToObj(i -> {
+                    if (i < parameters.size()) {
+                        return parameters.get(i);
+                    }
+                    return null;
+                })
+                .collect(Collectors.toList());
     }
 
     private static class Parameter {
