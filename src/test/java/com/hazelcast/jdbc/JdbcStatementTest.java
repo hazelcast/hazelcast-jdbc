@@ -18,12 +18,15 @@ package com.hazelcast.jdbc;
 import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlRow;
 import com.hazelcast.sql.SqlRowMetadata;
+import com.hazelcast.sql.SqlStatement;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
@@ -92,7 +95,54 @@ public class JdbcStatementTest {
         assertThatThrownBy(() -> statement.executeQuery("SELECT * FROM person"))
                 .isInstanceOf(SQLException.class)
                 .hasMessage("Method not supported by PreparedStatement");
+
+        assertThatThrownBy(() -> statement.executeUpdate("SELECT * FROM person"))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("Method not supported by PreparedStatement");
+
+        assertThatThrownBy(() -> statement.execute("SELECT * FROM person"))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("Method not supported by PreparedStatement");
+
         verify(client, never()).execute(any());
+    }
+
+    @Test
+    void shouldSetTimeoutAndBufferSize() throws SQLException {
+        ArgumentCaptor<SqlStatement> statementArgumentCaptor = ArgumentCaptor.forClass(SqlStatement.class);
+        when(client.execute(any())).thenReturn(queryResult());
+
+        Statement statement = new JdbcStatement(client, connection);
+        statement.setQueryTimeout(5);
+        statement.setFetchSize(3);
+
+        boolean execute = statement.execute("SELECT * FROM person");
+        assertThat(execute).isTrue();
+
+        verify(client).execute(statementArgumentCaptor.capture());
+        SqlStatement executedStatement = statementArgumentCaptor.getValue();
+
+        assertThat(executedStatement.getTimeoutMillis()).isEqualTo(5_000L);
+        assertThat(executedStatement.getCursorBufferSize()).isEqualTo(3);
+    }
+
+    @Test
+    void shouldOnlySupportValidFetchDirection() throws SQLException {
+        Statement statement = new JdbcStatement(client, connection);
+
+        statement.setFetchDirection(ResultSet.FETCH_FORWARD);
+        assertThat(statement.getFetchDirection()).isEqualTo(ResultSet.FETCH_FORWARD);
+
+        statement.setFetchDirection(ResultSet.FETCH_REVERSE);
+        assertThat(statement.getFetchDirection()).isEqualTo(ResultSet.FETCH_REVERSE);
+
+        statement.setFetchDirection(ResultSet.FETCH_UNKNOWN);
+        assertThat(statement.getFetchDirection()).isEqualTo(ResultSet.FETCH_UNKNOWN);
+
+        //noinspection MagicConstant
+        assertThatThrownBy(() -> statement.setFetchDirection(3))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("Invalid fetch direction value: 3");
     }
 
     private SqlResult updateResult() {

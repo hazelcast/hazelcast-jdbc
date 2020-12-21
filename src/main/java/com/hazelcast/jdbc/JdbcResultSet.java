@@ -304,7 +304,7 @@ public class JdbcResultSet implements ResultSet {
         checkClosed();
         int index = sqlResult.getRowMetadata().findColumn(columnLabel);
         if (index == -1) {
-            throw new SQLException("ResultSet does not contain column \"" + columnLabel +"\"");
+            throw new SQLException("ResultSet does not contain column \"" + columnLabel + "\"");
         }
         return index;
     }
@@ -399,7 +399,7 @@ public class JdbcResultSet implements ResultSet {
                 this.fetchDirection = direction;
                 break;
             default:
-                throw new SQLException("Invalid fetch direction value: " + fetchDirection);
+                throw new SQLException("Invalid fetch direction value: " + direction);
         }
     }
 
@@ -1073,12 +1073,7 @@ public class JdbcResultSet implements ResultSet {
 
     private <T> T get(String columnLabel) throws SQLException {
         checkClosed();
-        int columnIndex = findColumn(columnLabel);
-        T result = currentCursorPosition.getObject(columnIndex);
-        if (result == null) {
-            wasNull = true;
-        }
-        return result;
+        return getByIndex(findColumn(columnLabel));
     }
 
     private <T> T get(int columnIndex) throws SQLException {
@@ -1086,7 +1081,11 @@ public class JdbcResultSet implements ResultSet {
         if (sqlResult.getRowMetadata().getColumnCount() < columnIndex) {
             throw new SQLException("ResultSet does not contain column with index " + columnIndex);
         }
-        T result = currentCursorPosition.getObject(columnIndex - 1);
+        return getByIndex(columnIndex - 1);
+    }
+
+    private <T> T getByIndex(int columnIndex) {
+        T result = currentCursorPosition.getObject(columnIndex);
         if (result == null) {
             wasNull = true;
         }

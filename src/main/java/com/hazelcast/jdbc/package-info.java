@@ -13,25 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Contains the implementation of JDBC {@link java.sql.Driver}.
+ * The implementation class is {@link com.hazelcast.jdbc.Driver}.
+ */
 package com.hazelcast.jdbc;
-
-import java.sql.SQLFeatureNotSupportedException;
-
-final class JdbcUtils {
-
-    private JdbcUtils() {
-        throw new UnsupportedOperationException();
-    }
-
-    static <T> T unwrap(Object target, Class<T> iface) {
-        return iface.cast(target);
-    }
-
-    static boolean isWrapperFor(Object target, Class<?> iface) {
-        return iface.isAssignableFrom(target.getClass());
-    }
-
-    public static SQLFeatureNotSupportedException unsupported(String message) {
-        return new SQLFeatureNotSupportedException(message);
-    }
-}

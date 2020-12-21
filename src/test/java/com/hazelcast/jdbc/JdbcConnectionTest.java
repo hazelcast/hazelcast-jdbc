@@ -50,7 +50,7 @@ public class JdbcConnectionTest {
     }
 
     @Test
-    void shouldUnwrapConnection() throws SQLException {
+    void shouldUnwrapConnection() {
         assertThat(connection.isWrapperFor(JdbcConnection.class)).isTrue();
         assertThat(connection.unwrap(JdbcConnection.class)).isNotNull();
     }
