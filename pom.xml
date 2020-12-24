@@ -131,6 +131,9 @@
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
+                    <configuration>
+                        <excludedGroups>envs</excludedGroups>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -294,6 +297,7 @@
                                 <include>**/*Test.java</include>
                                 <include>**/*TestCase.java</include>
                             </includes>
+                            <excludedGroups>envs</excludedGroups>
                         </configuration>
                         <executions>
                             <execution>

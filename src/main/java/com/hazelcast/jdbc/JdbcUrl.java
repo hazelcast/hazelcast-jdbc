@@ -90,4 +90,8 @@ final class JdbcUrl {
         jdbcUrl.parseProperties(matcher.group("parameters"));
         return jdbcUrl;
     }
+
+    static JdbcUrl valueOf(String url) {
+        return valueOf(url, new Properties());
+    }
 }
