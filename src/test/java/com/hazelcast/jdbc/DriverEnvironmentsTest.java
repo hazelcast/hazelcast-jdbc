@@ -18,6 +18,7 @@ package com.hazelcast.jdbc;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -37,16 +38,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DriverEnvironmentsTest {
 
     private final String connectionString = System.getenv("CONNECTION_STRING");
-    private HazelcastInstance client;
 
     @BeforeEach
     void setUp() {
         HazelcastConfigFactory hazelcastConfigFactory = new HazelcastConfigFactory();
-        client = HazelcastClient.newHazelcastClient(hazelcastConfigFactory.clientConfig(JdbcUrl.valueOf(connectionString)));
+        HazelcastInstance client = HazelcastClient.newHazelcastClient(hazelcastConfigFactory.clientConfig(JdbcUrl.valueOf(connectionString)));
         IMap<Integer, Person> people = client.getMap("person");
         people.put(1, new Person("Emma", 27));
         people.put(2, new Person("Olivia", 42));
         people.put(3, new Person("Sophia", 35));
+    }
+
+    @AfterEach
+    void tearDown() {
+        HazelcastClient.shutdownAll();
     }
 
     @Test
