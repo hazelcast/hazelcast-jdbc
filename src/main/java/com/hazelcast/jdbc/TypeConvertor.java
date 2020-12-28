@@ -25,6 +25,8 @@ import java.util.function.BiFunction;
 
 final class TypeConvertor {
 
+    private TypeConvertor() {}
+
     private static final Map<Class<?>, BiFunction<Object, Converter, ?>> CLASS_TO_TYPE_CONVERSION = new HashMap<>();
     static {
         CLASS_TO_TYPE_CONVERSION.put(Integer.class, (o, c) -> c.asInt(o));
