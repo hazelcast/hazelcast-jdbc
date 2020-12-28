@@ -43,6 +43,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import static com.hazelcast.jdbc.TypeConvertor.convertTo;
+
 public class JdbcResultSet implements ResultSet {
 
     static final JdbcResultSet EMPTY = new EmptyJdbcResultSet();
@@ -131,42 +133,42 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public String getString(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), String.class);
     }
 
     @Override
     public boolean getBoolean(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), Boolean.class);
     }
 
     @Override
     public byte getByte(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), Byte.class);
     }
 
     @Override
     public short getShort(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), Short.class);
     }
 
     @Override
     public int getInt(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), Integer.class);
     }
 
     @Override
     public long getLong(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), Long.class);
     }
 
     @Override
     public float getFloat(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), Float.class);
     }
 
     @Override
     public double getDouble(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), Double.class);
     }
 
     @Override
@@ -211,42 +213,42 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public String getString(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), String.class);
     }
 
     @Override
     public boolean getBoolean(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), Boolean.class);
     }
 
     @Override
     public byte getByte(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), Byte.class);
     }
 
     @Override
     public short getShort(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), Short.class);
     }
 
     @Override
     public int getInt(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), Integer.class);
     }
 
     @Override
     public long getLong(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), Long.class);
     }
 
     @Override
     public float getFloat(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), Float.class);
     }
 
     @Override
     public double getDouble(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), Float.class);
     }
 
     @Override
@@ -343,12 +345,12 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), BigDecimal.class);
     }
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), BigDecimal.class);
     }
 
     @Override
