@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <hazelcast.version>4.1.1-SNAPSHOT</hazelcast.version>
+        <hazelcast.version>4.1.1</hazelcast.version>
         <hazelcast.jet.version>4.4-SNAPSHOT</hazelcast.jet.version>
         <mockito.version>3.6.28</mockito.version>
         <maven.jacoco.plugin.version>0.8.6</maven.jacoco.plugin.version>
