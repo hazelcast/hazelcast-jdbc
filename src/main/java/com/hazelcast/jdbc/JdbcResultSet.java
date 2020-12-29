@@ -43,7 +43,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
-import static com.hazelcast.jdbc.TypeConvertor.convertTo;
+import static com.hazelcast.jdbc.TypeConverter.convertTo;
 
 public class JdbcResultSet implements ResultSet {
 
@@ -183,17 +183,17 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Date getDate(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), Date.class);
     }
 
     @Override
     public Time getTime(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), Time.class);
     }
 
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), Timestamp.class);
     }
 
     @Override
@@ -263,17 +263,17 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Date getDate(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), Date.class);
     }
 
     @Override
     public Time getTime(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), Time.class);
     }
 
     @Override
     public Timestamp getTimestamp(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), Timestamp.class);
     }
 
     @Override

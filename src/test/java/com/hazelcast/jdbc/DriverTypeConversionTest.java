@@ -22,6 +22,8 @@ import com.hazelcast.map.IMap;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -32,9 +34,16 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Date;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DriverTypeConversionTest {
 
@@ -55,6 +64,20 @@ class DriverTypeConversionTest {
     @AfterEach
     void tearDown() {
         member.getMap("types").clear();
+    }
+
+    @Test
+    @Disabled("Implement later")
+    void shouldThrowSQLExceptionWhenTypesCannotBeConverted() throws SQLException {
+        IMap<Object, Object> types = member.getMap("types");
+        types.put(1, new TypesHolder("StringValue"));
+
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM types");
+        resultSet.next();
+        assertThatThrownBy(() -> resultSet.getInt("value"))
+                .isInstanceOf(SQLException.class);
     }
 
     @ParameterizedTest(name = "{index}: Value {0} of type should be converted to {1}")
@@ -82,14 +105,32 @@ class DriverTypeConversionTest {
                 Arguments.of(24, 24.0, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getDouble(2)),
                 Arguments.of(13, 13f, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getFloat("value")),
                 Arguments.of(27, 27f, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getFloat(2)),
-                Arguments.of(1, (byte)1, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getByte("value")),
-                Arguments.of(1, (byte)1, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getByte(2)),
-                Arguments.of(5L, (short)5, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getShort("value")),
-                Arguments.of(5L, (short)5, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getShort(2)),
+                Arguments.of(1, (byte) 1, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getByte("value")),
+                Arguments.of(1, (byte) 1, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getByte(2)),
+                Arguments.of(5L, (short) 5, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getShort("value")),
+                Arguments.of(5L, (short) 5, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getShort(2)),
                 Arguments.of(123L, 123, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getInt("value")),
                 Arguments.of(123L, 123, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getInt(2)),
                 Arguments.of(123, 123L, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getLong("value")),
-                Arguments.of(123, 123L, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getLong(2))
+                Arguments.of(123, 123L, (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getLong(2)),
+                Arguments.of(Instant.ofEpochMilli(1609228173000L),
+                        new Timestamp(1609228173000L),
+                        (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getTimestamp("value")),
+                Arguments.of(Instant.ofEpochMilli(1609228173000L),
+                        new Timestamp(1609228173000L),
+                        (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getTimestamp(2)),
+                Arguments.of(LocalTime.of(7, 33),
+                        new Time(1609227180000L),
+                        (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getTime("value")),
+                Arguments.of(LocalTime.of(7, 33),
+                        new Time(1609227180000L),
+                        (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getTime(2)),
+                Arguments.of(LocalDate.of(2019, 10, 23),
+                        new Date(1571788800000L),
+                        (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getDate("value")),
+                Arguments.of(LocalDate.of(2019, 10, 23),
+                        new Date(1571788800000L),
+                        (ThrowingFunction<ResultSet, ?>) (ResultSet rs) -> rs.getDate(2))
         );
     }
 

@@ -19,15 +19,19 @@ import com.hazelcast.sql.impl.type.converter.Converter;
 import com.hazelcast.sql.impl.type.converter.Converters;
 
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-final class TypeConvertor {
+final class TypeConverter {
 
     private static final Map<Class<?>, BiFunction<Object, Converter, ?>> CLASS_TO_TYPE_CONVERSION = new HashMap<>();
 
-    private TypeConvertor() {
+    private TypeConverter() {
     }
 
     static {
@@ -40,6 +44,9 @@ final class TypeConvertor {
         CLASS_TO_TYPE_CONVERSION.put(String.class, (o, c) -> c.asVarchar(o));
         CLASS_TO_TYPE_CONVERSION.put(Boolean.class, (o, c) -> c.asBoolean(o));
         CLASS_TO_TYPE_CONVERSION.put(BigDecimal.class, (o, c) -> c.asDecimal(o));
+        CLASS_TO_TYPE_CONVERSION.put(Timestamp.class, TypeConverter::convertToTimestamp);
+        CLASS_TO_TYPE_CONVERSION.put(Time.class, TypeConverter::convertToTime);
+        CLASS_TO_TYPE_CONVERSION.put(Date.class, TypeConverter::convertToDate);
     }
 
     @SuppressWarnings("unchecked")
@@ -49,5 +56,17 @@ final class TypeConvertor {
         }
         Converter converter = Converters.getConverter(object.getClass());
         return (T) CLASS_TO_TYPE_CONVERSION.get(clazz).apply(object, converter);
+    }
+
+    private static Timestamp convertToTimestamp(Object o, Converter c) {
+        return new Timestamp(c.asTimestampWithTimezone(o).toEpochSecond() * 1_000);
+    }
+
+    private static Time convertToTime(Object o, Converter c) {
+        return new Time(c.asTimestamp(o).toEpochSecond(ZoneOffset.UTC) * 1_000);
+    }
+
+    private static Date convertToDate(Object o, Converter c) {
+        return new Date(c.asDate(o).atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1_000);
     }
 }
