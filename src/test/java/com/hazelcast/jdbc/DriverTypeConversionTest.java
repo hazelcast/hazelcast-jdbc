@@ -19,10 +19,10 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import com.hazelcast.sql.impl.QueryException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -38,6 +38,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.stream.Stream;
@@ -67,17 +68,32 @@ class DriverTypeConversionTest {
     }
 
     @Test
-    @Disabled("Implement later")
-    void shouldThrowSQLExceptionWhenTypesCannotBeConverted() throws SQLException {
+    void shouldThrowExceptionWhenIncompatibleTypes() throws SQLException {
         IMap<Object, Object> types = member.getMap("types");
-        types.put(1, new TypesHolder("StringValue"));
+        types.put(1, new TypesHolder(LocalDateTime.now()));
 
         Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM types");
         resultSet.next();
         assertThatThrownBy(() -> resultSet.getInt("value"))
-                .isInstanceOf(SQLException.class);
+                .isInstanceOf(SQLException.class)
+                .hasMessage("Cannot convert LocalDateTime to Integer");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenConversionIsNotPossible() throws SQLException {
+        IMap<Object, Object> types = member.getMap("types");
+        types.put(1, new TypesHolder("Not a number"));
+
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM types");
+        resultSet.next();
+        assertThatThrownBy(() -> resultSet.getLong("value"))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("Cannot convert object 'Not a number' to Long")
+                .hasCauseInstanceOf(QueryException.class);
     }
 
     @ParameterizedTest(name = "{index}: Value {0} of type should be converted to {1}")
