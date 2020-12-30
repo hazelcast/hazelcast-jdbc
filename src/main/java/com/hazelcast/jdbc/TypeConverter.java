@@ -35,7 +35,8 @@ final class TypeConverter {
 
     @SuppressWarnings("unchecked")
     static <T> T convertTo(Object object, QueryDataType targetDataType) throws SQLException {
-        return convertAs(object, () -> (T) targetDataType.convert(object), targetDataType.getConverter().getNormalizedValueClass());
+        return convertAs(
+                object, () -> (T) targetDataType.convert(object), targetDataType.getConverter().getNormalizedValueClass());
     }
 
     @SuppressWarnings("unchecked")
@@ -55,19 +56,22 @@ final class TypeConverter {
 
     static Timestamp convertToTimestamp(Object object) throws SQLException {
         return convertAs(object, () -> new Timestamp(
-                Converters.getConverter(object.getClass()).asTimestampWithTimezone(object).toEpochSecond() * MILLIS_IN_SECONDS),
+                Converters.getConverter(
+                        object.getClass()).asTimestampWithTimezone(object).toEpochSecond() * MILLIS_IN_SECONDS),
                 Timestamp.class);
     }
 
     static Time convertToTime(Object object) throws SQLException {
         return convertAs(object, () -> new Time(
-                Converters.getConverter(object.getClass()).asTimestamp(object).toEpochSecond(ZoneOffset.UTC) * MILLIS_IN_SECONDS),
+                Converters.getConverter(
+                        object.getClass()).asTimestamp(object).toEpochSecond(ZoneOffset.UTC) * MILLIS_IN_SECONDS),
                 Time.class);
     }
 
     static Date convertToDate(Object object)  throws SQLException  {
         return convertAs(object, () -> new Date(
-                Converters.getConverter(object.getClass()).asDate(object).atStartOfDay().toEpochSecond(ZoneOffset.UTC) * MILLIS_IN_SECONDS),
+                Converters.getConverter(
+                        object.getClass()).asDate(object).atStartOfDay().toEpochSecond(ZoneOffset.UTC) * MILLIS_IN_SECONDS),
                 Date.class);
     }
 
