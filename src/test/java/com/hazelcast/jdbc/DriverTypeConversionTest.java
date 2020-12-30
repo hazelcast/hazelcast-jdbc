@@ -334,16 +334,6 @@ class DriverTypeConversionTest {
                 .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to BigDecimal");
     }
 
-    @ParameterizedTest(name = "{index}: Should convert {0} to <TYPE>")
-    @MethodSource("values")
-    void shouldConvertToType(Object value) throws SQLException {
-    }
-
-    @ParameterizedTest(name = "{index}: Should fail when converting {0} to <TYPE>")
-    @MethodSource("values")
-    void shouldFailIfConversionToTypeIsNotPossible(Object value) throws SQLException {
-    }
-
     private ResultSet getResultSet() throws SQLException {
         Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
