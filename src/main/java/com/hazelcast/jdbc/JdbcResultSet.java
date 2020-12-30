@@ -18,6 +18,7 @@ package com.hazelcast.jdbc;
 import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlRow;
 import com.hazelcast.sql.SqlRowMetadata;
+import com.hazelcast.sql.impl.type.QueryDataType;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -133,47 +134,47 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public String getString(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), String.class);
+        return convertTo(get(columnIndex), QueryDataType.VARCHAR);
     }
 
     @Override
     public boolean getBoolean(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), Boolean.class);
+        return convertTo(get(columnIndex), QueryDataType.BOOLEAN);
     }
 
     @Override
     public byte getByte(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), Byte.class);
+        return convertTo(get(columnIndex), QueryDataType.TINYINT);
     }
 
     @Override
     public short getShort(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), Short.class);
+        return convertTo(get(columnIndex), QueryDataType.SMALLINT);
     }
 
     @Override
     public int getInt(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), Integer.class);
+        return convertTo(get(columnIndex), QueryDataType.INT);
     }
 
     @Override
     public long getLong(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), Long.class);
+        return convertTo(get(columnIndex), QueryDataType.BIGINT);
     }
 
     @Override
     public float getFloat(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), Float.class);
+        return convertTo(get(columnIndex), QueryDataType.REAL);
     }
 
     @Override
     public double getDouble(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), Double.class);
+        return convertTo(get(columnIndex), QueryDataType.DOUBLE);
     }
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-        throw JdbcUtils.unsupported("BigDecimal with scale is not supported");
+        return getBigDecimal(columnIndex).setScale(scale);
     }
 
     @Override
@@ -183,17 +184,17 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Date getDate(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), Date.class);
+        return convertTo(get(columnIndex), QueryDataType.DATE);
     }
 
     @Override
     public Time getTime(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), Time.class);
+        return convertTo(get(columnIndex), QueryDataType.TIME);
     }
 
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), Timestamp.class);
+        return convertTo(get(columnIndex), QueryDataType.TIMESTAMP);
     }
 
     @Override
@@ -213,47 +214,47 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public String getString(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), String.class);
+        return convertTo(get(columnLabel), QueryDataType.VARCHAR);
     }
 
     @Override
     public boolean getBoolean(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), Boolean.class);
+        return convertTo(get(columnLabel), QueryDataType.BOOLEAN);
     }
 
     @Override
     public byte getByte(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), Byte.class);
+        return convertTo(get(columnLabel), QueryDataType.TINYINT);
     }
 
     @Override
     public short getShort(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), Short.class);
+        return convertTo(get(columnLabel), QueryDataType.SMALLINT);
     }
 
     @Override
     public int getInt(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), Integer.class);
+        return convertTo(get(columnLabel), QueryDataType.INT);
     }
 
     @Override
     public long getLong(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), Long.class);
+        return convertTo(get(columnLabel), QueryDataType.BIGINT);
     }
 
     @Override
     public float getFloat(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), Float.class);
+        return convertTo(get(columnLabel), QueryDataType.REAL);
     }
 
     @Override
     public double getDouble(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), Float.class);
+        return convertTo(get(columnLabel), QueryDataType.DOUBLE);
     }
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
-        throw JdbcUtils.unsupported("BigDecimal with scale is not supported");
+        return getBigDecimal(columnLabel).setScale(scale);
     }
 
     @Override
@@ -263,17 +264,17 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Date getDate(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), Date.class);
+        return convertTo(get(columnLabel), QueryDataType.DATE);
     }
 
     @Override
     public Time getTime(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), Time.class);
+        return convertTo(get(columnLabel), QueryDataType.TIME);
     }
 
     @Override
     public Timestamp getTimestamp(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), Timestamp.class);
+        return convertTo(get(columnLabel), QueryDataType.TIMESTAMP);
     }
 
     @Override
@@ -345,12 +346,12 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), BigDecimal.class);
+        return convertTo(get(columnIndex), QueryDataType.DECIMAL);
     }
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), BigDecimal.class);
+        return convertTo(get(columnLabel), QueryDataType.DECIMAL);
     }
 
     @Override

@@ -15,10 +15,9 @@
  */
 package com.hazelcast.jdbc;
 
-import com.hazelcast.sql.impl.QueryException;
+import com.hazelcast.sql.impl.type.QueryDataType;
 import com.hazelcast.sql.impl.type.QueryDataTypeFamily;
 import com.hazelcast.sql.impl.type.converter.Converter;
-import com.hazelcast.sql.impl.type.converter.Converters;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -75,21 +74,16 @@ final class TypeConverter {
     }
 
     @SuppressWarnings("unchecked")
-    static <T> T convertTo(Object object, Class<T> clazz) throws SQLException {
-        if (object ==  null) {
+    static <T> T convertTo(Object object, QueryDataType targetDataType) throws SQLException {
+        if (object == null) {
             return null;
         }
-        if (clazz.isInstance(object)) {
-            return (T) object;
-        }
-        Converter converter = Converters.getConverter(object.getClass());
-        if (!converter.canConvertTo(CLASS_TO_QUERY_TYPE.getOrDefault(clazz, QueryDataTypeFamily.OBJECT))) {
-            throw new SQLException("Cannot convert " + object.getClass().getSimpleName() + " to " + clazz.getSimpleName());
-        }
         try {
-            return (T) CLASS_TO_TYPE_CONVERSION.get(clazz).apply(object, converter);
-        } catch (QueryException ex) {
-            throw new SQLException("Cannot convert object '" + object + "' to " + clazz.getSimpleName(), ex);
+            return (T) targetDataType.convert(object);
+        } catch (Exception e) {
+            throw new SQLException("Cannot convert '" + object + "' of type "
+                    + object.getClass().getSimpleName()
+                    + " to " + targetDataType.getConverter().getNormalizedValueClass().getSimpleName(), e);
         }
     }
 
