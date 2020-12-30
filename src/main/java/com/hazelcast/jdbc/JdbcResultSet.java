@@ -286,7 +286,8 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        throw JdbcUtils.unsupported("ResultSetMetaData not supported");
+        checkClosed();
+        return new JdbcResultSetMetaData(sqlResult.getRowMetadata(), statement.getConnection().getSchema());
     }
 
     @Override
