@@ -82,13 +82,9 @@ final class TypeConverter {
         try {
             return supplier.get();
         } catch (Exception e) {
-            throw cannotConvertException(object, targetClass, e);
+            throw new SQLException("Cannot convert '" + object + "' of type "
+                    + object.getClass().getSimpleName()
+                    + " to " + targetClass.getSimpleName(), e);
         }
-    }
-
-    private static SQLException cannotConvertException(Object object, Class<?> targetClass, Exception e) {
-        return new SQLException("Cannot convert '" + object + "' of type "
-                + object.getClass().getSimpleName()
-                + " to " + targetClass.getSimpleName(), e);
     }
 }
