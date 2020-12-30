@@ -45,6 +45,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static com.hazelcast.jdbc.TypeConverter.convertTo;
+import static com.hazelcast.jdbc.TypeConverter.convertToDate;
+import static com.hazelcast.jdbc.TypeConverter.convertToTime;
+import static com.hazelcast.jdbc.TypeConverter.convertToTimestamp;
 
 public class JdbcResultSet implements ResultSet {
 
@@ -184,17 +187,17 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Date getDate(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), QueryDataType.DATE);
+        return convertToDate(get(columnIndex));
     }
 
     @Override
     public Time getTime(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), QueryDataType.TIME);
+        return convertToTime(get(columnIndex));
     }
 
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
-        return convertTo(get(columnIndex), QueryDataType.TIMESTAMP);
+        return convertToTimestamp(get(columnIndex));
     }
 
     @Override
@@ -264,17 +267,17 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Date getDate(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), QueryDataType.DATE);
+        return convertToDate(get(columnLabel));
     }
 
     @Override
     public Time getTime(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), QueryDataType.TIME);
+        return convertToTime(get(columnLabel));
     }
 
     @Override
     public Timestamp getTimestamp(String columnLabel) throws SQLException {
-        return convertTo(get(columnLabel), QueryDataType.TIMESTAMP);
+        return convertToTimestamp(get(columnLabel));
     }
 
     @Override
@@ -1088,12 +1091,12 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), type);
     }
 
     @Override
     public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), type);
     }
 
     @Override
