@@ -55,23 +55,20 @@ final class TypeConverter {
     }
 
     static Timestamp convertToTimestamp(Object object) throws SQLException {
-        return convertAs(object, () -> new Timestamp(
-                Converters.getConverter(
-                        object.getClass()).asTimestampWithTimezone(object).toEpochSecond() * MILLIS_IN_SECONDS),
+        return convertAs(object, () -> new Timestamp(toMillis(
+                Converters.getConverter(object.getClass()).asTimestampWithTimezone(object).toEpochSecond())),
                 Timestamp.class);
     }
 
     static Time convertToTime(Object object) throws SQLException {
-        return convertAs(object, () -> new Time(
-                Converters.getConverter(
-                        object.getClass()).asTimestamp(object).toEpochSecond(ZoneOffset.UTC) * MILLIS_IN_SECONDS),
+        return convertAs(object, () -> new Time(toMillis(
+                Converters.getConverter(object.getClass()).asTimestamp(object).toEpochSecond(ZoneOffset.UTC))),
                 Time.class);
     }
 
     static Date convertToDate(Object object)  throws SQLException  {
-        return convertAs(object, () -> new Date(
-                Converters.getConverter(
-                        object.getClass()).asDate(object).atStartOfDay().toEpochSecond(ZoneOffset.UTC) * MILLIS_IN_SECONDS),
+        return convertAs(object, () -> new Date(toMillis(
+                Converters.getConverter(object.getClass()).asDate(object).atStartOfDay().toEpochSecond(ZoneOffset.UTC))),
                 Date.class);
     }
 
@@ -86,5 +83,9 @@ final class TypeConverter {
                     + object.getClass().getSimpleName()
                     + " to " + targetClass.getSimpleName(), e);
         }
+    }
+
+    private static long toMillis(long seconds) {
+        return seconds * MILLIS_IN_SECONDS;
     }
 }
