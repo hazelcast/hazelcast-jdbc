@@ -373,7 +373,8 @@ class DriverTypeConversionTest {
         LocalTime localTime = LocalTime.of(7, 33);
         ResultSet resultSet = getResultSet(localTime);
 
-        Time expectedValue = new Time(1609313580000L);
+        Time expectedValue = new Time(LocalDateTime.of(LocalDate.now(), LocalTime.of(7, 33))
+                .toEpochSecond(ZoneOffset.UTC) * 1_000);
         assertThat(resultSet.getObject("value", Time.class)).isEqualTo(expectedValue);
         assertThat(resultSet.getObject(2, Time.class)).isEqualTo(expectedValue);
     }
