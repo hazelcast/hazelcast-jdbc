@@ -27,8 +27,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -168,5 +170,21 @@ public class DriverIMDGTest {
         }
         assertThat(ages).containsExactlyInAnyOrder(0, 1, 2);
         assertThat(names).containsExactlyInAnyOrder("Jack0", "Jack1", "Jack2");
+    }
+
+    @Test
+    void shouldReturnResultSetMetaData() throws SQLException {
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
+        Statement statement = connection.createStatement();
+
+        statement.executeQuery("SELECT * FROM person");
+        ResultSet resultSet = statement.getResultSet();
+        resultSet.next();
+
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        assertThat(metaData).isNotNull();
+        assertThat(metaData.getSchemaName(1)).isEqualTo("public");
+        assertThat(metaData.getColumnCount()).isEqualTo(3);
+        assertThat(metaData.getColumnType(2)).isEqualTo(Types.VARCHAR);
     }
 }
