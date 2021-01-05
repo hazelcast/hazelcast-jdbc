@@ -33,10 +33,6 @@ public class JdbcStatement implements Statement {
 
     private static final int MILLIS_IN_SECOND = 1_000;
 
-    enum ResultType {
-        RESULT_SET, UPDATE_COUNT, ANY
-    }
-
     /**
      * Current result as an update count.
      * Value -1 means that the result is not an update count or there are no more results.
