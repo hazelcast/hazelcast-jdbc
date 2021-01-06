@@ -17,7 +17,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <hazelcast.version>4.1.1</hazelcast.version>
         <hazelcast.jet.version>4.4-SNAPSHOT</hazelcast.jet.version>
-        <mockito.version>3.6.28</mockito.version>
+        <mockito.version>3.7.0</mockito.version>
         <maven.jacoco.plugin.version>0.8.6</maven.jacoco.plugin.version>
         <maven.findbugs.plugin.version>3.0.5</maven.findbugs.plugin.version>
         <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
