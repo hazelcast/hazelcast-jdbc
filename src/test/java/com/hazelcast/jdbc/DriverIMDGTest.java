@@ -41,6 +41,11 @@ public class DriverIMDGTest {
 
     private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/public";
 
+    private final Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
+
+    public DriverIMDGTest() throws SQLException {
+    }
+
     @BeforeAll
     public static void beforeClass() {
         HazelcastInstance member = Hazelcast.newHazelcastInstance();
@@ -58,13 +63,11 @@ public class DriverIMDGTest {
 
     @Test
     public void shouldHazelcastJdbcConnection() throws SQLException {
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         assertThat(connection).isNotNull();
     }
 
     @Test
     public void shouldExecuteSimpleQuery() throws SQLException {
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         assertThat(statement).isNotNull();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
@@ -79,7 +82,6 @@ public class DriverIMDGTest {
 
     @Test
     public void shouldUnwrapResultSet() throws SQLException {
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
         resultSet.next();
@@ -90,7 +92,6 @@ public class DriverIMDGTest {
 
     @Test
     public void shouldNotHaveTimeoutIfNotSetExplicitly() throws SQLException {
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
         resultSet.next();
@@ -99,7 +100,6 @@ public class DriverIMDGTest {
 
     @Test
     public void shouldReturnResultSet() throws SQLException {
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
 
@@ -108,7 +108,6 @@ public class DriverIMDGTest {
 
     @Test
     public void shouldExecuteSimplePreparedStatement() throws SQLException {
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM person WHERE name=? AND age=?");
         statement.setString(1, "Jack1");
         statement.setInt(2, 1);
@@ -121,7 +120,6 @@ public class DriverIMDGTest {
 
     @Test
     public void shouldCloseStatement() throws SQLException {
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
         resultSet.next();
@@ -134,7 +132,6 @@ public class DriverIMDGTest {
 
     @Test
     void shouldSupportSchemaFromConnectionString() throws SQLException {
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         assertThat(connection.getSchema()).isEqualTo("public");
     }
 
@@ -156,7 +153,6 @@ public class DriverIMDGTest {
 
     @Test
     void shouldFetchColumnResultsByIndex() throws SQLException {
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
 
         statement.executeQuery("SELECT * FROM person");
@@ -186,5 +182,20 @@ public class DriverIMDGTest {
         assertThat(metaData.getColumnCount()).isEqualTo(3);
         assertThat(metaData.getColumnType(2)).isEqualTo(Types.VARCHAR);
         assertThat(metaData.getColumnDisplaySize(2)).isEqualTo(Constants.MAX_STRING_LENGTH);
+    }
+
+    @Test
+    void shouldReturnResultAsSetPerMaxRows() throws SQLException {
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
+        Statement statement = connection.createStatement();
+        statement.setFetchSize(1);
+        statement.setMaxRows(2);
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
+        List<Person> actualResult = new ArrayList<>();
+        while (resultSet.next()) {
+            actualResult.add(Person.valueOf(resultSet));
+        }
+
+        assertThat(actualResult).hasSize(2);;
     }
 }
