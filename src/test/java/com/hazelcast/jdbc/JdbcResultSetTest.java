@@ -121,4 +121,11 @@ public class JdbcResultSetTest {
                 .isInstanceOf(SQLException.class)
                 .hasMessage("Result set is closed");
     }
+
+    @Test
+    void shouldSetDefaultFetchSizeFromStatement() throws SQLException {
+        when(statement.getFetchSize()).thenReturn(5);
+
+        assertThat(resultSet.getFetchSize()).isEqualTo(5);
+    }
 }

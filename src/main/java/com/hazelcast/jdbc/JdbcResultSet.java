@@ -410,6 +410,9 @@ public class JdbcResultSet implements ResultSet {
         return fetchDirection;
     }
 
+    /**
+     * If the fetch size specified is zero the default value will be used.
+     */
     @Override
     public void setFetchSize(int rows) throws SQLException {
         checkClosed();
@@ -419,6 +422,9 @@ public class JdbcResultSet implements ResultSet {
     @Override
     public int getFetchSize() throws SQLException {
         checkClosed();
+        if (fetchSize == 0) {
+            return statement.getFetchSize();
+        }
         return fetchSize;
     }
 
