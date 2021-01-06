@@ -71,22 +71,39 @@ public class JdbcResultSet implements ResultSet {
     private int fetchDirection;
     /** Fetch size */
     private int fetchSize;
+    /** Max rows */
+    private final int maxRows;
+    /** Position of the current row. */
+    private int currentRowPosition;
 
 
-    JdbcResultSet(SqlResult sqlResult, JdbcStatement statement) {
+    JdbcResultSet(SqlResult sqlResult, JdbcStatement statement) throws SQLException {
         this.sqlResult = sqlResult;
         iterator = sqlResult.iterator();
         this.statement = statement;
+        maxRows = statement.getMaxRows();
+    }
+
+    private JdbcResultSet(SqlResult sqlResult) {
+        this.sqlResult = sqlResult;
+        iterator = sqlResult.iterator();
+        this.statement = null;
+        maxRows = 0;
     }
 
     @Override
     public boolean next() throws SQLException {
         checkClosed();
-        if (iterator.hasNext()) {
+        if (iterator.hasNext() && hasMoreRows()) {
             currentCursorPosition = iterator.next();
+            currentRowPosition++;
             return true;
         }
         return false;
+    }
+
+    private boolean hasMoreRows() {
+        return maxRows == 0 || currentRowPosition <= maxRows;
     }
 
     @Override
@@ -372,7 +389,8 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public int getRow() throws SQLException {
-        throw JdbcUtils.unsupported("Method not supported");
+        checkClosed();
+        return currentRowPosition;
     }
 
     @Override
@@ -1127,7 +1145,7 @@ public class JdbcResultSet implements ResultSet {
                 @Override
                 public void close() {
                 }
-            }, null);
+            });
         }
     }
 }
