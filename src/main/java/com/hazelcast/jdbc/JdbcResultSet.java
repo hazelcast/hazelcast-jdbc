@@ -75,6 +75,8 @@ public class JdbcResultSet implements ResultSet {
     private final int maxRows;
     /** Position of the current row. */
     private int currentRowPosition;
+    /** Is the current row position before the first row */
+    private boolean isBeforeFirst = true;
 
 
     JdbcResultSet(SqlResult sqlResult, JdbcStatement statement) throws SQLException {
@@ -94,16 +96,18 @@ public class JdbcResultSet implements ResultSet {
     @Override
     public boolean next() throws SQLException {
         checkClosed();
-        if (iterator.hasNext() && hasMoreRows()) {
+        if (iterator.hasNext() && isNextRowAvailable()) {
             currentCursorPosition = iterator.next();
             currentRowPosition++;
+            isBeforeFirst = false;
             return true;
         }
+        currentRowPosition = 0;
         return false;
     }
 
-    private boolean hasMoreRows() {
-        return maxRows == 0 || currentRowPosition <= maxRows;
+    private boolean isNextRowAvailable() {
+        return maxRows == 0 || currentRowPosition < maxRows;
     }
 
     @Override
@@ -349,17 +353,20 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public boolean isBeforeFirst() throws SQLException {
-        throw JdbcUtils.unsupported("Method not supported");
+        checkClosed();
+        return isBeforeFirst;
     }
 
     @Override
     public boolean isAfterLast() throws SQLException {
-        throw JdbcUtils.unsupported("Method not supported");
+        checkClosed();
+        return currentRowPosition == 0 && !isBeforeFirst;
     }
 
     @Override
     public boolean isFirst() throws SQLException {
-        throw JdbcUtils.unsupported("Method not supported");
+        checkClosed();
+        return currentRowPosition == 1;
     }
 
     @Override
