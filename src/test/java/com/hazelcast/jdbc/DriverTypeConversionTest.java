@@ -31,11 +31,13 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -55,6 +57,10 @@ class DriverTypeConversionTest {
 
     private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/public";
     private static HazelcastInstance member;
+    private final Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
+
+    DriverTypeConversionTest() throws SQLException {
+    }
 
     @BeforeAll
     public static void beforeClass() {
@@ -63,12 +69,12 @@ class DriverTypeConversionTest {
 
     @AfterAll
     public static void afterClass() {
-        HazelcastClient.shutdownAll();
         Hazelcast.shutdownAll();
     }
 
     @AfterEach
     void tearDown() {
+        HazelcastClient.shutdownAll();
         member.getMap("types").clear();
     }
 
@@ -402,11 +408,145 @@ class DriverTypeConversionTest {
                 .hasMessage("Cannot convert 'I'm a string object' of type String to Short");
     }
 
+    @ParameterizedTest
+    @MethodSource("values")
+    void shouldSearchForVarcharParameter(Object value) throws SQLException {
+        String expectedValue = String.valueOf(value);
+
+        ResultSet resultSet = getPreparedResultSet(
+                new ValuesWrapper(expectedValue), value, "SELECT * FROM types WHERE string = ?", Types.VARCHAR);
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getString("string")).isEqualTo(expectedValue);
+    }
+
+    @ParameterizedTest
+    @MethodSource("values")
+    void shouldSearchForBooleanParameter(Object value) throws SQLException {
+        Boolean expectedValue = tryParseBoolean(value);
+        assumeThat(expectedValue).isNotNull();
+
+        ResultSet resultSet = getPreparedResultSet(
+                new ValuesWrapper(expectedValue), value, "SELECT * FROM types WHERE \"boolean\" = ?", Types.BOOLEAN);
+
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getBoolean("boolean")).isEqualTo(expectedValue);
+    }
+
+    @ParameterizedTest
+    @MethodSource("values")
+    void shouldSearchForIntegerParameter(Object value) throws SQLException {
+        Integer expectedValue = tryParse(value, o -> Integer.valueOf(o.toString()));
+        assumeThat(expectedValue).isNotNull();
+
+        ResultSet resultSet = getPreparedResultSet(
+                new ValuesWrapper(expectedValue), value, "SELECT * FROM types WHERE \"integer\" = ?", Types.INTEGER);
+
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getInt("integer")).isEqualTo(expectedValue);
+    }
+
+    @ParameterizedTest
+    @MethodSource("values")
+    void shouldSearchForLongParameter(Object value) throws SQLException {
+        Long expectedValue = tryParse(value, o -> Long.valueOf(o.toString()));
+        assumeThat(expectedValue).isNotNull();
+
+        ResultSet resultSet = getPreparedResultSet(
+                new ValuesWrapper(expectedValue), value, "SELECT * FROM types WHERE \"long\" = ?", Types.BIGINT);
+
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getLong("long")).isEqualTo(expectedValue);
+    }
+
+    @ParameterizedTest
+    @MethodSource("values")
+    void shouldSearchForDecimalParameter(Object value) throws SQLException {
+        BigDecimal expectedValue = tryParse(value, o -> new BigDecimal(o.toString()));
+        assumeThat(expectedValue).isNotNull();
+
+        ResultSet resultSet = getPreparedResultSet(
+                new ValuesWrapper(expectedValue), value, "SELECT * FROM types WHERE \"bigDecimal\" = ?", Types.DECIMAL);
+
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getBigDecimal("bigDecimal")).isEqualTo(expectedValue);
+    }
+
+    @ParameterizedTest
+    @MethodSource("values")
+    void shouldSearchForRealParameter(Object value) throws SQLException {
+        Float expectedValue = tryParse(value, o -> Float.valueOf(o.toString()));
+        assumeThat(expectedValue).isNotNull();
+
+        ResultSet resultSet = getPreparedResultSet(
+                new ValuesWrapper(expectedValue), value, "SELECT * FROM types WHERE \"real\" = ?", Types.REAL);
+
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getFloat("real")).isEqualTo(expectedValue);
+    }
+
+    @ParameterizedTest
+    @MethodSource("values")
+    void shouldSearchForTinyIntParameter(Object value) throws SQLException {
+        Byte expectedValue = tryParse(value, o -> Byte.valueOf(o.toString()));
+        assumeThat(expectedValue).isNotNull();
+
+        ResultSet resultSet = getPreparedResultSet(
+                new ValuesWrapper(expectedValue), value, "SELECT * FROM types WHERE \"tinyInt\" = ?", Types.TINYINT);
+
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getByte("tinyInt")).isEqualTo(expectedValue);
+    }
+
+    @ParameterizedTest
+    @MethodSource("values")
+    void shouldSearchForSmallIntParameter(Object value) throws SQLException {
+        Short expectedValue = tryParse(value, o -> Short.valueOf(o.toString()));
+        assumeThat(expectedValue).isNotNull();
+
+        ResultSet resultSet = getPreparedResultSet(
+                new ValuesWrapper(expectedValue), value, "SELECT * FROM types WHERE \"smallInt\" = ?", Types.SMALLINT);
+
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getShort("smallInt")).isEqualTo(expectedValue);
+    }
+
+    @ParameterizedTest
+    @MethodSource("values")
+    void shouldSearchForDoubleParameter(Object value) throws SQLException {
+        Double expectedValue = tryParse(value, o -> Double.valueOf(o.toString()));
+        assumeThat(expectedValue).isNotNull();
+
+        ResultSet resultSet = getPreparedResultSet(
+                new ValuesWrapper(expectedValue), value, "SELECT * FROM types WHERE \"double\" = ?", Types.DOUBLE);
+
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getDouble("double")).isEqualTo(expectedValue);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSqlTypeIsNotSupported() throws SQLException {
+        IMap<Object, Object> types = member.getMap("types");
+        types.put(1, new ValuesWrapper("String value"));
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM types WHERE \"string\" = ?");
+        assertThatThrownBy(() -> preparedStatement.setObject(1, "String value", 999))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("Target SQL type 999 is not supported");
+    }
+
+    private ResultSet getPreparedResultSet(ValuesWrapper valuesWrapper, Object value, String sql, int targetSqlType)
+            throws SQLException {
+        IMap<Object, Object> types = member.getMap("types");
+        types.put(1, valuesWrapper);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setObject(1, value, targetSqlType);
+        return preparedStatement.executeQuery();
+    }
+
     private ResultSet getResultSet(Object value) throws SQLException {
         IMap<Object, Object> types = member.getMap("types");
         types.put(1, new TypesHolder(value));
 
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM types");
         resultSet.next();

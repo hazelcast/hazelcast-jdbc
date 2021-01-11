@@ -23,12 +23,28 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 final class TypeConverter {
 
-    public static final int MILLIS_IN_SECONDS = 1_000;
+    private static final int MILLIS_IN_SECONDS = 1_000;
+    private static final Map<Integer, QueryDataType> SQL_TYPES_TO_QUERY_DATA_TYPE = new HashMap<>();
+
+    static {
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.VARCHAR, QueryDataType.VARCHAR);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.BOOLEAN, QueryDataType.BOOLEAN);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.INTEGER, QueryDataType.INT);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.BIGINT, QueryDataType.BIGINT);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.DECIMAL, QueryDataType.DECIMAL);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.REAL, QueryDataType.REAL);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.TINYINT, QueryDataType.TINYINT);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.SMALLINT, QueryDataType.SMALLINT);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.DOUBLE, QueryDataType.DOUBLE);
+    }
 
     private TypeConverter() {
     }
@@ -52,6 +68,15 @@ final class TypeConverter {
         }
         QueryDataType queryDataType = QueryDataTypeUtils.resolveTypeForClass(clazz);
         return convertAs(object, () -> (T) queryDataType.convert(object), clazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T> T convertTo(Object object, int targetSqlType) throws SQLException {
+        QueryDataType queryDataType = SQL_TYPES_TO_QUERY_DATA_TYPE.get(targetSqlType);
+        if (queryDataType == null) {
+            throw new SQLException("Target SQL type " + targetSqlType + " is not supported");
+        }
+        return (T) queryDataType.convert(object);
     }
 
     static Timestamp convertToTimestamp(Object object) throws SQLException {
