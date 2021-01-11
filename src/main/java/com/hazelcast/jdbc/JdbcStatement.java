@@ -16,6 +16,7 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.sql.HazelcastSqlException;
+import com.hazelcast.sql.SqlExpectedResultType;
 import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlStatement;
 
@@ -31,10 +32,6 @@ import java.util.List;
 public class JdbcStatement implements Statement {
 
     private static final int MILLIS_IN_SECOND = 1_000;
-
-    enum ResultType {
-        RESULT_SET, UPDATE_COUNT, ANY
-    }
 
     /**
      * Current result as an update count.
@@ -73,14 +70,14 @@ public class JdbcStatement implements Statement {
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
-        doExecute(sql, Collections.emptyList(), ResultType.RESULT_SET);
+        doExecute(sql, Collections.emptyList(), SqlExpectedResultType.ROWS);
         return resultSet;
     }
 
     @Override
     public int executeUpdate(String sql) throws SQLException {
         checkClosed();
-        doExecute(sql, Collections.emptyList(), ResultType.UPDATE_COUNT);
+        doExecute(sql, Collections.emptyList(), SqlExpectedResultType.UPDATE_COUNT);
         return updateCount;
     }
 
@@ -164,7 +161,7 @@ public class JdbcStatement implements Statement {
     @Override
     public boolean execute(String sql) throws SQLException {
         checkClosed();
-        doExecute(sql, Collections.emptyList(), ResultType.ANY);
+        doExecute(sql, Collections.emptyList(), SqlExpectedResultType.ANY);
         return resultSet != null;
     }
 
@@ -378,10 +375,10 @@ public class JdbcStatement implements Statement {
         }
     }
 
-    void doExecute(String sql, List<Object> parameters, ResultType expectedResult) throws SQLException {
+    void doExecute(String sql, List<Object> parameters, SqlExpectedResultType expectedResult) throws SQLException {
         checkClosed();
 
-        SqlStatement query = new SqlStatement(sql).setParameters(parameters);
+        SqlStatement query = new SqlStatement(sql).setParameters(parameters).setExpectedResultType(expectedResult);
         if (queryTimeout != 0) {
             query.setTimeoutMillis(queryTimeout * MILLIS_IN_SECOND);
         }
@@ -396,15 +393,9 @@ public class JdbcStatement implements Statement {
         }
 
         if (sqlResult.isRowSet()) {
-            if (expectedResult == ResultType.UPDATE_COUNT) {
-                throw new SQLException("SQL statement produces result set");
-            }
             resultSet = new JdbcResultSet(sqlResult, this);
             updateCount = -1;
         } else {
-            if (expectedResult == ResultType.RESULT_SET) {
-                throw new SQLException("SQL statement produces update count");
-            }
             updateCount = Math.toIntExact(sqlResult.updateCount());
             closeResultSet();
         }

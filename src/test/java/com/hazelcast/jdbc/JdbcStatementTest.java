@@ -15,10 +15,12 @@
  */
 package com.hazelcast.jdbc;
 
+import com.hazelcast.sql.HazelcastSqlException;
 import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlRow;
 import com.hazelcast.sql.SqlRowMetadata;
 import com.hazelcast.sql.SqlStatement;
+import com.hazelcast.sql.impl.QueryException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -31,6 +33,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -70,22 +73,24 @@ public class JdbcStatementTest {
 
     @Test
     void shouldFailForQueryOnSqlUpdate() {
-        when(client.execute(any())).thenReturn(updateResult());
+        when(client.execute(any())).thenThrow(new HazelcastSqlException(
+                UUID.randomUUID(), -1, "The statement doesn't produce rows", QueryException.error("")));
         JdbcStatement statement = new JdbcStatement(client, connection);
 
         assertThatThrownBy(() -> statement.executeQuery("UPDATE person SET name='JOHN' WHERE age=10"))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("SQL statement produces update count");
+                .hasMessage("The statement doesn't produce rows");
     }
 
     @Test
     void shouldFailForUpdateOnSqlQuery() {
-        when(client.execute(any())).thenReturn(queryResult());
+        when(client.execute(any())).thenThrow(new HazelcastSqlException(
+                UUID.randomUUID(), -1, "The statement doesn't produce update count", QueryException.error("")));
         JdbcStatement statement = new JdbcStatement(client, connection);
 
         assertThatThrownBy(() -> statement.executeUpdate("SELECT * FROM person"))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("SQL statement produces result set");
+                .hasMessage("The statement doesn't produce update count");
     }
 
     @Test

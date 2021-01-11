@@ -15,6 +15,8 @@
  */
 package com.hazelcast.jdbc;
 
+import com.hazelcast.sql.SqlExpectedResultType;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -51,14 +53,14 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     @Override
     public ResultSet executeQuery() throws SQLException {
         checkClosed();
-        doExecute(sql, parameters.asParameters(), ResultType.RESULT_SET);
+        doExecute(sql, parameters.asParameters(), SqlExpectedResultType.ROWS);
         return resultSet;
     }
 
     @Override
     public int executeUpdate() throws SQLException {
         checkClosed();
-        doExecute(sql, parameters.asParameters(), ResultType.UPDATE_COUNT);
+        doExecute(sql, parameters.asParameters(), SqlExpectedResultType.UPDATE_COUNT);
         return updateCount;
     }
 
@@ -193,7 +195,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     @Override
     public boolean execute() throws SQLException {
         checkClosed();
-        doExecute(sql, parameters.asParameters(), ResultType.ANY);
+        doExecute(sql, parameters.asParameters(), SqlExpectedResultType.ANY);
         return resultSet != null;
     }
 
