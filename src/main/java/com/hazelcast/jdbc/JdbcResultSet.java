@@ -287,7 +287,7 @@ public class JdbcResultSet implements ResultSet {
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
         checkClosed();
-        return new JdbcResultSetMetaData(sqlResult.getRowMetadata(), statement.getConnection().getSchema());
+        return new JdbcResultSetMetaData(sqlResult.getRowMetadata());
     }
 
     @Override
