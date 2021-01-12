@@ -183,8 +183,8 @@ public class DriverIMDGTest {
 
         ResultSetMetaData metaData = resultSet.getMetaData();
         assertThat(metaData).isNotNull();
-        assertThat(metaData.getSchemaName(1)).isEqualTo("public");
         assertThat(metaData.getColumnCount()).isEqualTo(3);
         assertThat(metaData.getColumnType(2)).isEqualTo(Types.VARCHAR);
+        assertThat(metaData.getColumnDisplaySize(2)).isEqualTo(Constants.MAX_STRING_LENGTH);
     }
 }
