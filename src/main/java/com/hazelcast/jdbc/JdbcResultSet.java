@@ -23,6 +23,7 @@ import com.hazelcast.sql.impl.type.QueryDataType;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.sql.Array;
 import java.sql.Blob;
@@ -177,7 +178,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-        return getBigDecimal(columnIndex).setScale(scale);
+        return getBigDecimal(columnIndex).setScale(scale, RoundingMode.HALF_UP);
     }
 
     @Override
@@ -257,7 +258,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
-        return getBigDecimal(columnLabel).setScale(scale);
+        return getBigDecimal(columnLabel).setScale(scale, RoundingMode.HALF_UP);
     }
 
     @Override

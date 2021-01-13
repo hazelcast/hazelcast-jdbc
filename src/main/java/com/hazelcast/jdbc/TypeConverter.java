@@ -44,6 +44,9 @@ final class TypeConverter {
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.TINYINT, QueryDataType.TINYINT);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.SMALLINT, QueryDataType.SMALLINT);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.DOUBLE, QueryDataType.DOUBLE);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.FLOAT, QueryDataType.REAL);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.NUMERIC, QueryDataType.DECIMAL);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.CHAR, QueryDataType.VARCHAR_CHARACTER);
     }
 
     private TypeConverter() {
@@ -51,8 +54,7 @@ final class TypeConverter {
 
     @SuppressWarnings("unchecked")
     static <T> T convertTo(Object object, QueryDataType targetDataType) throws SQLException {
-        return convertAs(
-                object, () -> (T) targetDataType.convert(object), targetDataType.getConverter().getNormalizedValueClass());
+        return convertAs(object, () -> (T) targetDataType.convert(object));
     }
 
     @SuppressWarnings("unchecked")
@@ -67,11 +69,14 @@ final class TypeConverter {
             return (T) convertToDate(object);
         }
         QueryDataType queryDataType = QueryDataTypeUtils.resolveTypeForClass(clazz);
-        return convertAs(object, () -> (T) queryDataType.convert(object), clazz);
+        return convertAs(object, () -> (T) queryDataType.convert(object));
     }
 
     @SuppressWarnings("unchecked")
     static <T> T convertTo(Object object, int targetSqlType) throws SQLException {
+        if (targetSqlType == Types.NULL) {
+            return null;
+        }
         QueryDataType queryDataType = SQL_TYPES_TO_QUERY_DATA_TYPE.get(targetSqlType);
         if (queryDataType == null) {
             throw new SQLException("Target SQL type " + targetSqlType + " is not supported");
@@ -81,32 +86,27 @@ final class TypeConverter {
 
     static Timestamp convertToTimestamp(Object object) throws SQLException {
         return convertAs(object, () -> new Timestamp(toMillis(
-                Converters.getConverter(object.getClass()).asTimestampWithTimezone(object).toEpochSecond())),
-                Timestamp.class);
+                Converters.getConverter(object.getClass()).asTimestampWithTimezone(object).toEpochSecond())));
     }
 
     static Time convertToTime(Object object) throws SQLException {
         return convertAs(object, () -> new Time(toMillis(
-                Converters.getConverter(object.getClass()).asTimestamp(object).toEpochSecond(ZoneOffset.UTC))),
-                Time.class);
+                Converters.getConverter(object.getClass()).asTimestamp(object).toEpochSecond(ZoneOffset.UTC))));
     }
 
     static Date convertToDate(Object object)  throws SQLException  {
         return convertAs(object, () -> new Date(toMillis(
-                Converters.getConverter(object.getClass()).asDate(object).atStartOfDay().toEpochSecond(ZoneOffset.UTC))),
-                Date.class);
+                Converters.getConverter(object.getClass()).asDate(object).atStartOfDay().toEpochSecond(ZoneOffset.UTC))));
     }
 
-    private static <T> T convertAs(Object object, Supplier<T> supplier, Class<?> targetClass) throws SQLException {
+    private static <T> T convertAs(Object object, Supplier<T> supplier) throws SQLException {
         if (object == null) {
             return null;
         }
         try {
             return supplier.get();
         } catch (Exception e) {
-            throw new SQLException("Cannot convert '" + object + "' of type "
-                    + object.getClass().getSimpleName()
-                    + " to " + targetClass.getSimpleName(), e);
+            throw new SQLException(e.getMessage(), e);
         }
     }
 

@@ -17,7 +17,6 @@ package com.hazelcast.jdbc;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 
 public class ValuesWrapper implements Serializable {
     private static final long serialVersionUID = 5855947779681687264L;
@@ -31,7 +30,7 @@ public class ValuesWrapper implements Serializable {
     private Byte tinyInt;
     private Short smallInt;
     private Double aDouble;
-    private Timestamp timestamp;
+    private Character character;
 
     ValuesWrapper(String string) {
         this.string = string;
@@ -69,12 +68,8 @@ public class ValuesWrapper implements Serializable {
         this.aDouble = aDouble;
     }
 
-    ValuesWrapper(Timestamp timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public Timestamp getTimestamp() {
-        return timestamp;
+    ValuesWrapper(Character character) {
+        this.character = character;
     }
 
     public Double getDouble() {
@@ -111,5 +106,9 @@ public class ValuesWrapper implements Serializable {
 
     public BigDecimal getBigDecimal() {
         return bigDecimal;
+    }
+
+    public Character getCharacter() {
+        return character;
     }
 }

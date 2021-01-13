@@ -401,11 +401,11 @@ class DriverTypeConversionTest {
 
         assertThatThrownBy(() -> resultSet.getObject("value", Integer.class))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert 'I'm a string object' of type String to Integer");
+                .hasMessage("Cannot parse VARCHAR value to INTEGER");
 
         assertThatThrownBy(() -> resultSet.getObject(2, Short.class))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert 'I'm a string object' of type String to Short");
+                .hasMessage("Cannot parse VARCHAR value to SMALLINT");
     }
 
     @ParameterizedTest
@@ -521,6 +521,43 @@ class DriverTypeConversionTest {
 
         assertThat(resultSet.next()).isTrue();
         assertThat(resultSet.getDouble("double")).isEqualTo(expectedValue);
+    }
+
+    @ParameterizedTest
+    @MethodSource("values")
+    void shouldSearchForFloatParameter(Object value) throws SQLException {
+        Float expectedValue = tryParse(value, o -> Float.valueOf(o.toString()));
+        assumeThat(expectedValue).isNotNull();
+
+        ResultSet resultSet = getPreparedResultSet(
+                new ValuesWrapper(expectedValue), value, "SELECT * FROM types WHERE \"real\" = ?", Types.FLOAT);
+
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getFloat("real")).isEqualTo(expectedValue);
+    }
+
+    @ParameterizedTest
+    @MethodSource("values")
+    void shouldSearchForNumericParameter(Object value) throws SQLException {
+        BigDecimal expectedValue = tryParse(value, o -> new BigDecimal(o.toString()));
+        assumeThat(expectedValue).isNotNull();
+
+        ResultSet resultSet = getPreparedResultSet(
+                new ValuesWrapper(expectedValue), value, "SELECT * FROM types WHERE \"bigDecimal\" = ?", Types.NUMERIC);
+
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getBigDecimal("bigDecimal")).isEqualTo(expectedValue);
+    }
+
+    @Test
+    void shouldSearchForCharParameter() throws SQLException {
+        Character expectedValue = 'c';
+
+        ResultSet resultSet = getPreparedResultSet(
+                new ValuesWrapper(expectedValue), "c", "SELECT * FROM types WHERE \"character\" = ?", Types.CHAR);
+
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getString("character")).isEqualTo(expectedValue.toString());
     }
 
     @Test
