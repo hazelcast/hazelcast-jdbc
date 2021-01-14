@@ -19,6 +19,8 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import com.hazelcast.sql.SqlColumnType;
+import com.hazelcast.sql.impl.type.QueryDataType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -43,15 +45,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assumptions.assumeThat;
-import static org.assertj.core.api.Assumptions.assumeThatThrownBy;
 
 class DriverTypeConversionTest {
 
@@ -102,16 +103,20 @@ class DriverTypeConversionTest {
     @ParameterizedTest(name = "{index}: Should fail when converting {0} to int")
     @MethodSource("values")
     void shouldFailIfConversionToIntIsNotPossible(Object value) throws SQLException {
-        Integer expectedValue = tryParse(value, o -> Integer.valueOf(o.toString()));
+        Integer expectedValue = tryParse(value, QueryDataType.INT);
         assumeThat(expectedValue).isNull();
 
         ResultSet resultSet = getResultSet(value);
-        assumeThatThrownBy(() -> resultSet.getInt("value"))
+        assertThatThrownBy(() -> resultSet.getInt("value"))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Integer");
-        assumeThatThrownBy(() -> resultSet.getInt(2))
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to INTEGER"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to INTEGER"));
+        assertThatThrownBy(() -> resultSet.getInt(2))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Integer");
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to INTEGER"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to INTEGER"));
     }
 
     @ParameterizedTest(name = "{index}: Should convert {0} to long")
@@ -128,16 +133,20 @@ class DriverTypeConversionTest {
     @ParameterizedTest(name = "{index}: Should fail when converting {0} to long")
     @MethodSource("values")
     void shouldFailIfConversionToLongIsNotPossible(Object value) throws SQLException {
-        Long expectedValue = tryParse(value, o -> Long.valueOf(o.toString()));
+        Long expectedValue = tryParse(value, QueryDataType.BIGINT);
         assumeThat(expectedValue).isNull();
 
         ResultSet resultSet = getResultSet(value);
-        assumeThatThrownBy(() -> resultSet.getLong("value"))
+        assertThatThrownBy(() -> resultSet.getLong("value"))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Integer");
-        assumeThatThrownBy(() -> resultSet.getLong(2))
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to BIGINT"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to BIGINT"));
+        assertThatThrownBy(() -> resultSet.getLong(2))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Integer");
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to BIGINT"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to BIGINT"));
     }
 
     @ParameterizedTest(name = "{index}: Should convert {0} to boolean")
@@ -158,12 +167,16 @@ class DriverTypeConversionTest {
         assumeThat(expectedValue).isNull();
 
         ResultSet resultSet = getResultSet(value);
-        assumeThatThrownBy(() -> resultSet.getBoolean("value"))
+        assertThatThrownBy(() -> resultSet.getBoolean("value"))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Integer");
-        assumeThatThrownBy(() -> resultSet.getBoolean(2))
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to BOOLEAN"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to BOOLEAN"));
+        assertThatThrownBy(() -> resultSet.getBoolean(2))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Integer");
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to BOOLEAN"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to BOOLEAN"));
     }
 
     @ParameterizedTest(name = "{index}: Should convert {0} to byte")
@@ -180,16 +193,22 @@ class DriverTypeConversionTest {
     @ParameterizedTest(name = "{index}: Should fail when converting {0} to byte")
     @MethodSource("values")
     void shouldFailIfConversionToByteIsNotPossible(Object value) throws SQLException {
-        Byte expectedValue = tryParse(value, o -> Byte.parseByte(o.toString()));
+        Byte expectedValue = tryParse(value, QueryDataType.TINYINT);
         assumeThat(expectedValue).isNull();
 
         ResultSet resultSet = getResultSet(value);
-        assumeThatThrownBy(() -> resultSet.getByte("value"))
+        assertThatThrownBy(() -> resultSet.getByte("value"))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Byte");
-        assumeThatThrownBy(() -> resultSet.getByte(2))
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to TINYINT"),
+                        t -> assertThat(t).hasMessage("Numeric overflow while converting " + sqlColumnType(value.getClass()) + " to TINYINT"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to TINYINT"));
+        assertThatThrownBy(() -> resultSet.getByte(2))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Byte");
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to TINYINT"),
+                        t -> assertThat(t).hasMessage("Numeric overflow while converting " + sqlColumnType(value.getClass()) + " to TINYINT"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to TINYINT"));
     }
 
     @ParameterizedTest(name = "{index}: Should convert {0} to short")
@@ -206,16 +225,22 @@ class DriverTypeConversionTest {
     @ParameterizedTest(name = "{index}: Should fail when converting {0} to short")
     @MethodSource("values")
     void shouldFailIfConversionToShortIsNotPossible(Object value) throws SQLException {
-        Short expectedValue = tryParse(value, o -> Short.parseShort(o.toString()));
+        Short expectedValue = tryParse(value, QueryDataType.SMALLINT);
         assumeThat(expectedValue).isNull();
 
         ResultSet resultSet = getResultSet(value);
-        assumeThatThrownBy(() -> resultSet.getShort("value"))
+        assertThatThrownBy(() -> resultSet.getShort("value"))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Short");
-        assumeThatThrownBy(() -> resultSet.getShort(2))
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to SMALLINT"),
+                        t -> assertThat(t).hasMessage("Numeric overflow while converting " + sqlColumnType(value.getClass()) + " to SMALLINT"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to SMALLINT"));
+        assertThatThrownBy(() -> resultSet.getShort(2))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Short");
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to SMALLINT"),
+                        t -> assertThat(t).hasMessage("Numeric overflow while converting " + sqlColumnType(value.getClass()) + " to SMALLINT"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to SMALLINT"));
     }
 
     @ParameterizedTest(name = "{index}: Should convert {0} to float")
@@ -236,12 +261,16 @@ class DriverTypeConversionTest {
         assumeThat(expectedValue).isNull();
 
         ResultSet resultSet = getResultSet(value);
-        assumeThatThrownBy(() -> resultSet.getFloat("value"))
+        assertThatThrownBy(() -> resultSet.getFloat("value"))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Float");
-        assumeThatThrownBy(() -> resultSet.getFloat(2))
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to REAL"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to REAL"));
+        assertThatThrownBy(() -> resultSet.getFloat(2))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Float");
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to REAL"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to REAL"));
     }
 
     @ParameterizedTest(name = "{index}: Should convert {0} to double")
@@ -262,12 +291,16 @@ class DriverTypeConversionTest {
         assumeThat(expectedValue).isNull();
 
         ResultSet resultSet = getResultSet(value);
-        assumeThatThrownBy(() -> resultSet.getFloat("value"))
+        assertThatThrownBy(() -> resultSet.getFloat("value"))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Double");
-        assumeThatThrownBy(() -> resultSet.getFloat(2))
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to REAL"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to REAL"));
+        assertThatThrownBy(() -> resultSet.getFloat(2))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Double");
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to REAL"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to REAL"));
     }
 
     @ParameterizedTest(name = "{index}: Should convert {0} to BigDecimal")
@@ -291,12 +324,16 @@ class DriverTypeConversionTest {
         types.put(1, new TypesHolder(value));
 
         ResultSet resultSet = getResultSet(value);
-        assumeThatThrownBy(() -> resultSet.getBigDecimal("value"))
+        assertThatThrownBy(() -> resultSet.getBigDecimal("value"))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to BigDecimal");
-        assumeThatThrownBy(() -> resultSet.getBigDecimal(2))
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to DECIMAL"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to DECIMAL"));
+        assertThatThrownBy(() -> resultSet.getBigDecimal(2))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to BigDecimal");
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to DECIMAL"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to DECIMAL"));
     }
 
     @ParameterizedTest(name = "{index}: Should convert {0} to Object of type String")
@@ -321,16 +358,20 @@ class DriverTypeConversionTest {
     @ParameterizedTest(name = "{index}: Should fail if converting of {0} to Object of type Integer")
     @MethodSource("values")
     void shouldFailIfConversionToTypedObjectIsNotPossible(Object value) throws SQLException {
-        Integer expectedValue = tryParse(value, o -> Integer.valueOf(o.toString()));
+        Integer expectedValue = tryParse(value, QueryDataType.INT);
         assumeThat(expectedValue).isNull();
 
         ResultSet resultSet = getResultSet(value);
-        assumeThatThrownBy(() -> resultSet.getObject("value", Integer.class))
+        assertThatThrownBy(() -> resultSet.getObject("value", Integer.class))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Integer");
-        assumeThatThrownBy(() -> resultSet.getObject(2, Integer.class))
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to INTEGER"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to INTEGER"));
+        assertThatThrownBy(() -> resultSet.getObject(2, Integer.class))
                 .isInstanceOf(SQLException.class)
-                .hasMessage("Cannot convert '" + value.toString() + "' of type " + value.getClass().getSimpleName() + " to Integer");
+                .satisfiesAnyOf(
+                        t -> assertThat(t).hasMessage("Cannot parse " + sqlColumnType(value.getClass()) + " value to INTEGER"),
+                        t -> assertThat(t).hasMessage("Cannot convert " + sqlColumnType(value.getClass()) + " to INTEGER"));
     }
 
     @Test
@@ -606,10 +647,19 @@ class DriverTypeConversionTest {
                 Arguments.of(123),
                 Arguments.of(123L),
                 Arguments.of(LocalDateTime.of(2018, 6, 29, 14, 50)),
-                Arguments.of(ZonedDateTime.of(LocalDateTime.of(2018, 6, 29, 14, 50), ZoneOffset.UTC)),
+                Arguments.of(OffsetDateTime.of(LocalDateTime.of(2018, 6, 29, 14, 50), ZoneOffset.UTC)),
                 Arguments.of(LocalTime.of(7, 33)),
                 Arguments.of(LocalDate.of(2012, 12, 12))
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T tryParse(Object object, QueryDataType queryDataType) {
+        try {
+            return (T) queryDataType.convert(object);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static <T> T tryParse(Object object, Function<Object, T> parsingFunction) {
@@ -625,6 +675,15 @@ class DriverTypeConversionTest {
             return true;
         } else if (object.toString().equalsIgnoreCase("false")) {
             return false;
+        }
+        return null;
+    }
+
+    private static String sqlColumnType(Class<?> clazz) {
+        for (SqlColumnType value : SqlColumnType.values()) {
+            if (value.getValueClass().equals(clazz)) {
+                return value.name();
+            }
         }
         return null;
     }
