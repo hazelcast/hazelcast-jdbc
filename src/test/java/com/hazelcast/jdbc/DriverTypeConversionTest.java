@@ -317,7 +317,7 @@ class DriverTypeConversionTest {
     @ParameterizedTest(name = "{index}: Should fail when converting {0} to BigDecimal")
     @MethodSource("values")
     void shouldFailIfConversionToBigDecimalIsNotPossible(Object value) throws SQLException {
-        BigDecimal expectedValue = tryParse(value, o -> new BigDecimal(o.toString()));
+        BigDecimal expectedValue = tryParse(value, QueryDataType.DECIMAL);
         assumeThat(expectedValue).isNull();
 
         IMap<Object, Object> types = member.getMap("types");
@@ -611,6 +611,19 @@ class DriverTypeConversionTest {
                 .hasMessage("Target SQL type 999 is not supported");
     }
 
+    @ParameterizedTest
+    @MethodSource("nullableValues")
+    void shouldConvertNullValues(ThrowingFunction<ResultSet, ?> resultSetFunction, Object expectedNullValue) throws SQLException {
+        IMap<Object, Object> types = member.getMap("types");
+        types.put(1, new TypesHolder(null));
+
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM types");
+
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSetFunction.apply(resultSet)).isEqualTo(expectedNullValue);
+    }
+
     private ResultSet getPreparedResultSet(ValuesWrapper valuesWrapper, Object value, String sql, int targetSqlType)
             throws SQLException {
         IMap<Object, Object> types = member.getMap("types");
@@ -653,6 +666,29 @@ class DriverTypeConversionTest {
         );
     }
 
+    private static Stream<Arguments> nullableValues() {
+        return Stream.of(
+                Arguments.of(fromRS(rs -> rs.getString(2)), null),
+                Arguments.of(fromRS(rs -> rs.getInt(2)), 0),
+                Arguments.of(fromRS(rs -> rs.getLong(2)), 0L),
+                Arguments.of(fromRS(rs -> rs.getBoolean(2)), false),
+                Arguments.of(fromRS(rs -> rs.getBigDecimal(2)), null),
+                Arguments.of(fromRS(rs -> rs.getFloat(2)), 0.0f),
+                Arguments.of(fromRS(rs -> rs.getDouble(2)), 0.0),
+                Arguments.of(fromRS(rs -> rs.getByte(2)), (byte) 0),
+                Arguments.of(fromRS(rs -> rs.getShort(2)), (short) 0),
+                Arguments.of(fromRS(rs -> rs.getTime(2)), null),
+                Arguments.of(fromRS(rs -> rs.getTimestamp(2)), null),
+                Arguments.of(fromRS(rs -> rs.getDate(2)), null),
+                Arguments.of(fromRS(rs -> rs.getObject(2)), null)
+
+        );
+    }
+
+    private static ThrowingFunction<ResultSet, ?> fromRS(ThrowingFunction<ResultSet, ?> function) {
+        return function;
+    }
+
     @SuppressWarnings("unchecked")
     private static <T> T tryParse(Object object, QueryDataType queryDataType) {
         try {
@@ -686,5 +722,9 @@ class DriverTypeConversionTest {
             }
         }
         return null;
+    }
+
+    private interface ThrowingFunction<T, R> {
+        R apply(T t) throws SQLException;
     }
 }

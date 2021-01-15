@@ -18,8 +18,8 @@ package com.hazelcast.jdbc;
 import com.hazelcast.sql.SqlColumnType;
 import com.hazelcast.sql.impl.type.QueryDataType;
 import com.hazelcast.sql.impl.type.QueryDataTypeUtils;
-import com.hazelcast.sql.impl.type.converter.Converters;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Time;
@@ -36,6 +36,14 @@ final class TypeConverter {
     private static final Map<SqlColumnType, QueryDataType> SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP = new HashMap<>();
 
     static {
+        sqlTypesMapping();
+        sqlColumnTypeMapping();
+    }
+
+    private TypeConverter() {
+    }
+
+    private static void sqlTypesMapping() {
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.VARCHAR, QueryDataType.VARCHAR);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.BOOLEAN, QueryDataType.BOOLEAN);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.INTEGER, QueryDataType.INT);
@@ -48,7 +56,9 @@ final class TypeConverter {
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.FLOAT, QueryDataType.REAL);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.NUMERIC, QueryDataType.DECIMAL);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.CHAR, QueryDataType.VARCHAR_CHARACTER);
+    }
 
+    private static void sqlColumnTypeMapping() {
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.VARCHAR, QueryDataType.VARCHAR);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.BOOLEAN, QueryDataType.BOOLEAN);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.INTEGER, QueryDataType.INT);
@@ -59,32 +69,24 @@ final class TypeConverter {
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.SMALLINT, QueryDataType.SMALLINT);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.DOUBLE, QueryDataType.DOUBLE);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.OBJECT, QueryDataType.OBJECT);
-    }
-
-    private TypeConverter() {
-    }
-
-    @SuppressWarnings("unchecked")
-    static <T> T convertTo(Object object, QueryDataType targetDataType) throws SQLException {
-        try {
-            return (T) targetDataType.convert(object);
-        } catch (Exception e) {
-            throw new SQLException(e.getMessage(), e);
-        }
+        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.TIMESTAMP, QueryDataType.TIMESTAMP);
+        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.TIME, QueryDataType.TIME);
+        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.DATE, QueryDataType.DATE);
+        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.TIMESTAMP_WITH_TIME_ZONE, QueryDataType.TIMESTAMP_WITH_TZ_OFFSET_DATE_TIME);
     }
 
     @SuppressWarnings("unchecked")
     static <T> T convertTo(Object object, Class<T> clazz) throws SQLException {
+        QueryDataType queryDataType = QueryDataTypeUtils.resolveTypeForClass(clazz);
         if (clazz == Timestamp.class) {
-            return (T) convertToTimestamp(object);
+            return (T) convertToTimestamp(object, queryDataType);
         }
         if (clazz == Time.class) {
-            return (T) convertToTime(object);
+            return (T) convertToTime(object, queryDataType);
         }
         if (clazz == Date.class) {
-            return (T) convertToDate(object);
+            return (T) convertToDate(object, queryDataType);
         }
-        QueryDataType queryDataType = QueryDataTypeUtils.resolveTypeForClass(clazz);
         try {
             return (T) queryDataType.convert(object);
         } catch (Exception e) {
@@ -197,37 +199,61 @@ final class TypeConverter {
         }
     }
 
-    static Timestamp convertToTimestamp(Object object) throws SQLException {
+    static BigDecimal convertToBigDecimal(Object object, SqlColumnType columnType) throws SQLException {
+        if (object == null) {
+            return null;
+        }
+        QueryDataType queryDataType = SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.get(columnType);
+        try {
+            return queryDataType.getConverter().asDecimal(object);
+        } catch (Exception e) {
+            throw new SQLException(e.getMessage(), e);
+        }
+    }
+
+    static Timestamp convertToTimestamp(Object object, QueryDataType queryDataType) throws SQLException {
         if (object == null) {
             return null;
         }
         try {
             return new Timestamp(toMillis(
-                    Converters.getConverter(object.getClass()).asTimestampWithTimezone(object).toEpochSecond()));
+                    queryDataType.getConverter().asTimestampWithTimezone(object).toEpochSecond()));
         } catch (Exception e) {
             throw new SQLException(e.getMessage(), e);
         }
     }
 
-    static Time convertToTime(Object object) throws SQLException {
+    static Timestamp convertToTimestamp(Object object, SqlColumnType columnType) throws SQLException {
+        return convertToTimestamp(object, SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.get(columnType));
+    }
+
+    static Time convertToTime(Object object, SqlColumnType columnType) throws SQLException {
+        return convertToTime(object, SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.get(columnType));
+    }
+
+    static Time convertToTime(Object object, QueryDataType queryDataType) throws SQLException {
         if (object == null) {
             return null;
         }
         try {
             return new Time(toMillis(
-                    Converters.getConverter(object.getClass()).asTimestamp(object).toEpochSecond(ZoneOffset.UTC)));
+                    queryDataType.getConverter().asTimestamp(object).toEpochSecond(ZoneOffset.UTC)));
         } catch (Exception e) {
             throw new SQLException(e.getMessage(), e);
         }
     }
 
-    static Date convertToDate(Object object)  throws SQLException  {
+    static Date convertToDate(Object object, SqlColumnType columnType)  throws SQLException  {
+        return convertToDate(object, SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.get(columnType));
+    }
+
+    static Date convertToDate(Object object, QueryDataType queryDataType)  throws SQLException  {
         if (object == null) {
             return null;
         }
         try {
             return new Date(toMillis(
-                    Converters.getConverter(object.getClass()).asDate(object).atStartOfDay().toEpochSecond(ZoneOffset.UTC)));
+                    queryDataType.getConverter().asDate(object).atStartOfDay().toEpochSecond(ZoneOffset.UTC)));
         } catch (Exception e) {
             throw new SQLException(e.getMessage(), e);
         }
