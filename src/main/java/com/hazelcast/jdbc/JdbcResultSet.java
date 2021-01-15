@@ -146,12 +146,12 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public String getString(int columnIndex) throws SQLException {
-        return convertToString(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex -1).getType());
+        return convertToString(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public boolean getBoolean(int columnIndex) throws SQLException {
-        return convertToBoolean(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex -1).getType());
+        return convertToBoolean(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
@@ -171,17 +171,17 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public long getLong(int columnIndex) throws SQLException {
-        return convertToLong(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex -1).getType());
+        return convertToLong(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public float getFloat(int columnIndex) throws SQLException {
-        return convertToFloat(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex -1).getType());
+        return convertToFloat(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public double getDouble(int columnIndex) throws SQLException {
-        return convertToDouble(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex -1).getType());
+        return convertToDouble(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override

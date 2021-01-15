@@ -72,7 +72,8 @@ final class TypeConverter {
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.TIMESTAMP, QueryDataType.TIMESTAMP);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.TIME, QueryDataType.TIME);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.DATE, QueryDataType.DATE);
-        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.TIMESTAMP_WITH_TIME_ZONE, QueryDataType.TIMESTAMP_WITH_TZ_OFFSET_DATE_TIME);
+        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(
+                SqlColumnType.TIMESTAMP_WITH_TIME_ZONE, QueryDataType.TIMESTAMP_WITH_TZ_OFFSET_DATE_TIME);
     }
 
     @SuppressWarnings("unchecked")
