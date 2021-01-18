@@ -378,7 +378,10 @@ public class JdbcStatement implements Statement {
     void doExecute(String sql, List<Object> parameters, SqlExpectedResultType expectedResult) throws SQLException {
         checkClosed();
 
-        SqlStatement query = new SqlStatement(sql).setParameters(parameters).setExpectedResultType(expectedResult);
+        SqlStatement query = new SqlStatement(sql)
+                .setParameters(parameters)
+                .setExpectedResultType(expectedResult)
+                .setSchema(connection.getSchema());
         if (queryTimeout != 0) {
             query.setTimeoutMillis(queryTimeout * MILLIS_IN_SECOND);
         }
