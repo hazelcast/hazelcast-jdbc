@@ -60,6 +60,9 @@ public class JdbcStatement implements Statement {
     /** Whether to close the statement when the result set is closed. */
     private boolean closeOnCompletion;
 
+    /** Result set Max rows */
+    private int maxRows;
+
     private final HazelcastSqlClient client;
     private final Connection connection;
 
@@ -106,7 +109,7 @@ public class JdbcStatement implements Statement {
     @Override
     public int getMaxRows() throws SQLException {
         checkClosed();
-        return 0;
+        return maxRows;
     }
 
     @Override
@@ -115,6 +118,7 @@ public class JdbcStatement implements Statement {
         if (max < 0) {
             throw new SQLException("Invalid value for max rows: " + max);
         }
+        maxRows = max;
     }
 
     @Override

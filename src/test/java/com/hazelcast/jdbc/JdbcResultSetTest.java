@@ -48,7 +48,7 @@ public class JdbcResultSetTest {
     private JdbcResultSet resultSet;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws SQLException {
         when(sqlResult.iterator()).thenReturn(Collections.singletonList(sqlRow).iterator());
         resultSet = new JdbcResultSet(sqlResult, statement);
     }
@@ -120,5 +120,12 @@ public class JdbcResultSetTest {
         assertThatThrownBy(() -> resultSet.getLong(1))
                 .isInstanceOf(SQLException.class)
                 .hasMessage("Result set is closed");
+    }
+
+    @Test
+    void shouldSetDefaultFetchSizeFromStatement() throws SQLException {
+        when(statement.getFetchSize()).thenReturn(5);
+
+        assertThat(resultSet.getFetchSize()).isEqualTo(5);
     }
 }

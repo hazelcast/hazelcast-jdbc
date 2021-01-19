@@ -31,8 +31,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -150,6 +152,41 @@ public class JdbcStatementTest {
                 .hasMessage("Invalid fetch direction value: 3");
     }
 
+    @Test
+    void shouldSupportRowPositionMethods() throws SQLException {
+        when(client.execute(any())).thenReturn(
+                queryResult(Arrays.asList(mock(SqlRow.class), mock(SqlRow.class), mock(SqlRow.class), mock(SqlRow.class))));
+        Statement statement = new JdbcStatement(client, connection);
+        statement.setMaxRows(2);
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
+
+        assertThat(resultSet.getRow()).isEqualTo(0);
+        assertThat(resultSet.isBeforeFirst()).isTrue();
+        assertThat(resultSet.isFirst()).isFalse();
+        assertThat(resultSet.isAfterLast()).isFalse();
+
+        assertThat(resultSet.next()).isTrue();
+
+        assertThat(resultSet.getRow()).isEqualTo(1);
+        assertThat(resultSet.isBeforeFirst()).isFalse();
+        assertThat(resultSet.isFirst()).isTrue();
+        assertThat(resultSet.isAfterLast()).isFalse();
+
+        assertThat(resultSet.next()).isTrue();
+
+        assertThat(resultSet.getRow()).isEqualTo(2);
+        assertThat(resultSet.isBeforeFirst()).isFalse();
+        assertThat(resultSet.isFirst()).isFalse();
+        assertThat(resultSet.isAfterLast()).isFalse();
+
+        assertThat(resultSet.next()).isFalse();
+
+        assertThat(resultSet.getRow()).isEqualTo(0);
+        assertThat(resultSet.isBeforeFirst()).isFalse();
+        assertThat(resultSet.isFirst()).isFalse();
+        assertThat(resultSet.isAfterLast()).isTrue();
+    }
+
     private SqlResult updateResult() {
         return new SqlResult() {
             @Override
@@ -174,6 +211,10 @@ public class JdbcStatementTest {
     }
 
     private SqlResult queryResult() {
+        return queryResult(Collections.singletonList(mock(SqlRow.class)));
+    }
+
+    private SqlResult queryResult(List<SqlRow> rows) {
         return new SqlResult() {
             @Override
             public SqlRowMetadata getRowMetadata() {
@@ -182,7 +223,7 @@ public class JdbcStatementTest {
 
             @Override
             public Iterator<SqlRow> iterator() {
-                return Collections.singletonList(mock(SqlRow.class)).iterator();
+                return rows.iterator();
             }
 
             @Override

@@ -71,22 +71,43 @@ public class JdbcResultSet implements ResultSet {
     private int fetchDirection;
     /** Fetch size */
     private int fetchSize;
+    /** Max rows */
+    private final int maxRows;
+    /** Position of the current row. */
+    private int currentRowPosition;
+    /** Is the current row position before the first row */
+    private boolean isBeforeFirst = true;
 
 
-    JdbcResultSet(SqlResult sqlResult, JdbcStatement statement) {
+    JdbcResultSet(SqlResult sqlResult, JdbcStatement statement) throws SQLException {
         this.sqlResult = sqlResult;
         iterator = sqlResult.iterator();
         this.statement = statement;
+        maxRows = statement.getMaxRows();
+    }
+
+    private JdbcResultSet(SqlResult sqlResult) {
+        this.sqlResult = sqlResult;
+        iterator = sqlResult.iterator();
+        this.statement = null;
+        maxRows = 0;
     }
 
     @Override
     public boolean next() throws SQLException {
         checkClosed();
-        if (iterator.hasNext()) {
+        if (iterator.hasNext() && isNextRowAvailable()) {
             currentCursorPosition = iterator.next();
+            currentRowPosition++;
+            isBeforeFirst = false;
             return true;
         }
+        currentRowPosition = 0;
         return false;
+    }
+
+    private boolean isNextRowAvailable() {
+        return maxRows == 0 || currentRowPosition < maxRows;
     }
 
     @Override
@@ -332,17 +353,20 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public boolean isBeforeFirst() throws SQLException {
-        throw JdbcUtils.unsupported("Method not supported");
+        checkClosed();
+        return isBeforeFirst;
     }
 
     @Override
     public boolean isAfterLast() throws SQLException {
-        throw JdbcUtils.unsupported("Method not supported");
+        checkClosed();
+        return currentRowPosition == 0 && !isBeforeFirst;
     }
 
     @Override
     public boolean isFirst() throws SQLException {
-        throw JdbcUtils.unsupported("Method not supported");
+        checkClosed();
+        return currentRowPosition == 1;
     }
 
     @Override
@@ -372,7 +396,8 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public int getRow() throws SQLException {
-        throw JdbcUtils.unsupported("Method not supported");
+        checkClosed();
+        return currentRowPosition;
     }
 
     @Override
@@ -410,6 +435,9 @@ public class JdbcResultSet implements ResultSet {
         return fetchDirection;
     }
 
+    /**
+     * If the fetch size specified is zero the default value will be used.
+     */
     @Override
     public void setFetchSize(int rows) throws SQLException {
         checkClosed();
@@ -419,6 +447,9 @@ public class JdbcResultSet implements ResultSet {
     @Override
     public int getFetchSize() throws SQLException {
         checkClosed();
+        if (fetchSize == 0) {
+            return statement.getFetchSize();
+        }
         return fetchSize;
     }
 
@@ -1121,7 +1152,7 @@ public class JdbcResultSet implements ResultSet {
                 @Override
                 public void close() {
                 }
-            }, null);
+            });
         }
     }
 }
