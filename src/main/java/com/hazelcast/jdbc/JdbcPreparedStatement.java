@@ -183,7 +183,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
-        throw JdbcUtils.unsupported("setObject not implemented");
+        checkClosed();
+        setObject(parameterIndex, TypeConverter.convertTo(x, targetSqlType));
     }
 
     @Override

@@ -22,6 +22,7 @@ import com.hazelcast.sql.SqlRowMetadata;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.sql.Array;
 import java.sql.Blob;
@@ -42,6 +43,20 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+
+import static com.hazelcast.jdbc.TypeConverter.convertTo;
+import static com.hazelcast.jdbc.TypeConverter.convertToBigDecimal;
+import static com.hazelcast.jdbc.TypeConverter.convertToBoolean;
+import static com.hazelcast.jdbc.TypeConverter.convertToByte;
+import static com.hazelcast.jdbc.TypeConverter.convertToDate;
+import static com.hazelcast.jdbc.TypeConverter.convertToDouble;
+import static com.hazelcast.jdbc.TypeConverter.convertToFloat;
+import static com.hazelcast.jdbc.TypeConverter.convertToInt;
+import static com.hazelcast.jdbc.TypeConverter.convertToLong;
+import static com.hazelcast.jdbc.TypeConverter.convertToShort;
+import static com.hazelcast.jdbc.TypeConverter.convertToString;
+import static com.hazelcast.jdbc.TypeConverter.convertToTime;
+import static com.hazelcast.jdbc.TypeConverter.convertToTimestamp;
 
 public class JdbcResultSet implements ResultSet {
 
@@ -131,47 +146,47 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public String getString(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertToString(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public boolean getBoolean(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertToBoolean(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public byte getByte(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertToByte(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public short getShort(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertToShort(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public int getInt(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertToInt(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public long getLong(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertToLong(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public float getFloat(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertToFloat(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public double getDouble(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertToDouble(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-        throw JdbcUtils.unsupported("BigDecimal with scale is not supported");
+        return getBigDecimal(columnIndex).setScale(scale, RoundingMode.HALF_UP);
     }
 
     @Override
@@ -181,17 +196,17 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Date getDate(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertToDate(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public Time getTime(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertToTime(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertToTimestamp(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
@@ -211,47 +226,55 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public String getString(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        int column = findColumn(columnLabel);
+        return convertToString(getByIndex(column), sqlResult.getRowMetadata().getColumn(column).getType());
     }
 
     @Override
     public boolean getBoolean(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        int column = findColumn(columnLabel);
+        return convertToBoolean(getByIndex(column), sqlResult.getRowMetadata().getColumn(column).getType());
     }
 
     @Override
     public byte getByte(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        int column = findColumn(columnLabel);
+        return convertToByte(getByIndex(column), sqlResult.getRowMetadata().getColumn(column).getType());
     }
 
     @Override
     public short getShort(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        int column = findColumn(columnLabel);
+        return convertToShort(getByIndex(column), sqlResult.getRowMetadata().getColumn(column).getType());
     }
 
     @Override
     public int getInt(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        int column = findColumn(columnLabel);
+        return convertToInt(getByIndex(column), sqlResult.getRowMetadata().getColumn(column).getType());
     }
 
     @Override
     public long getLong(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        int column = findColumn(columnLabel);
+        return convertToLong(getByIndex(column), sqlResult.getRowMetadata().getColumn(column).getType());
     }
 
     @Override
     public float getFloat(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        int column = findColumn(columnLabel);
+        return convertToFloat(getByIndex(column), sqlResult.getRowMetadata().getColumn(column).getType());
     }
 
     @Override
     public double getDouble(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        int column = findColumn(columnLabel);
+        return convertToDouble(getByIndex(column), sqlResult.getRowMetadata().getColumn(column).getType());
     }
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
-        throw JdbcUtils.unsupported("BigDecimal with scale is not supported");
+        return getBigDecimal(columnLabel).setScale(scale, RoundingMode.HALF_UP);
     }
 
     @Override
@@ -261,17 +284,20 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Date getDate(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        int column = findColumn(columnLabel);
+        return convertToDate(getByIndex(column), sqlResult.getRowMetadata().getColumn(column).getType());
     }
 
     @Override
     public Time getTime(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        int column = findColumn(columnLabel);
+        return convertToTime(getByIndex(column), sqlResult.getRowMetadata().getColumn(column).getType());
     }
 
     @Override
     public Timestamp getTimestamp(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        int column = findColumn(columnLabel);
+        return convertToTimestamp(getByIndex(column), sqlResult.getRowMetadata().getColumn(column).getType());
     }
 
     @Override
@@ -343,12 +369,13 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-        return get(columnIndex);
+        return convertToBigDecimal(get(columnIndex), sqlResult.getRowMetadata().getColumn(columnIndex - 1).getType());
     }
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
-        return get(columnLabel);
+        int column = findColumn(columnLabel);
+        return convertToBigDecimal(getByIndex(column), sqlResult.getRowMetadata().getColumn(column).getType());
     }
 
     @Override
@@ -1085,12 +1112,12 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-        return get(columnIndex);
+        return convertTo(get(columnIndex), type);
     }
 
     @Override
     public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
-        return get(columnLabel);
+        return convertTo(get(columnLabel), type);
     }
 
     @Override
