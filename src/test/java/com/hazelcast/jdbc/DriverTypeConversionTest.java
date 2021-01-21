@@ -47,6 +47,7 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -624,6 +625,59 @@ class DriverTypeConversionTest {
         assertThat(resultSetFunction.apply(resultSet)).isEqualTo(expectedNullValue);
     }
 
+    @Test
+    void shouldSearchForTimestampWithTimezoneParameter() throws SQLException {
+        Instant value = Instant.now();
+        IMap<Object, Object> types = member.getMap("timestamp");
+        types.put(1, value);
+
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM timestamp WHERE \"this\" = ?");
+        preparedStatement.setObject(1, value, Types.TIMESTAMP_WITH_TIMEZONE);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        assertThat(resultSet.next()).isTrue();
+    }
+
+    private ResultSet getTemporalPreparedResultSet(Object value, int sqlTargetType) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM types WHERE \"this\" = ?");
+        preparedStatement.setObject(1, value, sqlTargetType);
+        return preparedStatement.executeQuery();
+    }
+
+    @Test
+    void shouldSearchForTimestampParameter() throws SQLException {
+        LocalDateTime value = LocalDateTime.now();
+        IMap<Object, Object> types = member.getMap("types");
+        types.put(1, value);
+
+        assertThat(getTemporalPreparedResultSet(value, Types.TIMESTAMP).next()).isTrue();
+        assertThat(getTemporalPreparedResultSet(OffsetDateTime.of(value, ZoneOffset.UTC), Types.TIMESTAMP).next()).isTrue();
+        assertThat(getTemporalPreparedResultSet(ZonedDateTime.of(value, ZoneOffset.UTC), Types.TIMESTAMP).next()).isTrue();
+    }
+
+    @Test
+    void shouldSearchForDateParameter() throws SQLException {
+        LocalDate value = LocalDate.now();
+        IMap<Object, Object> types = member.getMap("types");
+        types.put(1, value);
+
+        assertThat(getTemporalPreparedResultSet(value, Types.DATE).next()).isTrue();
+        assertThat(getTemporalPreparedResultSet(
+                OffsetDateTime.of(value, LocalTime.now(), ZoneOffset.UTC), Types.DATE).next()).isTrue();
+    }
+
+    @Test
+    void shouldSearchForTimeParameter() throws SQLException {
+        LocalTime value = LocalTime.now();
+        IMap<Object, Object> types = member.getMap("types");
+        types.put(1, value);
+
+        assertThat(getTemporalPreparedResultSet(value, Types.TIME).next()).isTrue();
+        assertThat(getTemporalPreparedResultSet(
+                OffsetDateTime.of(LocalDate.now(), value, ZoneOffset.UTC), Types.TIME).next()).isTrue();
+    }
+
+
+
     private ResultSet getPreparedResultSet(ValuesWrapper valuesWrapper, Object value, String sql, int targetSqlType)
             throws SQLException {
         IMap<Object, Object> types = member.getMap("types");
@@ -682,6 +736,19 @@ class DriverTypeConversionTest {
                 Arguments.of(fromRS(rs -> rs.getDate(2)), null),
                 Arguments.of(fromRS(rs -> rs.getObject(2)), null)
 
+        );
+    }
+
+    // Temporal values for (GMT) Wednesday, January 20, 2021 15:12:00
+    private static Stream<Arguments> temporalValues() {
+        Instant instant = Instant.ofEpochMilli(1611155520000L);
+        return Stream.of(
+                Arguments.of(instant)
+//                Arguments.of(LocalDateTime.ofInstant(instant, ZoneOffset.UTC)),
+//                Arguments.of(OffsetDateTime.ofInstant(instant, ZoneOffset.UTC)),
+//                Arguments.of(instant.atZone(ZoneOffset.UTC).toLocalDate()),
+//                Arguments.of(ZonedDateTime.ofInstant(instant, ZoneOffset.UTC)),
+//                Arguments.of(instant.atZone(ZoneOffset.UTC).toString())
         );
     }
 

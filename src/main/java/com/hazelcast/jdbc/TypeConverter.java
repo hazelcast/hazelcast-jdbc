@@ -56,6 +56,10 @@ final class TypeConverter {
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.FLOAT, QueryDataType.REAL);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.NUMERIC, QueryDataType.DECIMAL);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.CHAR, QueryDataType.VARCHAR_CHARACTER);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.TIMESTAMP, QueryDataType.TIMESTAMP);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.TIMESTAMP_WITH_TIMEZONE, QueryDataType.TIMESTAMP_WITH_TZ_INSTANT);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.DATE, QueryDataType.DATE);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.TIME, QueryDataType.TIME);
     }
 
     private static void sqlColumnTypeMapping() {
