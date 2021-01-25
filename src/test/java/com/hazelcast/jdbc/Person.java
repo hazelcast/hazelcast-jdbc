@@ -20,7 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
 
-public class Person implements Serializable {
+public class Person implements Serializable, Comparable<Person> {
     private static final long serialVersionUID = -7039971097562988460L;
 
     private String name;
@@ -74,5 +74,14 @@ public class Person implements Serializable {
 
     public static Person valueOf(ResultSet resultSet) throws SQLException {
         return new Person(resultSet.getString("name"), resultSet.getInt("age"));
+    }
+
+    @Override
+    public int compareTo(Person o) {
+        int comparedName = this.name.compareTo(o.name);
+        if (comparedName == 0) {
+            return Integer.compare(age, o.age);
+        }
+        return comparedName;
     }
 }

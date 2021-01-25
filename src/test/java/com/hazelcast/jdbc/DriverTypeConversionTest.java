@@ -631,16 +631,10 @@ class DriverTypeConversionTest {
         IMap<Object, Object> types = member.getMap("timestamp");
         types.put(1, value);
 
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM timestamp WHERE \"this\" = ?");
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM \"timestamp\" WHERE \"this\" = ?");
         preparedStatement.setObject(1, value, Types.TIMESTAMP_WITH_TIMEZONE);
         ResultSet resultSet = preparedStatement.executeQuery();
         assertThat(resultSet.next()).isTrue();
-    }
-
-    private ResultSet getTemporalPreparedResultSet(Object value, int sqlTargetType) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM types WHERE \"this\" = ?");
-        preparedStatement.setObject(1, value, sqlTargetType);
-        return preparedStatement.executeQuery();
     }
 
     @Test
@@ -676,6 +670,23 @@ class DriverTypeConversionTest {
                 OffsetDateTime.of(LocalDate.now(), value, ZoneOffset.UTC), Types.TIME).next()).isTrue();
     }
 
+    @Test
+    void shouldSearchForComparableObjects() throws SQLException {
+        Person person = new Person("John", 20);
+        IMap<Object, Object> types = member.getMap("person");
+        types.put(1, person);
+
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM person WHERE \"this\" = ?");
+        preparedStatement.setObject(1, new Person("John", 20), Types.JAVA_OBJECT);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        assertThat(resultSet.next()).isTrue();
+    }
+
+    private ResultSet getTemporalPreparedResultSet(Object value, int sqlTargetType) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM types WHERE \"this\" = ?");
+        preparedStatement.setObject(1, value, sqlTargetType);
+        return preparedStatement.executeQuery();
+    }
 
 
     private ResultSet getPreparedResultSet(ValuesWrapper valuesWrapper, Object value, String sql, int targetSqlType)
@@ -736,19 +747,6 @@ class DriverTypeConversionTest {
                 Arguments.of(fromRS(rs -> rs.getDate(2)), null),
                 Arguments.of(fromRS(rs -> rs.getObject(2)), null)
 
-        );
-    }
-
-    // Temporal values for (GMT) Wednesday, January 20, 2021 15:12:00
-    private static Stream<Arguments> temporalValues() {
-        Instant instant = Instant.ofEpochMilli(1611155520000L);
-        return Stream.of(
-                Arguments.of(instant)
-//                Arguments.of(LocalDateTime.ofInstant(instant, ZoneOffset.UTC)),
-//                Arguments.of(OffsetDateTime.ofInstant(instant, ZoneOffset.UTC)),
-//                Arguments.of(instant.atZone(ZoneOffset.UTC).toLocalDate()),
-//                Arguments.of(ZonedDateTime.ofInstant(instant, ZoneOffset.UTC)),
-//                Arguments.of(instant.atZone(ZoneOffset.UTC).toString())
         );
     }
 

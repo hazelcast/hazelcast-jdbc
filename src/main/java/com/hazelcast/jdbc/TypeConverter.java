@@ -101,6 +101,9 @@ final class TypeConverter {
 
     @SuppressWarnings("unchecked")
     static <T> T convertTo(Object object, int targetSqlType) throws SQLException {
+        if (targetSqlType == Types.JAVA_OBJECT) {
+            return (T) object;
+        }
         QueryDataType queryDataType = SQL_TYPES_TO_QUERY_DATA_TYPE.get(targetSqlType);
         if (queryDataType == null) {
             throw new SQLException("Target SQL type " + targetSqlType + " is not supported");

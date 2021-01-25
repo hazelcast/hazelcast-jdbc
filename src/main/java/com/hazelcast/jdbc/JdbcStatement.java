@@ -395,16 +395,15 @@ public class JdbcStatement implements Statement {
         SqlResult sqlResult;
         try {
             sqlResult = client.execute(query);
+            if (sqlResult.isRowSet()) {
+                resultSet = new JdbcResultSet(sqlResult, this);
+                updateCount = -1;
+            } else {
+                updateCount = Math.toIntExact(sqlResult.updateCount());
+                closeResultSet();
+            }
         } catch (HazelcastSqlException e) {
             throw new SQLException(e.getMessage(), e);
-        }
-
-        if (sqlResult.isRowSet()) {
-            resultSet = new JdbcResultSet(sqlResult, this);
-            updateCount = -1;
-        } else {
-            updateCount = Math.toIntExact(sqlResult.updateCount());
-            closeResultSet();
         }
     }
 
