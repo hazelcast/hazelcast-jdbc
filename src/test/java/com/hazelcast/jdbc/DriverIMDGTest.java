@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -179,5 +180,17 @@ public class DriverIMDGTest {
         }
 
         assertThat(actualResult).hasSize(2);;
+    }
+
+    @Test
+    void shouldFindColumnLabelByIndex() throws SQLException {
+        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
+        resultSet.next();
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        assertThat(metaData.getColumnLabel(1)).isEqualTo("__key");
+        assertThat(metaData.getColumnLabel(2)).isEqualTo("age");
+        assertThat(metaData.getColumnLabel(3)).isEqualTo("name");
     }
 }

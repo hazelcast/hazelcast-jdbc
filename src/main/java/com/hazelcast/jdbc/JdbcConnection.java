@@ -131,7 +131,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
-        throw JdbcUtils.unsupported("DatabaseMetaData not supported");
+        return new JdbcDataBaseMetadata(this);
     }
 
     @Override

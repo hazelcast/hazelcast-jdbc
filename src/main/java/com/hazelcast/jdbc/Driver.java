@@ -25,9 +25,9 @@ import java.util.logging.Logger;
 
 public class Driver implements java.sql.Driver {
 
-    private static final int VER_MAJOR = 4;
+    static final int VER_MAJOR = 4;
 
-    private static final int VER_MINOR = 0;
+    static final int VER_MINOR = 0;
 
     private static final Driver INSTANCE = new Driver();
     private static boolean registered;
