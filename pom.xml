@@ -94,12 +94,6 @@
             <version>${hazelcast.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.hazelcast.jet</groupId>
-            <artifactId>hazelcast-jet</artifactId>
-            <version>${hazelcast.jet.version}</version>
-            <scope>test</scope>
-        </dependency>
 
     </dependencies>
 

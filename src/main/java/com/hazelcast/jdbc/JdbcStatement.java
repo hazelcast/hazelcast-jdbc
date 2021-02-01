@@ -392,19 +392,17 @@ public class JdbcStatement implements Statement {
         if (fetchSize != 0) {
             query.setCursorBufferSize(fetchSize);
         }
-        SqlResult sqlResult;
         try {
-            sqlResult = client.execute(query);
+            SqlResult sqlResult = client.execute(query);
+            if (sqlResult.isRowSet()) {
+                resultSet = new JdbcResultSet(sqlResult, this);
+                updateCount = -1;
+            } else {
+                updateCount = Math.toIntExact(sqlResult.updateCount());
+                closeResultSet();
+            }
         } catch (HazelcastSqlException e) {
             throw new SQLException(e.getMessage(), e);
-        }
-
-        if (sqlResult.isRowSet()) {
-            resultSet = new JdbcResultSet(sqlResult, this);
-            updateCount = -1;
-        } else {
-            updateCount = Math.toIntExact(sqlResult.updateCount());
-            closeResultSet();
         }
     }
 
