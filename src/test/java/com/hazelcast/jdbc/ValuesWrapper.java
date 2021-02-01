@@ -17,9 +17,6 @@ package com.hazelcast.jdbc;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.Temporal;
 
 public class ValuesWrapper implements Serializable {
     private static final long serialVersionUID = 5855947779681687264L;
