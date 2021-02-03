@@ -170,12 +170,12 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public String getNumericFunctions() {
-        return null;
+        return "ABS,CEIL,DEGREES,EXP,FLOOR,LN,LOG10,LOG10,RAND,ROUND,SIGN,TRUNCATE,ACOS,ASIN,ATAN,COS,COT,SIN,TAN";
     }
 
     @Override
     public String getStringFunctions() {
-        return null;
+        return "ASCII,BTRIM,INITCAP,LENGTH,LIKE,ESCAPE,LOWER,LTRIM,RTRIM,SUBSTRING,TRIM,UPPER";
     }
 
     @Override
@@ -210,7 +210,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public boolean supportsColumnAliasing() {
-        return false;
+        return true;
     }
 
     @Override
@@ -590,7 +590,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public int getDefaultTransactionIsolation() {
-        return 0;
+        return Connection.TRANSACTION_NONE;
     }
 
     @Override
@@ -625,95 +625,95 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public ResultSet getProcedures(String catalog, String schemaPattern, String procedureNamePattern) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getProcedureColumns(
             String catalog, String schemaPattern, String procedureNamePattern, String columnNamePattern) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getTables(
             String catalog, String schemaPattern, String tableNamePattern, String[] types) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getSchemas() {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getCatalogs() {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getTableTypes() {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getColumns(
             String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getColumnPrivileges(
             String catalog, String schema, String table, String columnNamePattern) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getTablePrivileges(String catalog, String schemaPattern, String tableNamePattern) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getBestRowIdentifier(
             String catalog, String schema, String table, int scope, boolean nullable) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getVersionColumns(String catalog, String schema, String table) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getPrimaryKeys(String catalog, String schema, String table) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getImportedKeys(String catalog, String schema, String table) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getExportedKeys(String catalog, String schema, String table) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getCrossReference(
             String parentCatalog, String parentSchema, String parentTable,
             String foreignCatalog, String foreignSchema, String foreignTable) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getTypeInfo() {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getIndexInfo(
             String catalog, String schema, String table, boolean unique, boolean approximate) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
@@ -808,18 +808,18 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public ResultSet getSuperTypes(String catalog, String schemaPattern, String typeNamePattern) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getSuperTables(String catalog, String schemaPattern, String tableNamePattern) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getAttributes(
             String catalog, String schemaPattern, String typeNamePattern, String attributeNamePattern) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
@@ -854,7 +854,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public int getSQLStateType() {
-        return 0;
+        return DatabaseMetaData.sqlStateSQL;
     }
 
     @Override
@@ -869,12 +869,12 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public RowIdLifetime getRowIdLifetime() {
-        return null;
+        return RowIdLifetime.ROWID_UNSUPPORTED;
     }
 
     @Override
     public ResultSet getSchemas(String catalog, String schemaPattern) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
@@ -889,25 +889,25 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public ResultSet getClientInfoProperties() {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getFunctions(
             String catalog, String schemaPattern, String functionNamePattern) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getFunctionColumns(
             String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
     public ResultSet getPseudoColumns(
             String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
