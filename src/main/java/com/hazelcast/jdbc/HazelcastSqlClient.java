@@ -52,6 +52,10 @@ class HazelcastSqlClient {
         return client.getLifecycleService().isRunning();
     }
 
+    HazelcastInstance getClient() {
+        return client;
+    }
+
     JdbcUrl getJdbcUrl() {
         return jdbcUrl;
     }

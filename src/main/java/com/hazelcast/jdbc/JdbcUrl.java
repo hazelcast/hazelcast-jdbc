@@ -30,10 +30,12 @@ final class JdbcUrl {
     private int port = -1;
     private final String schema;
     private Properties properties = new Properties();
+    private final String rawUrl;
 
-    private JdbcUrl(String host, String schema) {
+    private JdbcUrl(String host, String schema, String rawUrl) {
         this.host = host;
         this.schema = schema;
+        this.rawUrl = rawUrl;
     }
 
     public String getAuthority() {
@@ -49,6 +51,10 @@ final class JdbcUrl {
 
     public Properties getProperties() {
         return properties;
+    }
+
+    public String getRawUrl() {
+        return rawUrl;
     }
 
     private void parseProperties(String parametersString) {
@@ -73,7 +79,7 @@ final class JdbcUrl {
         if (!matcher.matches()) {
             return null;
         }
-        JdbcUrl jdbcUrl = new JdbcUrl(matcher.group("host"), matcher.group("schema"));
+        JdbcUrl jdbcUrl = new JdbcUrl(matcher.group("host"), matcher.group("schema"), url);
         if (info != null) {
             jdbcUrl.properties = info;
         }

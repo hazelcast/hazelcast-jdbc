@@ -15,6 +15,8 @@
  */
 package com.hazelcast.jdbc;
 
+import com.hazelcast.core.HazelcastInstance;
+
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -413,6 +415,14 @@ public class JdbcConnection implements Connection {
 
     public boolean supportsHoldability(int holdability) {
         return holdability == ResultSet.CLOSE_CURSORS_AT_COMMIT;
+    }
+
+    JdbcUrl getJdbcUrl() {
+        return client.getJdbcUrl();
+    }
+
+    HazelcastInstance getClientInstance() {
+        return client.getClient();
     }
 
     private void checkClosed() throws SQLException {
