@@ -27,8 +27,10 @@ import java.util.Collections;
 class HazelcastSqlClient {
 
     private final HazelcastInstance client;
+    private final JdbcUrl jdbcUrl;
 
     HazelcastSqlClient(JdbcUrl url) {
+        jdbcUrl = url;
         ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(Collections.singletonList(url.getAuthority()));
         ClientConfig clientConfig = new ClientConfig().setNetworkConfig(networkConfig);
         String clusterName = url.getProperties().getProperty("clusterName");
@@ -48,5 +50,9 @@ class HazelcastSqlClient {
 
     boolean isRunning() {
         return client.getLifecycleService().isRunning();
+    }
+
+    JdbcUrl getJdbcUrl() {
+        return jdbcUrl;
     }
 }

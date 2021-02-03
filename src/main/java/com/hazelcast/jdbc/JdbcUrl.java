@@ -26,9 +26,9 @@ final class JdbcUrl {
             + "/(?<schema>\\S+?)"
             + "(\\?(?<parameters>\\S*))?$");
 
-    private String host;
+    private final String host;
     private int port = -1;
-    private String schema;
+    private final String schema;
     private Properties properties = new Properties();
 
     private JdbcUrl(String host, String schema) {
