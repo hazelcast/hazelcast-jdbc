@@ -25,6 +25,9 @@ import java.sql.SQLException;
 
 public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
+    private static final int JDBC_VERSION_MAJOR = 4;
+    private static final int JDBC_VERSION_MINOR = 3;
+
     private final JdbcConnection connection;
     private final HazelcastInstance clientInstance;
 
@@ -844,12 +847,12 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public int getJDBCMajorVersion() {
-        return 4;
+        return JDBC_VERSION_MAJOR;
     }
 
     @Override
     public int getJDBCMinorVersion() {
-        return 3;
+        return JDBC_VERSION_MINOR;
     }
 
     @Override
