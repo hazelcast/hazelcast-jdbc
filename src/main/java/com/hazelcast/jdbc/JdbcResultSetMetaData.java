@@ -15,6 +15,7 @@
  */
 package com.hazelcast.jdbc;
 
+import com.hazelcast.sql.SqlColumnMetadata;
 import com.hazelcast.sql.SqlColumnType;
 import com.hazelcast.sql.SqlRowMetadata;
 
@@ -125,7 +126,7 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public boolean isSigned(int column) {
-        SqlColumnType type = sqlRowMetadata.getColumn(column).getType();
+        SqlColumnType type = getColumn(column).getType();
         switch (type) {
             case REAL:
             case BIGINT:
@@ -142,17 +143,17 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int getColumnDisplaySize(int column) {
-        return SQL_TYPES_INFO.get(sqlRowMetadata.getColumn(column).getType()).displaySize;
+        return SQL_TYPES_INFO.get(getColumn(column).getType()).displaySize;
     }
 
     @Override
     public String getColumnLabel(int column) {
-        return sqlRowMetadata.getColumn(column).getName();
+        return getColumn(column).getName();
     }
 
     @Override
     public String getColumnName(int column) {
-        return sqlRowMetadata.getColumn(column).getName();
+        return getColumn(column).getName();
     }
 
     @Override
@@ -162,12 +163,12 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int getPrecision(int column) {
-        return SQL_TYPES_INFO.get(sqlRowMetadata.getColumn(column).getType()).precision;
+        return SQL_TYPES_INFO.get(getColumn(column).getType()).precision;
     }
 
     @Override
     public int getScale(int column) {
-        return SQL_TYPES_INFO.get(sqlRowMetadata.getColumn(column).getType()).scale;
+        return SQL_TYPES_INFO.get(getColumn(column).getType()).scale;
     }
 
     @Override
@@ -182,7 +183,7 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int getColumnType(int column) throws SQLException {
-        Integer type = SQL_TYPES_MAPPING.get(sqlRowMetadata.getColumn(column).getType());
+        Integer type = SQL_TYPES_MAPPING.get(getColumn(column).getType());
         if (type == null) {
             throw new SQLException("Unexpected null type for column " + column);
         }
@@ -191,7 +192,7 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public String getColumnTypeName(int column) {
-        return sqlRowMetadata.getColumn(column).getType().name();
+        return getColumn(column).getType().name();
     }
 
     @Override
@@ -211,7 +212,7 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public String getColumnClassName(int column) {
-        return sqlRowMetadata.getColumn(column).getType().getValueClass().getName();
+        return getColumn(column).getType().getValueClass().getName();
     }
 
     @Override
@@ -222,6 +223,10 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
     @Override
     public boolean isWrapperFor(Class<?> iface) {
         return JdbcUtils.isWrapperFor(this, iface);
+    }
+
+    private SqlColumnMetadata getColumn(int column) {
+        return sqlRowMetadata.getColumn(column - 1);
     }
 
     private static final class ColumnTypeInfo {
