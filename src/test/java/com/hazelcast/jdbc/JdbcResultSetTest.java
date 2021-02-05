@@ -56,7 +56,7 @@ public class JdbcResultSetTest {
     @Test
     public void shouldReturnTrueWhenFieldWasNull() throws SQLException {
         when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
-                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
+                new SqlColumnMetadata("name", SqlColumnType.VARCHAR, false))));
 
         when(sqlRow.getObject(anyInt())).thenReturn(null);
         resultSet.next();
@@ -68,7 +68,7 @@ public class JdbcResultSetTest {
     @Test
     void shouldThrowExceptionIfColumnNotFound() {
         when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
-                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
+                new SqlColumnMetadata("name", SqlColumnType.VARCHAR, false))));
 
         assertThatThrownBy(() -> resultSet.findColumn("surname"))
                 .isInstanceOf(SQLException.class)
@@ -78,7 +78,7 @@ public class JdbcResultSetTest {
     @Test
     void shouldThrowExceptionOnGetByColumnLabelIfColumnNotFound() {
         when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
-                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
+                new SqlColumnMetadata("name", SqlColumnType.VARCHAR, false))));
 
         assertThatThrownBy(() -> resultSet.getString("address"))
                 .isInstanceOf(SQLException.class)
@@ -88,7 +88,7 @@ public class JdbcResultSetTest {
     @Test
     void shouldThrowExceptionOnGetByColumnIndexIfColumnNotFound() {
         when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
-                new SqlColumnMetadata("name", SqlColumnType.VARCHAR))));
+                new SqlColumnMetadata("name", SqlColumnType.VARCHAR, false))));
 
         assertThatThrownBy(() -> resultSet.getString(2))
                 .isInstanceOf(SQLException.class)
