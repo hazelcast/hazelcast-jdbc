@@ -21,7 +21,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
-import java.sql.SQLException;
 
 public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
@@ -123,7 +122,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public boolean supportsMixedCaseIdentifiers() {
-        return false;
+        return true;
     }
 
     @Override
@@ -138,12 +137,12 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public boolean storesMixedCaseIdentifiers() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsMixedCaseQuotedIdentifiers() {
-        return false;
+        return true;
     }
 
     @Override
@@ -158,7 +157,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public boolean storesMixedCaseQuotedIdentifiers() {
-        return false;
+        return true;
     }
 
     @Override
@@ -183,22 +182,22 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public String getSystemFunctions() {
-        return null;
+        return "";
     }
 
     @Override
     public String getTimeDateFunctions() {
-        return null;
+        return "";
     }
 
     @Override
     public String getSearchStringEscape() {
-        return null;
+        return "";
     }
 
     @Override
     public String getExtraNameCharacters() {
-        return null;
+        return "";
     }
 
     @Override
@@ -218,7 +217,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public boolean nullPlusNonNullIsNull() {
-        return false;
+        return true;
     }
 
     @Override
@@ -243,7 +242,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public boolean supportsExpressionsInOrderBy() {
-        return false;
+        return true;
     }
 
     @Override
@@ -253,22 +252,22 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public boolean supportsGroupBy() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsGroupByUnrelated() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsGroupByBeyondSelect() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsLikeEscapeClause() {
-        return false;
+        return true;
     }
 
     @Override
@@ -283,37 +282,37 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public boolean supportsNonNullableColumns() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsMinimumSQLGrammar() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsCoreSQLGrammar() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsExtendedSQLGrammar() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsANSI92EntryLevelSQL() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsANSI92IntermediateSQL() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsANSI92FullSQL() {
-        return false;
+        return true;
     }
 
     @Override
@@ -338,77 +337,77 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public String getSchemaTerm() {
-        return null;
+        return "schema";
     }
 
     @Override
     public String getProcedureTerm() {
-        return null;
+        return "procedure";
     }
 
     @Override
     public String getCatalogTerm() {
-        return null;
+        return "catalog";
     }
 
     @Override
     public boolean isCatalogAtStart() {
-        return false;
+        return true;
     }
 
     @Override
     public String getCatalogSeparator() {
-        return null;
+        return ".";
     }
 
     @Override
     public boolean supportsSchemasInDataManipulation() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsSchemasInProcedureCalls() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsSchemasInTableDefinitions() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsSchemasInIndexDefinitions() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsSchemasInPrivilegeDefinitions() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsCatalogsInDataManipulation() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsCatalogsInProcedureCalls() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsCatalogsInTableDefinitions() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsCatalogsInIndexDefinitions() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean supportsCatalogsInPrivilegeDefinitions() {
-        return false;
+        return true;
     }
 
     @Override
@@ -603,7 +602,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public boolean supportsTransactionIsolationLevel(int level) {
-        return false;
+        return level == Connection.TRANSACTION_NONE;
     }
 
     @Override
@@ -781,7 +780,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public ResultSet getUDTs(String catalog, String schemaPattern, String typeNamePattern, int[] types) {
-        return null;
+        return JdbcResultSet.EMPTY;
     }
 
     @Override
@@ -831,8 +830,8 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public int getResultSetHoldability() throws SQLException {
-        return connection.getHoldability();
+    public int getResultSetHoldability() {
+        return ResultSet.CLOSE_CURSORS_AT_COMMIT;
     }
 
     @Override
