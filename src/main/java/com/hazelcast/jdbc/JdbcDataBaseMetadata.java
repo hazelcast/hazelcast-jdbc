@@ -247,7 +247,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public boolean supportsOrderByUnrelated() {
-        return false;
+        return true;
     }
 
     @Override
