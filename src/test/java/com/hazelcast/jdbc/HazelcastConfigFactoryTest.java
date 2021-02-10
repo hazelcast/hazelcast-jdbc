@@ -32,7 +32,7 @@ class HazelcastConfigFactoryTest {
     void shouldParseClusterNameConfiguration() {
         ClientConfig clientConfig = configFactory.clientConfig(
                 JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public?clusterName=my-cluster"));
-        assertThat(clientConfig).isEqualTo(new ClientConfig()
+        assertThat(clientConfig).isEqualTo(ClientConfig.load()
                 .setNetworkConfig(new ClientNetworkConfig().setAddresses(Collections.singletonList("localhost:5701")))
                 .setClusterName("my-cluster"));
     }
@@ -41,7 +41,7 @@ class HazelcastConfigFactoryTest {
     void shouldParseDiscoveryToken() {
         ClientConfig clientConfig = configFactory.clientConfig(
                 JdbcUrl.valueOf("jdbc:hazelcast://cluster-name/public?discoverToken=token-value-123"));
-        assertThat(clientConfig).isEqualTo(new ClientConfig()
+        assertThat(clientConfig).isEqualTo(ClientConfig.load()
                 .setProperty(ClientProperty.HAZELCAST_CLOUD_DISCOVERY_TOKEN.getName(), "token-value-123")
                 .setClusterName("cluster-name"));
     }
