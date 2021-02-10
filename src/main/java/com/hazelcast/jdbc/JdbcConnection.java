@@ -15,6 +15,8 @@
  */
 package com.hazelcast.jdbc;
 
+import com.hazelcast.core.HazelcastInstance;
+
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -131,7 +133,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
-        throw JdbcUtils.unsupported("DatabaseMetaData not supported");
+        return new JdbcDataBaseMetadata(this);
     }
 
     @Override
@@ -221,7 +223,7 @@ public class JdbcConnection implements Connection {
     @Override
     public void setHoldability(int holdability) throws SQLException {
         checkClosed();
-        if (holdability != ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+        if (!supportsHoldability(holdability)) {
             throw JdbcUtils.unsupported("Value for holdability not supported " + holdability);
         }
     }
@@ -403,6 +405,26 @@ public class JdbcConnection implements Connection {
         return JdbcUtils.isWrapperFor(this, iface);
     }
 
+    public boolean supportsResultSetType(int resultSetType) {
+        return resultSetType == ResultSet.TYPE_FORWARD_ONLY;
+    }
+
+    public boolean supportsResultSetConcurrency(int resultSetConcurrency) {
+        return resultSetConcurrency == ResultSet.CONCUR_READ_ONLY;
+    }
+
+    public boolean supportsHoldability(int holdability) {
+        return holdability == ResultSet.CLOSE_CURSORS_AT_COMMIT;
+    }
+
+    JdbcUrl getJdbcUrl() {
+        return client.getJdbcUrl();
+    }
+
+    HazelcastInstance getClientInstance() {
+        return client.getClient();
+    }
+
     private void checkClosed() throws SQLException {
         if (isClosed()) {
             throw new SQLException("Connection is closed");
@@ -411,13 +433,13 @@ public class JdbcConnection implements Connection {
 
     private void checkStatementParameters(int resultSetType, int resultSetConcurrency, int resultSetHoldability)
             throws SQLException {
-        if (resultSetType != ResultSet.TYPE_FORWARD_ONLY) {
+        if (!supportsResultSetType(resultSetType)) {
             throw JdbcUtils.unsupported("Unsupported ResultSet type: " + resultSetType);
         }
-        if (resultSetConcurrency != ResultSet.CONCUR_READ_ONLY) {
+        if (!supportsResultSetConcurrency(resultSetConcurrency)) {
             throw JdbcUtils.unsupported("Unsupported ResultSet concurrency: " + resultSetConcurrency);
         }
-        if (resultSetHoldability != ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+        if (!supportsHoldability(resultSetHoldability)) {
             throw JdbcUtils.unsupported("Unsupported ResultSet holdability: " + resultSetHoldability);
         }
     }
