@@ -37,11 +37,13 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/com.hazelcast/hazelcast-enterprise-all -->
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
             <version>${hazelcast.version}</version>
         </dependency>
+
 
         <!--Test dependencies-->
         <dependency>
@@ -108,6 +110,14 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>Hazelcast Private Release Repository</id>
+            <url>https://repository.hazelcast.com/release/</url>
+        </repository>
+        <repository>
+            <id>Hazelcast Private Snapshot Repository</id>
+            <url>https://repository.hazelcast.com/snapshot/</url>
         </repository>
     </repositories>
 

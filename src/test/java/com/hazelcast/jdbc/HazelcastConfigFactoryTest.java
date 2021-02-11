@@ -18,6 +18,8 @@ package com.hazelcast.jdbc;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.client.properties.ClientProperty;
+import com.hazelcast.config.SSLConfig;
+import com.hazelcast.security.UsernamePasswordCredentials;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -44,5 +46,32 @@ class HazelcastConfigFactoryTest {
         assertThat(clientConfig).isEqualTo(ClientConfig.load()
                 .setProperty(ClientProperty.HAZELCAST_CLOUD_DISCOVERY_TOKEN.getName(), "token-value-123")
                 .setClusterName("cluster-name"));
+    }
+
+    @Test
+    void shouldParseCredentials() {
+        ClientConfig clientConfig = configFactory.clientConfig(
+                JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public?user=admin&password=pass"));
+        UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) clientConfig.getSecurityConfig()
+                .getCredentialsIdentityConfig().getCredentials();
+        assertThat(credentials.getName()).isEqualTo("admin");
+        assertThat(credentials.getPassword()).isEqualTo("pass");
+    }
+
+
+    @Test
+    void shouldParseSslConfigs() {
+        ClientConfig clientConfig = configFactory.clientConfig(
+                JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public?sslEnabled=true&trustStore=truststore" +
+                        "&trustStorePassword=123abc"));
+        ClientConfig expectedConfig = ClientConfig.load()
+                .setNetworkConfig(new ClientNetworkConfig()
+                        .setAddresses(Collections.singletonList("localhost:5701"))
+                        .setSSLConfig(new SSLConfig()
+                                .setEnabled(true)
+                                .setProperty("trustStorePassword", "123abc")
+                                .setProperty("trustStore", "truststore")));
+
+        assertThat(clientConfig).isEqualTo(expectedConfig);
     }
 }
