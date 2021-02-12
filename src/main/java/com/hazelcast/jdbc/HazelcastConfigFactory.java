@@ -39,9 +39,22 @@ class HazelcastConfigFactory {
         map.put("clusterName", ClientConfig::setClusterName);
         gcpConfigMapping(map);
         awsConfigMapping(map);
+        azureConfigMapping(map);
         sslConfigMapping(map);
         k8sConfigMapping(map);
         CONFIGURATION_MAPPING = Collections.unmodifiableMap(map);
+    }
+
+    private static void azureConfigMapping(Map<String, BiConsumer<ClientConfig, String>> map) {
+        map.put("azureInstanceMetadataAvailable", (c, p) -> azureConfig(c, "instance-metadata-available", p));
+        map.put("azureClientId", (c, p) -> azureConfig(c, "client-id", p));
+        map.put("azureClientSecret", (c, p) -> azureConfig(c, "client-secret", p));
+        map.put("azureTenantId", (c, p) -> azureConfig(c, "tenant-id", p));
+        map.put("azureSubscriptionId", (c, p) -> azureConfig(c, "subscription-id", p));
+        map.put("azureResourceGroup", (c, p) -> azureConfig(c, "resource-group", p));
+        map.put("azureScaleSet", (c, p) -> azureConfig(c, "scale-set", p));
+        map.put("azureUsePublicIp", (c, p) -> c.getNetworkConfig().getAzureConfig().setEnabled(true)
+                .setUsePublicIp(p.equalsIgnoreCase("true")));
     }
 
     private static void k8sConfigMapping(Map<String, BiConsumer<ClientConfig, String>> map) {
@@ -88,7 +101,7 @@ class HazelcastConfigFactory {
         map.put("gcpLabel", (c, v) -> gcpConfig(c, "label", v));
         map.put("gcpUsePublicIp", (c, v) -> c.getNetworkConfig()
                 .getGcpConfig().setEnabled(true)
-                .setUsePublicIp(v.equalsIgnoreCase("true")).setProperty("use-public-ip", "true"));
+                .setUsePublicIp(v.equalsIgnoreCase("true")).setProperty("use-public-ip", v));
     }
 
     ClientConfig clientConfig(JdbcUrl url) {
@@ -155,6 +168,13 @@ class HazelcastConfigFactory {
     private static void awsConfig(ClientConfig clientConfig, String property, String value) {
         clientConfig.getNetworkConfig()
                 .getAwsConfig()
+                .setEnabled(true)
+                .setProperty(property, value);
+    }
+
+    private static void azureConfig(ClientConfig clientConfig, String property, String value) {
+        clientConfig.getNetworkConfig()
+                .getAzureConfig()
                 .setEnabled(true)
                 .setProperty(property, value);
     }
