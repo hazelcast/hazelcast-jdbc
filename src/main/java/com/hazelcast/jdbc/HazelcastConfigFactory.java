@@ -33,6 +33,20 @@ class HazelcastConfigFactory {
     static {
         Map<String, BiConsumer<ClientConfig, String>> map = new HashMap<>();
         map.put("clusterName", ClientConfig::setClusterName);
+        map.put("awsTagKey", (c, v) -> awsConfig(c, "tag-key", v));
+        map.put("awsTagValue", (c, v) -> awsConfig(c, "tag-value", v));
+        map.put("awsAccessKey", (c, v) -> awsConfig(c, "access-key", v));
+        map.put("awsSecretKey", (c, v) -> awsConfig(c, "secret-key", v));
+        map.put("awsIamRole", (c, v) -> awsConfig(c, "iam-role", v));
+        map.put("awsRegion", (c, v) -> awsConfig(c, "region", v));
+        map.put("awsHostHeader", (c, v) -> awsConfig(c, "host-header", v));
+        map.put("awsSecurityGroupName", (c, v) -> awsConfig(c, "security-group-name", v));
+        map.put("awsConnectionTimeoutSeconds", (c, v) -> awsConfig(c, "connection-timeout-seconds", v));
+        map.put("awsReadTimeoutSeconds", (c, v) -> awsConfig(c, "read-timeout-seconds", v));
+        map.put("awsConnectionRetries", (c, v) -> awsConfig(c, "connection-retries", v));
+        map.put("awsHzPort", (c, v) -> awsConfig(c, "hz-port", v));
+        map.put("awsUsePublicIp", (c, v) -> c.getNetworkConfig()
+                        .getAwsConfig().setEnabled(true).setUsePublicIp(v.equalsIgnoreCase("true")));
         map.put("sslEnabled", (c, p) -> sslConfig(c, (ssl) -> ssl.setEnabled(p.equalsIgnoreCase("true"))));
         map.put("trustStore", (c, p) -> sslConfig(c, (ssl) -> ssl.setProperty("trustStore", p)));
         map.put("trustStorePassword", (c, p) -> sslConfig(c, (ssl) -> ssl.setProperty("trustStorePassword", p)));
@@ -79,5 +93,12 @@ class HazelcastConfigFactory {
         }
         sslConfigFunction.accept(sslConfig);
         clientConfig.getNetworkConfig().setSSLConfig(sslConfig);
+    }
+
+    private static void awsConfig(ClientConfig clientConfig, String property, String value) {
+        clientConfig.getNetworkConfig()
+                .getAwsConfig()
+                .setEnabled(true)
+                .setProperty(property, value);
     }
 }

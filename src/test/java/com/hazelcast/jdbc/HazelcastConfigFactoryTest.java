@@ -18,6 +18,7 @@ package com.hazelcast.jdbc;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.client.properties.ClientProperty;
+import com.hazelcast.config.AwsConfig;
 import com.hazelcast.config.SSLConfig;
 import com.hazelcast.security.UsernamePasswordCredentials;
 import org.junit.jupiter.api.Test;
@@ -72,6 +73,34 @@ class HazelcastConfigFactoryTest {
                                 .setProperty("trustStorePassword", "123abc")
                                 .setProperty("trustStore", "truststore")));
 
+        assertThat(clientConfig).isEqualTo(expectedConfig);
+    }
+
+    @Test
+    void shouldParseAwsConfigs() {
+        ClientConfig clientConfig = configFactory.clientConfig(
+                JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public?awsTagKey=tagkey&awsTagValue=tagValue" +
+                        "&awsAccessKey=accessKey&awsSecretKey=secretKey&awsIamRole=ADMIN&awsRegion=us-west-2&awsHostHeader=ec2" +
+                        "&awsSecurityGroupName=securityGroup&awsConnectionTimeoutSeconds=10&awsReadTimeoutSeconds=5" +
+                        "&awsConnectionRetries=3&awsHzPort=5801-5808&awsUsePublicIp=true"));
+
+        ClientConfig expectedConfig = ClientConfig.load()
+                .setNetworkConfig(new ClientNetworkConfig()
+                        .setAddresses(Collections.singletonList("localhost:5701"))
+                        .setAwsConfig(new AwsConfig().setEnabled(true)
+                                .setUsePublicIp(true)
+                                .setProperty("tag-key", "tagkey")
+                                .setProperty("tag-value", "tagValue")
+                                .setProperty("access-key", "accessKey")
+                                .setProperty("secret-key", "secretKey")
+                                .setProperty("iam-role", "ADMIN")
+                                .setProperty("region", "us-west-2")
+                                .setProperty("host-header", "ec2")
+                                .setProperty("security-group-name", "securityGroup")
+                                .setProperty("connection-timeout-seconds", "10")
+                                .setProperty("read-timeout-seconds", "5")
+                                .setProperty("connection-retries", "3")
+                                .setProperty("hz-port", "5801-5808")));
         assertThat(clientConfig).isEqualTo(expectedConfig);
     }
 }
