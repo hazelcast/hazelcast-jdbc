@@ -19,6 +19,7 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.config.AwsConfig;
+import com.hazelcast.config.GcpConfig;
 import com.hazelcast.config.SSLConfig;
 import com.hazelcast.security.UsernamePasswordCredentials;
 import org.junit.jupiter.api.Test;
@@ -101,6 +102,27 @@ class HazelcastConfigFactoryTest {
                                 .setProperty("read-timeout-seconds", "5")
                                 .setProperty("connection-retries", "3")
                                 .setProperty("hz-port", "5801-5808")));
+        assertThat(clientConfig).isEqualTo(expectedConfig);
+    }
+
+    @Test
+    void shouldParseGcpConfigs() {
+        ClientConfig clientConfig = configFactory.clientConfig(
+                JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public?gcpPrivateKeyPath=/home/name/service/account/key.json" +
+                        "&gcpProjects=project-1,project-2&gcpRegion=us-east1&gcpHzPort=5701-5708&gcpLabel=application" +
+                        "%3Dhazelcast&gcpUsePublicIp=true"));
+        ClientConfig expectedConfig = ClientConfig.load()
+                .setNetworkConfig(new ClientNetworkConfig()
+                        .setAddresses(Collections.singletonList("localhost:5701"))
+                        .setGcpConfig(new GcpConfig()
+                                .setEnabled(true)
+                                .setUsePublicIp(true)
+                                .setProperty("use-public-ip", "true")
+                                .setProperty("private-key-path", "/home/name/service/account/key.json")
+                                .setProperty("projects", "project-1,project-2")
+                                .setProperty("region", "us-east1")
+                                .setProperty("label", "application=hazelcast")
+                                .setProperty("hz-port", "5701-5708")));
         assertThat(clientConfig).isEqualTo(expectedConfig);
     }
 }
