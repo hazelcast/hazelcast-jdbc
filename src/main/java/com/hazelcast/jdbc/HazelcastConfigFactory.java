@@ -33,13 +33,20 @@ import java.util.function.Consumer;
 class HazelcastConfigFactory {
 
     private static final Map<String, BiConsumer<ClientConfig, String>> CONFIGURATION_MAPPING;
+
     static {
         Map<String, BiConsumer<ClientConfig, String>> map = new HashMap<>();
         map.put("clusterName", ClientConfig::setClusterName);
         gcpConfigMapping(map);
         awsConfigMapping(map);
         sslConfigMapping(map);
+        k8sConfigMapping(map);
         CONFIGURATION_MAPPING = Collections.unmodifiableMap(map);
+    }
+
+    private static void k8sConfigMapping(Map<String, BiConsumer<ClientConfig, String>> map) {
+        map.put("k8sServiceDns", (c, p) -> k8sConfig(c, "service-dns", p));
+        map.put("k8sServicePort", (c, p) -> k8sConfig(c, "service-port", p));
     }
 
     private static void sslConfigMapping(Map<String, BiConsumer<ClientConfig, String>> map) {
@@ -67,7 +74,7 @@ class HazelcastConfigFactory {
         map.put("awsConnectionRetries", (c, v) -> awsConfig(c, "connection-retries", v));
         map.put("awsHzPort", (c, v) -> awsConfig(c, "hz-port", v));
         map.put("awsUsePublicIp", (c, v) -> c.getNetworkConfig()
-                        .getAwsConfig().setEnabled(true).setUsePublicIp(v.equalsIgnoreCase("true")));
+                .getAwsConfig().setEnabled(true).setUsePublicIp(v.equalsIgnoreCase("true")));
     }
 
     private static void gcpConfigMapping(Map<String, BiConsumer<ClientConfig, String>> map) {
@@ -116,6 +123,12 @@ class HazelcastConfigFactory {
         clientConfig.setProperty(ClientProperty.HAZELCAST_CLOUD_DISCOVERY_TOKEN.getName(), discoverToken);
         clientConfig.setClusterName(url.getAuthority());
         return clientConfig;
+    }
+
+    private static void k8sConfig(ClientConfig clientConfig, String property, String value) {
+        clientConfig.getNetworkConfig().getKubernetesConfig()
+                .setEnabled(true)
+                .setProperty(property, value);
     }
 
     private static void sslConfig(ClientConfig clientConfig, String property, String value) {
