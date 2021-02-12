@@ -46,6 +46,9 @@ class HazelcastConfigFactory {
 
     private static void k8sConfigMapping(Map<String, BiConsumer<ClientConfig, String>> map) {
         map.put("k8sServiceDns", (c, p) -> k8sConfig(c, "service-dns", p));
+        map.put("k8sServiceDnsTimeout", (c, p) -> k8sConfig(c, "service-dns-timeout", p));
+        map.put("k8sNamespace", (c, p) -> k8sConfig(c, "namespace", p));
+        map.put("k8sServiceName", (c, p) -> k8sConfig(c, "service-name", p));
         map.put("k8sServicePort", (c, p) -> k8sConfig(c, "service-port", p));
     }
 
