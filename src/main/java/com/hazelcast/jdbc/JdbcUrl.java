@@ -15,6 +15,11 @@
  */
 package com.hazelcast.jdbc;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,27 +27,24 @@ import java.util.regex.Pattern;
 final class JdbcUrl {
 
     private static final Pattern JDBC_URL_PATTERN = Pattern.compile("^jdbc:hazelcast://"
-            + "(?<host>\\S+?(?=[:/]))(:(?<port>\\d+))?"
+            + "(?<authority>\\S+?(?=[/]))"
             + "/(?<schema>\\S+?)"
             + "(\\?(?<parameters>\\S*))?$");
 
-    private final String host;
-    private int port = -1;
+    private final List<String> authorities;
     private final String schema;
-    private Properties properties = new Properties();
     private final String rawUrl;
+    private Properties properties = new Properties();
+    private String rawAuthority;
 
-    private JdbcUrl(String host, String schema, String rawUrl) {
-        this.host = host;
+    private JdbcUrl(List<String> authorities, String schema, String rawUrl) {
+        this.authorities = authorities;
         this.schema = schema;
         this.rawUrl = rawUrl;
     }
 
-    public String getAuthority() {
-        if (port == -1) {
-            return host;
-        }
-        return host + ":" + port;
+    public List<String> getAuthorities() {
+        return authorities;
     }
 
     public String getSchema() {
@@ -55,6 +57,10 @@ final class JdbcUrl {
 
     public String getRawUrl() {
         return rawUrl;
+    }
+
+    public String getRawAuthority() {
+        return rawAuthority;
     }
 
     private void parseProperties(String parametersString) {
@@ -79,13 +85,12 @@ final class JdbcUrl {
         if (!matcher.matches()) {
             return null;
         }
-        JdbcUrl jdbcUrl = new JdbcUrl(matcher.group("host"), matcher.group("schema"), url);
+
+        String rawAuthority = decodeUrl(matcher.group("authority"));
+        JdbcUrl jdbcUrl = new JdbcUrl(Arrays.asList(rawAuthority.split(",")), matcher.group("schema"), url);
+        jdbcUrl.rawAuthority = rawAuthority;
         if (info != null) {
             jdbcUrl.properties = info;
-        }
-        String port = matcher.group("port");
-        if (port != null) {
-            jdbcUrl.port = Integer.parseInt(port);
         }
         jdbcUrl.parseProperties(matcher.group("parameters"));
         return jdbcUrl;
@@ -94,4 +99,13 @@ final class JdbcUrl {
     static JdbcUrl valueOf(String url) {
         return valueOf(url, new Properties());
     }
+
+    static String decodeUrl(String raw) {
+        try {
+            return URLDecoder.decode(raw, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException impossible) {
+            throw new IllegalArgumentException(impossible);
+        }
+    }
+
 }

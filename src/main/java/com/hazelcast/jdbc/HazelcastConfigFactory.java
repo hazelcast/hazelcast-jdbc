@@ -21,9 +21,6 @@ import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.config.SSLConfig;
 import com.hazelcast.security.UsernamePasswordCredentials;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -110,17 +107,13 @@ class HazelcastConfigFactory {
         if (discoverToken != null) {
             return cloudConfig(url, clientConfig, discoverToken);
         }
-        ClientNetworkConfig networkConfig = new ClientNetworkConfig().addAddress(url.getAuthority());
+        ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(url.getAuthorities());
         clientConfig.setNetworkConfig(networkConfig);
 
         CONFIGURATION_MAPPING.forEach((k, v) -> {
             String property = url.getProperties().getProperty(k);
             if (property != null) {
-                try {
-                    property = URLDecoder.decode(property, StandardCharsets.UTF_8.name());
-                } catch (UnsupportedEncodingException ignored) {
-                }
-                v.accept(clientConfig, property);
+                v.accept(clientConfig, JdbcUrl.decodeUrl(property));
             }
         });
         return clientConfig;
@@ -137,7 +130,7 @@ class HazelcastConfigFactory {
 
     private ClientConfig cloudConfig(JdbcUrl url, ClientConfig clientConfig, String discoverToken) {
         clientConfig.setProperty(ClientProperty.HAZELCAST_CLOUD_DISCOVERY_TOKEN.getName(), discoverToken);
-        clientConfig.setClusterName(url.getAuthority());
+        clientConfig.setClusterName(url.getRawAuthority());
         return clientConfig;
     }
 

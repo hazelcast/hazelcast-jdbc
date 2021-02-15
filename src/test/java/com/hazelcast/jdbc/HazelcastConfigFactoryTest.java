@@ -24,6 +24,7 @@ import com.hazelcast.config.SSLConfig;
 import com.hazelcast.security.UsernamePasswordCredentials;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -124,5 +125,23 @@ class HazelcastConfigFactoryTest {
                                 .setProperty("label", "application=hazelcast")
                                 .setProperty("hz-port", "5701-5708")));
         assertThat(clientConfig).isEqualTo(expectedConfig);
+    }
+
+    @Test
+    void shouldParseConfigsForMultipleMemberInstances() {
+        ClientConfig clientConfig = configFactory.clientConfig(
+                JdbcUrl.valueOf("jdbc:hazelcast://198.51.100.11:5701,203.0.113.42:5702/public"));
+        assertThat(clientConfig).isEqualTo(ClientConfig.load()
+                .setNetworkConfig(new ClientNetworkConfig().setAddresses(Arrays.asList("198.51.100.11:5701", "203.0.113.42:5702")))
+                .setClusterName("dev"));
+    }
+
+    @Test
+    void shouldDecodeUrlEncodedHost() {
+        ClientConfig clientConfig = configFactory.clientConfig(
+                JdbcUrl.valueOf("jdbc:hazelcast://loc%61lhost:5701/public"));
+        assertThat(clientConfig).isEqualTo(ClientConfig.load()
+                .setNetworkConfig(new ClientNetworkConfig().setAddresses(Collections.singletonList("localhost:5701")))
+                .setClusterName("dev"));
     }
 }
