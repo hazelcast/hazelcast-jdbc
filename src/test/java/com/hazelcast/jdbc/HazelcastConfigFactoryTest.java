@@ -110,8 +110,8 @@ class HazelcastConfigFactoryTest {
     void shouldParseGcpConfigs() {
         ClientConfig clientConfig = configFactory.clientConfig(
                 JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public?gcpPrivateKeyPath=/home/name/service/account/key.json" +
-                        "&gcpProjects=project-1,project-2&gcpRegion=us-east1&gcpHzPort=5701-5708&gcpLabel=application" +
-                        "%3Dhazelcast&gcpUsePublicIp=true"));
+                        "&gcpProjects=project-1,project-2&gcpRegion=us-east1&gcpHzPort=5701-5708" +
+                        "&gcpLabel[application]=hazelcast&gcpUsePublicIp=true"));
         ClientConfig expectedConfig = ClientConfig.load()
                 .setNetworkConfig(new ClientNetworkConfig()
                         .setAddresses(Collections.singletonList("localhost:5701"))
@@ -123,6 +123,27 @@ class HazelcastConfigFactoryTest {
                                 .setProperty("projects", "project-1,project-2")
                                 .setProperty("region", "us-east1")
                                 .setProperty("label", "application=hazelcast")
+                                .setProperty("hz-port", "5701-5708")));
+        assertThat(clientConfig).isEqualTo(expectedConfig);
+    }
+
+    @Test
+    void shouldParseGcpConfigsWithMultipleLabels() {
+        ClientConfig clientConfig = configFactory.clientConfig(
+                JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public?gcpPrivateKeyPath=/home/name/service/account/key.json" +
+                        "&gcpProjects=project-1,project-2&gcpRegion=us-east1&gcpHzPort=5701-5708" +
+                        "&gcpLabel[application]=hazelcast&gcpLabel[other]=value&gcpUsePublicIp=true"));
+        ClientConfig expectedConfig = ClientConfig.load()
+                .setNetworkConfig(new ClientNetworkConfig()
+                        .setAddresses(Collections.singletonList("localhost:5701"))
+                        .setGcpConfig(new GcpConfig()
+                                .setEnabled(true)
+                                .setUsePublicIp(true)
+                                .setProperty("use-public-ip", "true")
+                                .setProperty("private-key-path", "/home/name/service/account/key.json")
+                                .setProperty("projects", "project-1,project-2")
+                                .setProperty("region", "us-east1")
+                                .setProperty("label", "other=value,application=hazelcast")
                                 .setProperty("hz-port", "5701-5708")));
         assertThat(clientConfig).isEqualTo(expectedConfig);
     }

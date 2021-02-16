@@ -103,7 +103,7 @@ class HazelcastConfigFactory {
 
     ClientConfig clientConfig(JdbcUrl url) {
         ClientConfig clientConfig = securityConfig(url, ClientConfig.load());
-        String discoverToken = url.getProperties().getProperty("discoverToken");
+        String discoverToken = url.getProperty("discoverToken");
         if (discoverToken != null) {
             return cloudConfig(url, clientConfig, discoverToken);
         }
@@ -111,17 +111,17 @@ class HazelcastConfigFactory {
         clientConfig.setNetworkConfig(networkConfig);
 
         CONFIGURATION_MAPPING.forEach((k, v) -> {
-            String property = url.getProperties().getProperty(k);
+            String property = url.getProperty(k);
             if (property != null) {
-                v.accept(clientConfig, JdbcUrl.decodeUrl(property));
+                v.accept(clientConfig, property);
             }
         });
         return clientConfig;
     }
 
     private ClientConfig securityConfig(JdbcUrl url, ClientConfig clientConfig) {
-        String user = url.getProperties().getProperty("user");
-        String password = url.getProperties().getProperty("password");
+        String user = url.getProperty("user");
+        String password = url.getProperty("password");
         if (user != null || password != null) {
             clientConfig.getSecurityConfig().setCredentials(new UsernamePasswordCredentials(user, password));
         }

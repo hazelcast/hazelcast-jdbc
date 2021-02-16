@@ -18,8 +18,12 @@ package com.hazelcast.jdbc;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,11 +34,12 @@ final class JdbcUrl {
             + "(?<authority>\\S+?(?=[/]))"
             + "/(?<schema>\\S+?)"
             + "(\\?(?<parameters>\\S*))?$");
+    private static final Pattern KEY_VALUE_PROPERTY = Pattern.compile("(?<property>\\S+)\\[(?<key>\\S+)]");
 
     private final List<String> authorities;
     private final String schema;
     private final String rawUrl;
-    private Properties properties = new Properties();
+    private final Map<String, ParameterValue> properties = new HashMap<>();
     private String rawAuthority;
 
     private JdbcUrl(List<String> authorities, String schema, String rawUrl) {
@@ -51,8 +56,13 @@ final class JdbcUrl {
         return schema;
     }
 
-    public Properties getProperties() {
-        return properties;
+
+    public String getProperty(String key) {
+        ParameterValue parameterValue = properties.get(key);
+        if (parameterValue == null) {
+            return null;
+        }
+        return parameterValue.asPropertyValue();
     }
 
     public String getRawUrl() {
@@ -72,7 +82,18 @@ final class JdbcUrl {
             if (paramAndValue.length != 2) {
                 continue;
             }
-            properties.setProperty(paramAndValue[0], paramAndValue[1]);
+            String k = paramAndValue[0];
+            String v = paramAndValue[1];
+            Map.Entry<String, ParameterValue> parameterValue = parameterValue(k, v);
+            properties.compute(parameterValue.getKey(), (key, value) -> {
+                ParameterValue param = parameterValue.getValue();
+                if (value == null) {
+                    return param;
+                } else {
+                    param.getKeyValues().forEach(value::setValue);
+                    return value;
+                }
+            });
         }
     }
 
@@ -90,7 +111,7 @@ final class JdbcUrl {
         JdbcUrl jdbcUrl = new JdbcUrl(Arrays.asList(rawAuthority.split(",")), matcher.group("schema"), url);
         jdbcUrl.rawAuthority = rawAuthority;
         if (info != null) {
-            jdbcUrl.properties = info;
+            info.forEach((k, v) -> jdbcUrl.properties.put(k.toString(), new SimpleValue(v.toString())));
         }
         jdbcUrl.parseProperties(matcher.group("parameters"));
         return jdbcUrl;
@@ -100,7 +121,7 @@ final class JdbcUrl {
         return valueOf(url, new Properties());
     }
 
-    static String decodeUrl(String raw) {
+    private static String decodeUrl(String raw) {
         try {
             return URLDecoder.decode(raw, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException impossible) {
@@ -108,4 +129,71 @@ final class JdbcUrl {
         }
     }
 
+    private static Map.Entry<String, ParameterValue> parameterValue(String key, String value) {
+        Matcher keyValuePropertyMatcher = KEY_VALUE_PROPERTY.matcher(key);
+        if (keyValuePropertyMatcher.matches()) {
+            String property = keyValuePropertyMatcher.group("property");
+            KeyValuePairs keyValuePairs = new KeyValuePairs();
+            keyValuePairs.setValue(keyValuePropertyMatcher.group("key"), value);
+            return new AbstractMap.SimpleEntry<>(property, keyValuePairs);
+        }
+        return new AbstractMap.SimpleEntry<>(key, new SimpleValue(value));
+    }
+
+    private interface ParameterValue {
+        Map<String, String> getKeyValues();
+        void setValue(String key, String value);
+        String asPropertyValue();
+    }
+
+    private static final class SimpleValue implements ParameterValue {
+
+        private String value;
+
+        private SimpleValue(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public Map<String, String> getKeyValues() {
+            return Collections.singletonMap(null, value);
+        }
+
+        @Override
+        public void setValue(String key, String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String asPropertyValue() {
+            return value;
+        }
+    }
+
+    private static final class KeyValuePairs implements ParameterValue {
+
+        private final Map<String, String> keyValues = new HashMap<>();
+
+        @Override
+        public Map<String, String> getKeyValues() {
+            return keyValues;
+        }
+
+        @Override
+        public void setValue(String key, String value) {
+            keyValues.put(key, value);
+        }
+
+        @Override
+        public String asPropertyValue() {
+            StringBuilder result = new StringBuilder();
+            String prefix = "";
+            for (Map.Entry<String, String> entries : keyValues.entrySet()) {
+                result.append(prefix);
+                prefix = ",";
+                result.append(entries.getKey()).append("=").append(entries.getValue());
+            }
+            return result.toString();
+        }
+    }
 }

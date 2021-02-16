@@ -45,7 +45,7 @@ class JdbcUrlTest {
         assertThat(url).isNotNull();
         assertThat(url.getAuthorities()).contains("localhost:5701");
         assertThat(url.getSchema()).isEqualTo("public");
-        assertThat(url.getProperties()).containsEntry("prop1", "val1").containsEntry("prop2", "val2");
+        assertThat(url.getProperty("prop1")).isEqualTo("val1");
 
         JdbcUrl urlWithoutPort = JdbcUrl.valueOf("jdbc:hazelcast://clustername/public", new Properties());
         assertThat(urlWithoutPort).isNotNull();
