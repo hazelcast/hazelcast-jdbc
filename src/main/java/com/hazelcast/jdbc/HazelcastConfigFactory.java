@@ -86,8 +86,7 @@ class HazelcastConfigFactory {
         map.put("awsReadTimeoutSeconds", (c, v) -> awsConfig(c, "read-timeout-seconds", v));
         map.put("awsConnectionRetries", (c, v) -> awsConfig(c, "connection-retries", v));
         map.put("awsHzPort", (c, v) -> awsConfig(c, "hz-port", v));
-        map.put("awsUsePublicIp", (c, v) -> c.getNetworkConfig()
-                .getAwsConfig().setEnabled(true).setUsePublicIp(v.equalsIgnoreCase("true")));
+        map.put("awsUsePublicIp", (c, v) -> awsConfig(c, "use-public-ip", v));
     }
 
     private static void gcpConfigMapping(Map<String, BiConsumer<ClientConfig, String>> map) {
@@ -96,9 +95,7 @@ class HazelcastConfigFactory {
         map.put("gcpProjects", (c, v) -> gcpConfig(c, "projects", v));
         map.put("gcpRegion", (c, v) -> gcpConfig(c, "region", v));
         map.put("gcpLabel", (c, v) -> gcpConfig(c, "label", v));
-        map.put("gcpUsePublicIp", (c, v) -> c.getNetworkConfig()
-                .getGcpConfig().setEnabled(true)
-                .setUsePublicIp(v.equalsIgnoreCase("true")).setProperty("use-public-ip", v));
+        map.put("gcpUsePublicIp", (c, v) -> gcpConfig(c, "use-public-ip", v));
     }
 
     ClientConfig clientConfig(JdbcUrl url) {

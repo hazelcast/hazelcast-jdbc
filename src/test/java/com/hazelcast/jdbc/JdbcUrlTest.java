@@ -51,4 +51,12 @@ class JdbcUrlTest {
         assertThat(urlWithoutPort).isNotNull();
         assertThat(urlWithoutPort.getAuthorities()).contains("clustername");
     }
+
+    @Test
+    void shouldDecodeUrlEncodedString() {
+        JdbcUrl url = JdbcUrl.valueOf("jdbc:haze%6Ccas%74%3A//localhos%74%3A5701/public", new Properties());
+        assertThat(url).isNotNull();
+        assertThat(url.getAuthorities()).contains("localhost:5701");
+        assertThat(url.getSchema()).isEqualTo("public");
+    }
 }

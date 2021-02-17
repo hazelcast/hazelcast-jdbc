@@ -83,12 +83,13 @@ final class JdbcUrl {
     }
 
     static JdbcUrl valueOf(String url, Properties info) {
-        Matcher matcher = JDBC_URL_PATTERN.matcher(url);
+        String decodedUrl = decodeUrl(url);
+        Matcher matcher = JDBC_URL_PATTERN.matcher(decodedUrl);
         if (!matcher.matches()) {
             return null;
         }
 
-        JdbcUrl jdbcUrl = new JdbcUrl(decodeUrl(matcher.group("authority")), matcher.group("schema"), url);
+        JdbcUrl jdbcUrl = new JdbcUrl(matcher.group("authority"), matcher.group("schema"), decodedUrl);
         if (info != null) {
             jdbcUrl.properties = info;
         }
