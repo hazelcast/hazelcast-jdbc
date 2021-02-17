@@ -18,12 +18,8 @@ package com.hazelcast.jdbc;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,13 +30,12 @@ final class JdbcUrl {
             + "(?<authority>\\S+?(?=[/]))"
             + "/(?<schema>\\S+?)"
             + "(\\?(?<parameters>\\S*))?$");
-    private static final Pattern KEY_VALUE_PROPERTY = Pattern.compile("(?<property>\\S+)\\[(?<key>\\S+)]");
 
     private final List<String> authorities;
     private final String schema;
     private final String rawUrl;
-    private final Map<String, ParameterValue> properties = new HashMap<>();
-    private String rawAuthority;
+    private Properties properties = new Properties();
+    private final String rawAuthority;
 
     private JdbcUrl(String rawAuthority, String schema, String rawUrl) {
         this.rawAuthority = rawAuthority;
@@ -59,11 +54,7 @@ final class JdbcUrl {
 
 
     public String getProperty(String key) {
-        ParameterValue parameterValue = properties.get(key);
-        if (parameterValue == null) {
-            return null;
-        }
-        return parameterValue.asPropertyValue();
+        return properties.getProperty(key);
     }
 
     public String getRawUrl() {
@@ -79,22 +70,11 @@ final class JdbcUrl {
             return;
         }
         for (String parameter : parametersString.split("&")) {
-            String[] paramAndValue = parameter.split("=");
+            String[] paramAndValue = parameter.split("=", 2);
             if (paramAndValue.length != 2) {
                 continue;
             }
-            String k = paramAndValue[0];
-            String v = paramAndValue[1];
-            Map.Entry<String, ParameterValue> parameterValue = parameterValue(k, v);
-            properties.compute(parameterValue.getKey(), (key, oldValue) -> {
-                ParameterValue newValue = parameterValue.getValue();
-                if (oldValue == null) {
-                    return newValue;
-                } else {
-                    oldValue.setValue(newValue.asPropertyValue());
-                    return oldValue;
-                }
-            });
+            properties.setProperty(paramAndValue[0], paramAndValue[1]);
         }
     }
 
@@ -110,7 +90,7 @@ final class JdbcUrl {
 
         JdbcUrl jdbcUrl = new JdbcUrl(decodeUrl(matcher.group("authority")), matcher.group("schema"), url);
         if (info != null) {
-            info.forEach((k, v) -> jdbcUrl.properties.put(k.toString(), new SingleValue(v.toString())));
+            jdbcUrl.properties = info;
         }
         jdbcUrl.parseProperties(matcher.group("parameters"));
         return jdbcUrl;
@@ -125,56 +105,6 @@ final class JdbcUrl {
             return URLDecoder.decode(raw, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException impossible) {
             throw new RuntimeException(impossible);
-        }
-    }
-
-    private static Map.Entry<String, ParameterValue> parameterValue(String key, String value) {
-        Matcher keyValuePropertyMatcher = KEY_VALUE_PROPERTY.matcher(key);
-        if (keyValuePropertyMatcher.matches()) {
-            String property = keyValuePropertyMatcher.group("property");
-            MultiValuesPairs multiValuesPairs = new MultiValuesPairs();
-            multiValuesPairs.setValue(keyValuePropertyMatcher.group("key") + "=" + value);
-            return new AbstractMap.SimpleEntry<>(property, multiValuesPairs);
-        }
-        return new AbstractMap.SimpleEntry<>(key, new SingleValue(value));
-    }
-
-    private interface ParameterValue {
-        void setValue(String value);
-        String asPropertyValue();
-    }
-
-    private static final class SingleValue implements ParameterValue {
-
-        private String value;
-
-        private SingleValue(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String asPropertyValue() {
-            return value;
-        }
-    }
-
-    private static final class MultiValuesPairs implements ParameterValue {
-
-        private final List<String> values = new ArrayList<>();
-
-        @Override
-        public void setValue(String value) {
-            values.add(value);
-        }
-
-        @Override
-        public String asPropertyValue() {
-            return String.join(",", values);
         }
     }
 }

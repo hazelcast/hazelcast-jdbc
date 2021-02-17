@@ -111,7 +111,7 @@ class HazelcastConfigFactoryTest {
         ClientConfig clientConfig = configFactory.clientConfig(
                 JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public?gcpPrivateKeyPath=/home/name/service/account/key.json" +
                         "&gcpProjects=project-1,project-2&gcpRegion=us-east1&gcpHzPort=5701-5708" +
-                        "&gcpLabel[application]=hazelcast&gcpUsePublicIp=true"));
+                        "&gcpLabel=application=hazelcast&gcpUsePublicIp=true"));
         ClientConfig expectedConfig = ClientConfig.load()
                 .setNetworkConfig(new ClientNetworkConfig()
                         .setAddresses(Collections.singletonList("localhost:5701"))
@@ -132,7 +132,7 @@ class HazelcastConfigFactoryTest {
         ClientConfig clientConfig = configFactory.clientConfig(
                 JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public?gcpPrivateKeyPath=/home/name/service/account/key.json" +
                         "&gcpProjects=project-1,project-2&gcpRegion=us-east1&gcpHzPort=5701-5708" +
-                        "&gcpLabel[application]=hazelcast&gcpLabel[other]=value&gcpUsePublicIp=true"));
+                        "&gcpLabel=application=hazelcast,other=value&gcpUsePublicIp=true"));
         ClientConfig expectedConfig = ClientConfig.load()
                 .setNetworkConfig(new ClientNetworkConfig()
                         .setAddresses(Collections.singletonList("localhost:5701"))
