@@ -19,8 +19,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +90,7 @@ final class JdbcUrl {
                 if (value == null) {
                     return param;
                 } else {
-                    param.getKeyValues().forEach(value::setValue);
+                    value.setValue(param.asPropertyValue());
                     return value;
                 }
             });
@@ -111,7 +111,7 @@ final class JdbcUrl {
         JdbcUrl jdbcUrl = new JdbcUrl(Arrays.asList(rawAuthority.split(",")), matcher.group("schema"), url);
         jdbcUrl.rawAuthority = rawAuthority;
         if (info != null) {
-            info.forEach((k, v) -> jdbcUrl.properties.put(k.toString(), new SimpleValue(v.toString())));
+            info.forEach((k, v) -> jdbcUrl.properties.put(k.toString(), new SingleValue(v.toString())));
         }
         jdbcUrl.parseProperties(matcher.group("parameters"));
         return jdbcUrl;
@@ -133,34 +133,28 @@ final class JdbcUrl {
         Matcher keyValuePropertyMatcher = KEY_VALUE_PROPERTY.matcher(key);
         if (keyValuePropertyMatcher.matches()) {
             String property = keyValuePropertyMatcher.group("property");
-            KeyValuePairs keyValuePairs = new KeyValuePairs();
-            keyValuePairs.setValue(keyValuePropertyMatcher.group("key"), value);
-            return new AbstractMap.SimpleEntry<>(property, keyValuePairs);
+            MultiValuesPairs multiValuesPairs = new MultiValuesPairs();
+            multiValuesPairs.setValue(keyValuePropertyMatcher.group("key") + "=" + value);
+            return new AbstractMap.SimpleEntry<>(property, multiValuesPairs);
         }
-        return new AbstractMap.SimpleEntry<>(key, new SimpleValue(value));
+        return new AbstractMap.SimpleEntry<>(key, new SingleValue(value));
     }
 
     private interface ParameterValue {
-        Map<String, String> getKeyValues();
-        void setValue(String key, String value);
+        void setValue(String value);
         String asPropertyValue();
     }
 
-    private static final class SimpleValue implements ParameterValue {
+    private static final class SingleValue implements ParameterValue {
 
         private String value;
 
-        private SimpleValue(String value) {
+        private SingleValue(String value) {
             this.value = value;
         }
 
         @Override
-        public Map<String, String> getKeyValues() {
-            return Collections.singletonMap(null, value);
-        }
-
-        @Override
-        public void setValue(String key, String value) {
+        public void setValue(String value) {
             this.value = value;
         }
 
@@ -170,30 +164,18 @@ final class JdbcUrl {
         }
     }
 
-    private static final class KeyValuePairs implements ParameterValue {
+    private static final class MultiValuesPairs implements ParameterValue {
 
-        private final Map<String, String> keyValues = new HashMap<>();
-
-        @Override
-        public Map<String, String> getKeyValues() {
-            return keyValues;
-        }
+        private final List<String> values = new ArrayList<>();
 
         @Override
-        public void setValue(String key, String value) {
-            keyValues.put(key, value);
+        public void setValue(String value) {
+            values.add(value);
         }
 
         @Override
         public String asPropertyValue() {
-            StringBuilder result = new StringBuilder();
-            String prefix = "";
-            for (Map.Entry<String, String> entries : keyValues.entrySet()) {
-                result.append(prefix);
-                prefix = ",";
-                result.append(entries.getKey()).append("=").append(entries.getValue());
-            }
-            return result.toString();
+            return values.stream().reduce((s1, s2) -> s1 + "," + s2).orElse("");
         }
     }
 }

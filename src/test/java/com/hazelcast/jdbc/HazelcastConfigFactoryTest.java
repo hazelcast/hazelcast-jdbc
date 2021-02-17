@@ -143,7 +143,7 @@ class HazelcastConfigFactoryTest {
                                 .setProperty("private-key-path", "/home/name/service/account/key.json")
                                 .setProperty("projects", "project-1,project-2")
                                 .setProperty("region", "us-east1")
-                                .setProperty("label", "other=value,application=hazelcast")
+                                .setProperty("label", "application=hazelcast,other=value")
                                 .setProperty("hz-port", "5701-5708")));
         assertThat(clientConfig).isEqualTo(expectedConfig);
     }
