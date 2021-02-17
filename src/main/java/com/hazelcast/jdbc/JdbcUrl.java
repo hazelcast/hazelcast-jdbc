@@ -42,8 +42,9 @@ final class JdbcUrl {
     private final Map<String, ParameterValue> properties = new HashMap<>();
     private String rawAuthority;
 
-    private JdbcUrl(List<String> authorities, String schema, String rawUrl) {
-        this.authorities = authorities;
+    private JdbcUrl(String rawAuthority, String schema, String rawUrl) {
+        this.rawAuthority = rawAuthority;
+        this.authorities = Arrays.asList(rawAuthority.split(","));
         this.schema = schema;
         this.rawUrl = rawUrl;
     }
@@ -85,13 +86,13 @@ final class JdbcUrl {
             String k = paramAndValue[0];
             String v = paramAndValue[1];
             Map.Entry<String, ParameterValue> parameterValue = parameterValue(k, v);
-            properties.compute(parameterValue.getKey(), (key, value) -> {
-                ParameterValue param = parameterValue.getValue();
-                if (value == null) {
-                    return param;
+            properties.compute(parameterValue.getKey(), (key, oldValue) -> {
+                ParameterValue newValue = parameterValue.getValue();
+                if (oldValue == null) {
+                    return newValue;
                 } else {
-                    value.setValue(param.asPropertyValue());
-                    return value;
+                    oldValue.setValue(newValue.asPropertyValue());
+                    return oldValue;
                 }
             });
         }
@@ -107,9 +108,7 @@ final class JdbcUrl {
             return null;
         }
 
-        String rawAuthority = decodeUrl(matcher.group("authority"));
-        JdbcUrl jdbcUrl = new JdbcUrl(Arrays.asList(rawAuthority.split(",")), matcher.group("schema"), url);
-        jdbcUrl.rawAuthority = rawAuthority;
+        JdbcUrl jdbcUrl = new JdbcUrl(decodeUrl(matcher.group("authority")), matcher.group("schema"), url);
         if (info != null) {
             info.forEach((k, v) -> jdbcUrl.properties.put(k.toString(), new SingleValue(v.toString())));
         }
@@ -125,7 +124,7 @@ final class JdbcUrl {
         try {
             return URLDecoder.decode(raw, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException impossible) {
-            throw new IllegalArgumentException(impossible);
+            throw new RuntimeException(impossible);
         }
     }
 
@@ -175,7 +174,7 @@ final class JdbcUrl {
 
         @Override
         public String asPropertyValue() {
-            return values.stream().reduce((s1, s2) -> s1 + "," + s2).orElse("");
+            return String.join(",", values);
         }
     }
 }
