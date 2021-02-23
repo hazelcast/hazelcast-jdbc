@@ -117,7 +117,10 @@
     <distributionManagement>
         <repository>
             <id>release-repository</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+<!--            The URL must be updated at the time of the release. For now we have private snapshot release as it's
+                not known how to test the deployment pipeline without having to release a new version -->
+<!--            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>-->
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
         <snapshotRepository>
             <id>snapshot-repository</id>
