@@ -1,10 +1,7 @@
 name: Release version
 on:
-  push:
-    branches:
-      - '*'
-#  create:
-#    - tag
+  create:
+    - tag
 
 jobs:
   build:
