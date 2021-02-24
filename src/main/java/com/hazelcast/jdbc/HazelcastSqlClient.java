@@ -23,21 +23,29 @@ import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlStatement;
 
 import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 class HazelcastSqlClient {
 
+    private final static Map<JdbcUrl, HazelcastInstance> URL_TO_INSTANCE_CACHE = new ConcurrentHashMap<>();
     private final HazelcastInstance client;
     private final JdbcUrl jdbcUrl;
 
     HazelcastSqlClient(JdbcUrl url) {
         jdbcUrl = url;
-        ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(Collections.singletonList(url.getAuthority()));
-        ClientConfig clientConfig = new ClientConfig().setNetworkConfig(networkConfig);
-        String clusterName = url.getProperties().getProperty("clusterName");
-        if (clusterName != null) {
-            clientConfig.setClusterName(clusterName);
-        }
-        client = HazelcastClient.newHazelcastClient(clientConfig);
+        client = URL_TO_INSTANCE_CACHE.compute(jdbcUrl, (key, instance) -> {
+            if (instance != null && instance.getLifecycleService().isRunning()) {
+                return instance;
+            }
+            ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(Collections.singletonList(url.getAuthority()));
+            ClientConfig clientConfig = new ClientConfig().setNetworkConfig(networkConfig);
+            String clusterName = url.getProperties().getProperty("clusterName");
+            if (clusterName != null) {
+                clientConfig.setClusterName(clusterName);
+            }
+            return HazelcastClient.newHazelcastClient(clientConfig);
+        });
     }
 
     SqlResult execute(SqlStatement sqlStatement) {

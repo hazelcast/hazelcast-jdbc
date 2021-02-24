@@ -20,8 +20,8 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
@@ -36,12 +36,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class JdbcConnectionIntegrationTest {
-    private HazelcastSqlClient client;
+    private final HazelcastSqlClient client =
+            new HazelcastSqlClient(Objects.requireNonNull(JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public", new Properties())));;
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    static void beforeAll() {
         HazelcastInstance member = Hazelcast.newHazelcastInstance();
-        client = new HazelcastSqlClient(Objects.requireNonNull(JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public", new Properties())));
 
         IMap<Integer, Person> personMap = member.getMap("person");
         for (int i = 0; i < 3; i++) {
@@ -49,8 +49,8 @@ public class JdbcConnectionIntegrationTest {
         }
     }
 
-    @AfterEach
-    public void tearDown() {
+    @AfterAll
+    static void afterAll() {
         HazelcastClient.shutdownAll();
         Hazelcast.shutdownAll();
     }

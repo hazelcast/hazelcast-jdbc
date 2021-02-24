@@ -72,11 +72,11 @@ class DriverTypeConversionTest {
     @AfterAll
     public static void afterClass() {
         Hazelcast.shutdownAll();
+        HazelcastClient.shutdownAll();
     }
 
     @AfterEach
     void tearDown() {
-        HazelcastClient.shutdownAll();
         member.getMap("types").clear();
     }
 

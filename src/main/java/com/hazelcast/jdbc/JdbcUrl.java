@@ -15,6 +15,7 @@
  */
 package com.hazelcast.jdbc;
 
+import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,6 +56,19 @@ final class JdbcUrl {
 
     public String getRawUrl() {
         return rawUrl;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JdbcUrl jdbcUrl = (JdbcUrl) o;
+        return Objects.equals(properties, jdbcUrl.properties) && Objects.equals(rawUrl, jdbcUrl.rawUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(properties, rawUrl);
     }
 
     private void parseProperties(String parametersString) {
