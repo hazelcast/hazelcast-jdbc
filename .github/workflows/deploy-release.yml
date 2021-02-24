@@ -1,6 +1,6 @@
 name: Release version
 on:
-  push:
+  create:
     tag:
       - '*'
 
