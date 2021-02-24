@@ -53,10 +53,12 @@ class JdbcUrlTest {
     }
 
     @Test
-    void shouldDecodeUrlEncodedString() {
-        JdbcUrl url = JdbcUrl.valueOf("jdbc:haze%6Ccas%74%3A//localhos%74%3A5701/public", new Properties());
+    void test_urlDecoding() {
+        JdbcUrl url = JdbcUrl.valueOf("jdbc:hazelcast://local%68ost:5701/publi%63?a=%26&b%3d=c", new Properties());
         assertThat(url).isNotNull();
-        assertThat(url.getAuthorities()).contains("localhost:5701");
+        assertThat(url.getAuthorities()).containsExactly("localhost:5701");
         assertThat(url.getSchema()).isEqualTo("public");
+        assertThat(url.getProperty("a")).isEqualTo("&");
+        assertThat(url.getProperty("b=")).isEqualTo("c");
     }
 }

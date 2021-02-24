@@ -52,7 +52,6 @@ final class JdbcUrl {
         return schema;
     }
 
-
     public String getProperty(String key) {
         return properties.getProperty(key);
     }
