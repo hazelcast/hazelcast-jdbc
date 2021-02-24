@@ -73,7 +73,7 @@ final class JdbcUrl {
             if (paramAndValue.length != 2) {
                 continue;
             }
-            properties.setProperty(paramAndValue[0], paramAndValue[1]);
+            properties.setProperty(decodeUrl(paramAndValue[0]), decodeUrl(paramAndValue[1]));
         }
     }
 
@@ -82,13 +82,12 @@ final class JdbcUrl {
     }
 
     static JdbcUrl valueOf(String url, Properties info) {
-        String decodedUrl = decodeUrl(url);
-        Matcher matcher = JDBC_URL_PATTERN.matcher(decodedUrl);
+        Matcher matcher = JDBC_URL_PATTERN.matcher(url);
         if (!matcher.matches()) {
             return null;
         }
 
-        JdbcUrl jdbcUrl = new JdbcUrl(matcher.group("authority"), matcher.group("schema"), decodedUrl);
+        JdbcUrl jdbcUrl = new JdbcUrl(decodeUrl(matcher.group("authority")), decodeUrl(matcher.group("schema")), url);
         if (info != null) {
             jdbcUrl.properties = info;
         }
