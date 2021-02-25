@@ -17,7 +17,6 @@ package com.hazelcast.jdbc;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlStatement;
@@ -39,13 +38,8 @@ class HazelcastSqlClient {
             if (instance != null && instance.getLifecycleService().isRunning()) {
                 return instance;
             }
-            ClientNetworkConfig networkConfig = new ClientNetworkConfig()
-                    .setAddresses(Collections.singletonList(url.getAuthority()));
-            ClientConfig clientConfig = new ClientConfig().setNetworkConfig(networkConfig);
-            String clusterName = url.getProperties().getProperty("clusterName");
-            if (clusterName != null) {
-                clientConfig.setClusterName(clusterName);
-            }
+            HazelcastConfigFactory configFactory = new HazelcastConfigFactory();
+            ClientConfig clientConfig = configFactory.clientConfig(url);
             return HazelcastClient.newHazelcastClient(clientConfig);
         });
     }

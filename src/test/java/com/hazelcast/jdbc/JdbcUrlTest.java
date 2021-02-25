@@ -43,12 +43,22 @@ class JdbcUrlTest {
         JdbcUrl url = JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public?prop1=val1&prop2=val2", new Properties());
 
         assertThat(url).isNotNull();
-        assertThat(url.getAuthority()).isEqualTo("localhost:5701");
+        assertThat(url.getAuthorities()).contains("localhost:5701");
         assertThat(url.getSchema()).isEqualTo("public");
-        assertThat(url.getProperties()).containsEntry("prop1", "val1").containsEntry("prop2", "val2");
+        assertThat(url.getProperty("prop1")).isEqualTo("val1");
 
         JdbcUrl urlWithoutPort = JdbcUrl.valueOf("jdbc:hazelcast://clustername/public", new Properties());
         assertThat(urlWithoutPort).isNotNull();
-        assertThat(urlWithoutPort.getAuthority()).isEqualTo("clustername");
+        assertThat(urlWithoutPort.getAuthorities()).contains("clustername");
+    }
+
+    @Test
+    void test_urlDecoding() {
+        JdbcUrl url = JdbcUrl.valueOf("jdbc:hazelcast://local%68ost:5701/publi%63?a=%26&b%3d=c", new Properties());
+        assertThat(url).isNotNull();
+        assertThat(url.getAuthorities()).containsExactly("localhost:5701");
+        assertThat(url.getSchema()).isEqualTo("public");
+        assertThat(url.getProperty("a")).isEqualTo("&");
+        assertThat(url.getProperty("b=")).isEqualTo("c");
     }
 }
