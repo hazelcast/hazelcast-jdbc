@@ -662,12 +662,15 @@ class DriverTypeConversionTest {
     @Test
     void shouldSearchForTimeParameter() throws SQLException {
         LocalTime value = LocalTime.now();
-        IMap<Object, Object> types = member.getMap("types");
+        IMap<Object, Object> types = member.getMap("types2");
         types.put(1, value);
 
-        assertThat(getTemporalPreparedResultSet(value, Types.TIME).next()).isTrue();
-        assertThat(getTemporalPreparedResultSet(
-                OffsetDateTime.of(LocalDate.now(), value, ZoneOffset.UTC), Types.TIME).next()).isTrue();
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM types2 WHERE \"this\" = ?");
+        preparedStatement.setObject(1, value, Types.TIME);
+        assertThat(preparedStatement.executeQuery().next()).isTrue();
+
+        preparedStatement.setObject(1, OffsetDateTime.of(LocalDate.now(), value, ZoneOffset.UTC), Types.TIME);
+        assertThat(preparedStatement.executeQuery().next()).isTrue();
     }
 
     @Test
