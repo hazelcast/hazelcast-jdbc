@@ -28,7 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 class HazelcastSqlClient {
 
-    private final static Map<JdbcUrl, HazelcastInstance> URL_TO_INSTANCE_CACHE = new ConcurrentHashMap<>();
+    private static final Map<JdbcUrl, HazelcastInstance> URL_TO_INSTANCE_CACHE = new ConcurrentHashMap<>();
+
     private final HazelcastInstance client;
     private final JdbcUrl jdbcUrl;
 
@@ -38,7 +39,8 @@ class HazelcastSqlClient {
             if (instance != null && instance.getLifecycleService().isRunning()) {
                 return instance;
             }
-            ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(Collections.singletonList(url.getAuthority()));
+            ClientNetworkConfig networkConfig = new ClientNetworkConfig()
+                    .setAddresses(Collections.singletonList(url.getAuthority()));
             ClientConfig clientConfig = new ClientConfig().setNetworkConfig(networkConfig);
             String clusterName = url.getProperties().getProperty("clusterName");
             if (clusterName != null) {
@@ -54,6 +56,7 @@ class HazelcastSqlClient {
 
     void shutdown() {
         client.shutdown();
+        URL_TO_INSTANCE_CACHE.remove(jdbcUrl);
     }
 
     boolean isRunning() {

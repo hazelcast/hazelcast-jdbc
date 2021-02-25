@@ -19,8 +19,8 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
@@ -34,9 +34,13 @@ public class JdbcPreparedStatementTest {
 
 
     private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/public";
+    private final Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
 
-    @BeforeEach
-    public void setUp() {
+    public JdbcPreparedStatementTest() throws SQLException {
+    }
+
+    @BeforeAll
+    public static void setUp() {
         HazelcastInstance member = Hazelcast.newHazelcastInstance();
         IMap<Integer, Person> personMap = member.getMap("person");
         for (int i = 0; i < 3; i++) {
@@ -44,15 +48,14 @@ public class JdbcPreparedStatementTest {
         }
     }
 
-    @AfterEach
-    public void tearDown() {
+    @AfterAll
+    public static void tearDown() {
         HazelcastClient.shutdownAll();
         Hazelcast.shutdownAll();
     }
 
     @Test
     void shouldFailOnAddingMoreParametersThanAllowed() throws SQLException {
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM person WHERE name=?");
         statement.setString(1, "Sam");
         statement.setString(2, "John");
@@ -63,7 +66,6 @@ public class JdbcPreparedStatementTest {
 
     @Test
     void shouldFailIfNotAllParametersWhereSet() throws SQLException {
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM person WHERE name=? AND age=?");
         statement.setInt(2, 27);
         assertThatThrownBy(statement::execute)
@@ -73,7 +75,6 @@ public class JdbcPreparedStatementTest {
 
     @Test
     void shouldFailOfNegativeParameterIndex() throws SQLException {
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM person WHERE name=?");
         assertThatThrownBy(() -> statement.setString(-1, "John"))
                 .isInstanceOf(SQLException.class)

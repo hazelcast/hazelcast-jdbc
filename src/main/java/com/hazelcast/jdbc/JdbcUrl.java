@@ -60,8 +60,12 @@ final class JdbcUrl {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         JdbcUrl jdbcUrl = (JdbcUrl) o;
         return Objects.equals(properties, jdbcUrl.properties) && Objects.equals(rawUrl, jdbcUrl.rawUrl);
     }
