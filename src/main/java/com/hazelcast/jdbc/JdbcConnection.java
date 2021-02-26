@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JdbcConnection implements Connection {
 
@@ -46,7 +47,7 @@ public class JdbcConnection implements Connection {
     /**
      * Is connection closed.
      */
-    private boolean closed;
+    private final AtomicBoolean closed = new AtomicBoolean();
 
     /**
      * DB Schema
@@ -120,19 +121,18 @@ public class JdbcConnection implements Connection {
 
     @Override
     public void close() {
-        if (!isClosed()) {
+        if (closed.compareAndSet(false, true)) {
             client.shutdown();
-            closed = true;
         }
     }
 
     @Override
     public boolean isClosed() {
-        return closed;
+        return closed.get();
     }
 
     @Override
-    public DatabaseMetaData getMetaData() throws SQLException {
+    public DatabaseMetaData getMetaData() {
         return new JdbcDataBaseMetadata(this);
     }
 

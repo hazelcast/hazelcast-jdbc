@@ -35,14 +35,13 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
-public class DriverIMDGTest {
+public class DriverImdgTest {
 
     private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/public";
 
     private final Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
 
-    public DriverIMDGTest() throws SQLException {
+    public DriverImdgTest() throws SQLException {
     }
 
     @BeforeAll

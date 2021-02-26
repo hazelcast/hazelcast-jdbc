@@ -59,6 +59,12 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public int executeUpdate() throws SQLException {
+        executeLargeUpdate();
+        return getUpdateCount();
+    }
+
+    @Override
+    public long executeLargeUpdate() throws SQLException {
         checkClosed();
         doExecute(sql, parameters.asParameters(), SqlExpectedResultType.UPDATE_COUNT);
         return updateCount;
@@ -83,6 +89,11 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
         checkClosed();
         parameters.setNullValue(parameterIndex);
+    }
+
+    @Override
+    public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
+        setNull(parameterIndex, sqlType);
     }
 
     @Override
@@ -162,23 +173,28 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {
-        throw JdbcUtils.unsupported("Ascii Stream not supported");
+        throw JdbcUtils.unsupported("Ascii stream not supported");
     }
 
     @Override
     public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
-        throw JdbcUtils.unsupported("Ascii Stream not supported");
+        throw JdbcUtils.unsupported("Unicode stream not supported");
     }
 
     @Override
     public void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLException {
-        throw JdbcUtils.unsupported("Ascii Stream not supported");
+        throw JdbcUtils.unsupported("Binary stream not supported");
     }
 
     @Override
     public void clearParameters() throws SQLException {
         checkClosed();
         parameters = new ParameterList();
+    }
+
+    @Override
+    public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
+        throw JdbcUtils.unsupported("setObject with scaleOrLength not implemented");
     }
 
     @Override
@@ -208,7 +224,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
-        throw JdbcUtils.unsupported("Character Stream is not supported");
+        throw JdbcUtils.unsupported("Character stream is not supported");
     }
 
     @Override
@@ -252,12 +268,6 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
-    public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
-        checkClosed();
-        setParameter(parameterIndex, null);
-    }
-
-    @Override
     public void setURL(int parameterIndex, URL x) throws SQLException {
         throw JdbcUtils.unsupported("URL is not supported");
     }
@@ -280,72 +290,67 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLException {
-        throw JdbcUtils.unsupported("NCharacter Stream is not supported");
+        throw JdbcUtils.unsupported("NCharacter stream is not supported");
     }
 
     @Override
     public void setNClob(int parameterIndex, NClob value) throws SQLException {
-        throw JdbcUtils.unsupported("NClob Stream is not supported");
+        throw JdbcUtils.unsupported("NClob stream is not supported");
     }
 
     @Override
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
-        throw JdbcUtils.unsupported("Clob Stream is not supported");
+        throw JdbcUtils.unsupported("Clob stream is not supported");
     }
 
     @Override
     public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
-        throw JdbcUtils.unsupported("Blob Stream is not supported");
+        throw JdbcUtils.unsupported("Blob stream is not supported");
     }
 
     @Override
     public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
-        throw JdbcUtils.unsupported("NClob Stream is not supported");
+        throw JdbcUtils.unsupported("NClob stream is not supported");
     }
 
     @Override
     public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException {
-        throw JdbcUtils.unsupported("SQLXML Stream is not supported");
-    }
-
-    @Override
-    public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
-        throw JdbcUtils.unsupported("setObject not implemented");
+        throw JdbcUtils.unsupported("SQLXML stream is not supported");
     }
 
     @Override
     public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
-        throw JdbcUtils.unsupported("Ascii Stream is not supported");
+        throw JdbcUtils.unsupported("Ascii stream is not supported");
     }
 
     @Override
     public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
-        throw JdbcUtils.unsupported("Binary Stream is not supported");
+        throw JdbcUtils.unsupported("Binary stream is not supported");
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
-        throw JdbcUtils.unsupported("Character Stream is not supported");
+        throw JdbcUtils.unsupported("Character stream is not supported");
     }
 
     @Override
     public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
-        throw JdbcUtils.unsupported("Ascii Stream is not supported");
+        throw JdbcUtils.unsupported("Ascii stream is not supported");
     }
 
     @Override
     public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
-        throw JdbcUtils.unsupported("Binary Stream is not supported");
+        throw JdbcUtils.unsupported("Binary stream is not supported");
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
-        throw JdbcUtils.unsupported("Character Stream is not supported");
+        throw JdbcUtils.unsupported("Character stream is not supported");
     }
 
     @Override
     public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException {
-        throw JdbcUtils.unsupported("NCharacter Stream is not supported");
+        throw JdbcUtils.unsupported("NCharacter stream is not supported");
     }
 
     @Override

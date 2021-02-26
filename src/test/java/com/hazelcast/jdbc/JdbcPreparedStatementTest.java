@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class JdbcPreparedStatementTest {
 
-
     private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/public";
 
     @BeforeEach
@@ -40,7 +39,7 @@ public class JdbcPreparedStatementTest {
         HazelcastInstance member = Hazelcast.newHazelcastInstance();
         IMap<Integer, Person> personMap = member.getMap("person");
         for (int i = 0; i < 3; i++) {
-            personMap.put(i, new Person("Jack"+i, i));
+            personMap.put(i, new Person("Jack" + i, i));
         }
     }
 
@@ -62,7 +61,7 @@ public class JdbcPreparedStatementTest {
     }
 
     @Test
-    void shouldFailIfNotAllParametersWhereSet() throws SQLException {
+    void shouldFailIfNotAllParametersWereSet() throws SQLException {
         Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM person WHERE name=? AND age=?");
         statement.setInt(2, 27);

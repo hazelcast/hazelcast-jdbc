@@ -15,8 +15,6 @@
  */
 package com.hazelcast.jdbc;
 
-import com.hazelcast.core.HazelcastInstance;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -28,11 +26,9 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     private static final int JDBC_VERSION_MINOR = 3;
 
     private final JdbcConnection connection;
-    private final HazelcastInstance clientInstance;
 
     public JdbcDataBaseMetadata(JdbcConnection connection) {
         this.connection = connection;
-        clientInstance = connection.getClientInstance();
     }
 
     @Override
@@ -87,7 +83,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public String getDatabaseProductVersion() {
-        return clientInstance.getCluster().getClusterVersion().toString();
+        return connection.getClientInstance().getCluster().getClusterVersion().toString();
     }
 
     @Override
@@ -836,12 +832,12 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public int getDatabaseMajorVersion() {
-        return clientInstance.getCluster().getClusterVersion().getMajor();
+        return connection.getClientInstance().getCluster().getClusterVersion().getMajor();
     }
 
     @Override
     public int getDatabaseMinorVersion() {
-        return clientInstance.getCluster().getClusterVersion().getMinor();
+        return connection.getClientInstance().getCluster().getClusterVersion().getMinor();
     }
 
     @Override
