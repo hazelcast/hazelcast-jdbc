@@ -42,7 +42,7 @@ class DriverEnvironmentsTest {
     @BeforeEach
     void setUp() {
         HazelcastConfigFactory hazelcastConfigFactory = new HazelcastConfigFactory();
-        HazelcastInstance client = HazelcastClient.newHazelcastClient(hazelcastConfigFactory.clientConfig(JdbcUrl.valueOf(connectionString)));
+        HazelcastInstance client = HazelcastClient.newHazelcastClient(hazelcastConfigFactory.clientConfig(new JdbcUrl(connectionString, null)));
         IMap<Integer, Person> people = client.getMap("person");
         people.put(1, new Person("Emma", 27));
         people.put(2, new Person("Olivia", 42));

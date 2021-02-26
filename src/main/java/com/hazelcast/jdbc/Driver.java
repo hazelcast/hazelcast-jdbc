@@ -39,11 +39,14 @@ public class Driver implements java.sql.Driver {
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
         if (url == null) {
-            throw new SQLException("Url is null");
+            throw new SQLException("URL is null");
         }
-        JdbcUrl jdbcUrl = JdbcUrl.valueOf(url, info);
-        if (jdbcUrl == null) {
-            return null;
+        JdbcUrl jdbcUrl;
+        try {
+            jdbcUrl = new JdbcUrl(url, info);
+        } catch (IllegalArgumentException e) {
+            // convert to SQLException
+            throw new SQLException(e.getMessage(), e);
         }
         JdbcConnection jdbcConnection = new JdbcConnection(new HazelcastSqlClient(jdbcUrl));
         jdbcConnection.setSchema(jdbcUrl.getSchema());
@@ -53,7 +56,7 @@ public class Driver implements java.sql.Driver {
     @Override
     public boolean acceptsURL(String url) throws SQLException {
         if (url == null) {
-            throw new SQLException("Url is null");
+            throw new SQLException("URL is null");
         }
         return JdbcUrl.acceptsUrl(url);
     }
