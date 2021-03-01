@@ -40,6 +40,9 @@ public class Driver implements java.sql.Driver {
         if (url == null) {
             throw new SQLException("URL is null");
         }
+        if (!JdbcUrl.acceptsUrl(url)) {
+            return null;
+        }
         JdbcUrl jdbcUrl;
         try {
             jdbcUrl = new JdbcUrl(url, info);

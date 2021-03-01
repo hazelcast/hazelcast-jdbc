@@ -60,7 +60,7 @@ public class DriverImdgTest {
     }
 
     @Test
-    public void shouldHazelcastJdbcConnection() throws SQLException {
+    public void shouldHazelcastJdbcConnection() {
         assertThat(connection).isNotNull();
     }
 
@@ -114,7 +114,6 @@ public class DriverImdgTest {
 
         assertThat(Person.valueOf(resultSet)).isEqualTo(new Person("Jack1", 1));
     }
-
 
     @Test
     public void shouldCloseStatement() throws SQLException {
@@ -178,7 +177,7 @@ public class DriverImdgTest {
             actualResult.add(Person.valueOf(resultSet));
         }
 
-        assertThat(actualResult).hasSize(2);;
+        assertThat(actualResult).hasSize(2);
     }
 
     @Test
