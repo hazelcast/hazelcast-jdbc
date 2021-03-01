@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
-          server-id: snapshot-repository
+          server-id: release-repository
           server-username: MAVEN_RELEASE_USERNAME
           server-password: MAVEN_RELEASE_PASSWORD
           architecture: ${{ matrix.architecture }}
