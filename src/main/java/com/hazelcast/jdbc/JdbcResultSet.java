@@ -64,7 +64,7 @@ public class JdbcResultSet implements ResultSet {
 
     private final SqlResult sqlResult;
     private final Iterator<SqlRow> iterator;
-    private SqlRow currentCursorPosition;
+    private SqlRow currentRow;
 
     /** Whether the last read column was null. */
     private boolean wasNull;
@@ -88,10 +88,8 @@ public class JdbcResultSet implements ResultSet {
     private int fetchSize;
     /** Max rows */
     private final int maxRows;
-    /** Position of the current row. */
-    private int currentRowPosition;
-    /** Is the current row position before the first row */
-    private boolean isBeforeFirst = true;
+    /** Number of the returned rows or -1 after all rows were returned. */
+    private int rowsReturned;
 
 
     JdbcResultSet(SqlResult sqlResult, JdbcStatement statement) throws SQLException {
@@ -112,17 +110,16 @@ public class JdbcResultSet implements ResultSet {
     public boolean next() throws SQLException {
         checkClosed();
         if (iterator.hasNext() && isNextRowAvailable()) {
-            currentCursorPosition = iterator.next();
-            currentRowPosition++;
-            isBeforeFirst = false;
+            currentRow = iterator.next();
+            rowsReturned++;
             return true;
         }
-        currentRowPosition = 0;
+        rowsReturned = -1;
         return false;
     }
 
     private boolean isNextRowAvailable() {
-        return maxRows == 0 || currentRowPosition < maxRows;
+        return (maxRows == 0 || rowsReturned < maxRows) && rowsReturned != -1;
     }
 
     @Override
@@ -381,19 +378,19 @@ public class JdbcResultSet implements ResultSet {
     @Override
     public boolean isBeforeFirst() throws SQLException {
         checkClosed();
-        return isBeforeFirst;
+        return rowsReturned == 0;
     }
 
     @Override
     public boolean isAfterLast() throws SQLException {
         checkClosed();
-        return currentRowPosition == 0 && !isBeforeFirst;
+        return rowsReturned == -1;
     }
 
     @Override
     public boolean isFirst() throws SQLException {
         checkClosed();
-        return currentRowPosition == 1;
+        return rowsReturned == 1;
     }
 
     @Override
@@ -424,7 +421,7 @@ public class JdbcResultSet implements ResultSet {
     @Override
     public int getRow() throws SQLException {
         checkClosed();
-        return currentRowPosition;
+        return rowsReturned;
     }
 
     @Override
@@ -1144,7 +1141,7 @@ public class JdbcResultSet implements ResultSet {
     }
 
     private <T> T getByIndex(int columnIndex) {
-        T result = currentCursorPosition.getObject(columnIndex);
+        T result = currentRow.getObject(columnIndex);
         if (result == null) {
             wasNull = true;
         }
@@ -1180,6 +1177,11 @@ public class JdbcResultSet implements ResultSet {
                 public void close() {
                 }
             });
+        }
+
+        @Override
+        public ResultSetMetaData getMetaData() throws SQLException {
+            throw JdbcUtils.unsupported("ResultSet.getMetaData not supported in this result");
         }
     }
 }

@@ -28,10 +28,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
@@ -127,5 +131,110 @@ public class JdbcResultSetTest {
         when(statement.getFetchSize()).thenReturn(5);
 
         assertThat(resultSet.getFetchSize()).isEqualTo(5);
+    }
+
+    @Test
+    void testNavigation() throws SQLException {
+        when(sqlResult.iterator()).thenReturn(Arrays.asList(sqlRow, sqlRow, sqlRow).iterator());
+        resultSet = new JdbcResultSet(sqlResult, statement);
+
+        // check initial state
+        assertTrue(resultSet.isBeforeFirst());
+        assertFalse(resultSet.isAfterLast());
+        assertFalse(resultSet.isFirst());
+        assertEquals(0, resultSet.getRow());
+
+        // advance to the first row
+        assertTrue(resultSet.next());
+        assertFalse(resultSet.isBeforeFirst());
+        assertFalse(resultSet.isAfterLast());
+        assertTrue(resultSet.isFirst());
+        assertEquals(1, resultSet.getRow());
+
+        // advance to the second row
+        assertTrue(resultSet.next());
+        assertFalse(resultSet.isBeforeFirst());
+        assertFalse(resultSet.isAfterLast());
+        assertFalse(resultSet.isFirst());
+        assertEquals(2, resultSet.getRow());
+
+        // advance to the third and last row
+        assertTrue(resultSet.next());
+        assertFalse(resultSet.isBeforeFirst());
+        assertFalse(resultSet.isAfterLast());
+        assertFalse(resultSet.isFirst());
+        assertEquals(3, resultSet.getRow());
+
+        // advance beyond the last row
+        assertFalse(resultSet.next());
+        assertFalse(resultSet.isBeforeFirst());
+        assertTrue(resultSet.isAfterLast());
+        assertFalse(resultSet.isFirst());
+        assertEquals(-1, resultSet.getRow());
+
+        // sanity check
+        assertFalse(resultSet.next());
+        assertFalse(resultSet.isBeforeFirst());
+        assertTrue(resultSet.isAfterLast());
+        assertFalse(resultSet.isFirst());
+        assertEquals(-1, resultSet.getRow());
+    }
+
+    @Test
+    void testNavigation_withMaxRows() throws SQLException {
+        when(sqlResult.iterator()).thenReturn(Arrays.asList(sqlRow, sqlRow, sqlRow).iterator());
+        when(statement.getMaxRows()).thenReturn(2);
+        resultSet = new JdbcResultSet(sqlResult, statement);
+
+        // check initial state
+        assertTrue(resultSet.isBeforeFirst());
+        assertFalse(resultSet.isAfterLast());
+        assertFalse(resultSet.isFirst());
+        assertEquals(0, resultSet.getRow());
+
+        // advance to the first row
+        assertTrue(resultSet.next());
+        assertFalse(resultSet.isBeforeFirst());
+        assertFalse(resultSet.isAfterLast());
+        assertTrue(resultSet.isFirst());
+        assertEquals(1, resultSet.getRow());
+
+        // advance to the second and last row
+        assertTrue(resultSet.next());
+        assertFalse(resultSet.isBeforeFirst());
+        assertFalse(resultSet.isAfterLast());
+        assertFalse(resultSet.isFirst());
+        assertEquals(2, resultSet.getRow());
+
+        // advance beyond the last row
+        assertFalse(resultSet.next());
+        assertFalse(resultSet.isBeforeFirst());
+        assertTrue(resultSet.isAfterLast());
+        assertFalse(resultSet.isFirst());
+        assertEquals(-1, resultSet.getRow());
+
+        // sanity check
+        assertFalse(resultSet.next());
+        assertFalse(resultSet.isBeforeFirst());
+        assertTrue(resultSet.isAfterLast());
+        assertFalse(resultSet.isFirst());
+        assertEquals(-1, resultSet.getRow());
+    }
+
+    @Test
+    void testEmptyResultSet() throws SQLException {
+        JdbcResultSet r = JdbcResultSet.EMPTY;
+        assertThatThrownBy(r::getMetaData)
+                .isInstanceOf(SQLException.class)
+                .hasMessage("ResultSet.getMetaData not supported in this result");
+
+        assertTrue(r.isBeforeFirst());
+        assertFalse(r.isFirst());
+        assertFalse(r.isAfterLast());
+
+        assertFalse(r.next());
+        assertFalse(r.isBeforeFirst());
+        assertFalse(r.isFirst());
+        assertTrue(r.isAfterLast());
     }
 }

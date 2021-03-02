@@ -20,45 +20,67 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JdbcUrlTest {
 
     @Test
-    void shouldReturnTrueForAcceptValidUrl() {
+    void acceptsUrl_when_validUrl_then_true() {
         assertThat(JdbcUrl.acceptsUrl("jdbc:hazelcast://localhost:5701/public")).isTrue();
     }
 
     @Test
-    void shouldReturnFalseForAcceptInvalidUrl() {
+    void acceptsUrl_when_validPrefixInvalidUrl_then_true() {
+        assertThat(JdbcUrl.acceptsUrl("jdbc:hazelcast:foo")).isTrue();
+    }
+
+    @Test
+    void acceptsUrl_when_invalidPrefix_then_false() {
         assertThat(JdbcUrl.acceptsUrl("somerandomstring")).isFalse();
     }
 
     @Test
-    void shouldReturnNullIfUrlIsNotValid() {
-        assertThat(JdbcUrl.valueOf("somerandomstring", new Properties())).isNull();
+    void constructor_when_invalid_then_throw() {
+        assertThatThrownBy(() -> new JdbcUrl("somerandomstring", null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    void shouldParseUrlToCorrectProperties() {
-        JdbcUrl url = JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public?prop1=val1&prop2=val2", new Properties());
+    void test_propertyParsing() {
+        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost:5701/public?prop1=val1&prop2=val2", new Properties());
 
         assertThat(url).isNotNull();
         assertThat(url.getAuthorities()).contains("localhost:5701");
         assertThat(url.getSchema()).isEqualTo("public");
         assertThat(url.getProperty("prop1")).isEqualTo("val1");
 
-        JdbcUrl urlWithoutPort = JdbcUrl.valueOf("jdbc:hazelcast://clustername/public", new Properties());
+        JdbcUrl urlWithoutPort = new JdbcUrl("jdbc:hazelcast://clustername/public", new Properties());
         assertThat(urlWithoutPort).isNotNull();
         assertThat(urlWithoutPort.getAuthorities()).contains("clustername");
     }
 
     @Test
-    void test_urlDecoding() {
-        JdbcUrl url = JdbcUrl.valueOf("jdbc:hazelcast://local%68ost:5701/publi%63?a=%26&b%3d=c", new Properties());
+    void test_propertyParsing_withEscaping() {
+        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://local%68ost:5701/publi%63?a=%26&b%3d=c", new Properties());
         assertThat(url).isNotNull();
         assertThat(url.getAuthorities()).containsExactly("localhost:5701");
         assertThat(url.getSchema()).isEqualTo("public");
         assertThat(url.getProperty("a")).isEqualTo("&");
         assertThat(url.getProperty("b=")).isEqualTo("c");
+    }
+
+    @Test
+    public void when_sameKeyInUrlAndProperties_then_thatFromUrlTakesPrecedence() {
+        Properties props = new Properties();
+        props.setProperty("a", "foo");
+        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost/schema?a=bar", props);
+        assertEquals("bar", url.getProperty("a"));
+    }
+
+    @Test
+    public void when_duplicateKeyInUrl_then_lastOccurrenceUsed() {
+        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost/schema?a=foo&a=bar", null);
+        assertEquals("bar", url.getProperty("a"));
     }
 }

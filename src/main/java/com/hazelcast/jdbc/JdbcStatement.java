@@ -29,15 +29,15 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
 
-public class JdbcStatement implements Statement {
+import static java.util.concurrent.TimeUnit.SECONDS;
 
-    private static final int MILLIS_IN_SECOND = 1_000;
+public class JdbcStatement implements Statement {
 
     /**
      * Current result as an update count.
-     * Value -1 means that the result is not an update count or there are no more results.
+     * Value -1 means that the result is not an update count but a result set.
      */
-    int updateCount = -1;
+    long updateCount = -1;
 
     /** Current result as a result set */
     ResultSet resultSet;
@@ -60,7 +60,7 @@ public class JdbcStatement implements Statement {
     /** Whether to close the statement when the result set is closed. */
     private boolean closeOnCompletion;
 
-    /** Result set Max rows */
+    /** Result set max rows */
     private int maxRows;
 
     private final HazelcastSqlClient client;
@@ -78,10 +78,15 @@ public class JdbcStatement implements Statement {
     }
 
     @Override
-    public int executeUpdate(String sql) throws SQLException {
-        checkClosed();
+    public long executeLargeUpdate(String sql) throws SQLException {
         doExecute(sql, Collections.emptyList(), SqlExpectedResultType.UPDATE_COUNT);
-        return updateCount;
+        return getLargeUpdateCount();
+    }
+
+    @Override
+    public int executeUpdate(String sql) throws SQLException {
+        executeLargeUpdate(sql);
+        return getUpdateCount();
     }
 
     @Override
@@ -181,6 +186,11 @@ public class JdbcStatement implements Statement {
 
     @Override
     public int getUpdateCount() throws SQLException {
+        return Math.toIntExact(getLargeUpdateCount());
+    }
+
+    @Override
+    public long getLargeUpdateCount() throws SQLException {
         checkClosed();
         return updateCount;
     }
@@ -214,7 +224,7 @@ public class JdbcStatement implements Statement {
     public void setFetchSize(int rows) throws SQLException {
         checkClosed();
         if (rows < 0) {
-            throw new SQLException("Invalid value for query timeout seconds: " + rows);
+            throw new SQLException("Invalid value for fetch size: " + rows);
         }
         this.fetchSize = rows;
     }
@@ -249,6 +259,11 @@ public class JdbcStatement implements Statement {
 
     @Override
     public int[] executeBatch() throws SQLException {
+        throw unsupportedBatch();
+    }
+
+    @Override
+    public long[] executeLargeBatch() throws SQLException {
         throw unsupportedBatch();
     }
 
@@ -387,7 +402,7 @@ public class JdbcStatement implements Statement {
                 .setExpectedResultType(expectedResult)
                 .setSchema(connection.getSchema());
         if (queryTimeout != 0) {
-            query.setTimeoutMillis(queryTimeout * MILLIS_IN_SECOND);
+            query.setTimeoutMillis(SECONDS.toMillis(queryTimeout));
         }
         if (fetchSize != 0) {
             query.setCursorBufferSize(fetchSize);
@@ -398,7 +413,7 @@ public class JdbcStatement implements Statement {
                 resultSet = new JdbcResultSet(sqlResult, this);
                 updateCount = -1;
             } else {
-                updateCount = Math.toIntExact(sqlResult.updateCount());
+                updateCount = sqlResult.updateCount();
                 closeResultSet();
             }
         } catch (HazelcastSqlException e) {

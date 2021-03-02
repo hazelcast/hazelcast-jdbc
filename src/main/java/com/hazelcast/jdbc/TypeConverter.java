@@ -25,71 +25,72 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 
 final class TypeConverter {
 
-    private static final int MILLIS_IN_SECONDS = 1_000;
     private static final Map<Integer, QueryDataType> SQL_TYPES_TO_QUERY_DATA_TYPE = new HashMap<>();
     private static final Map<SqlColumnType, QueryDataType> SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP = new HashMap<>();
 
     static {
-        sqlTypesMapping();
-        sqlColumnTypeMapping();
+        initTypesMapping();
+        initColumnTypeMapping();
     }
 
     private TypeConverter() {
     }
 
-    private static void sqlTypesMapping() {
+    private static void initTypesMapping() {
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.VARCHAR, QueryDataType.VARCHAR);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.BOOLEAN, QueryDataType.BOOLEAN);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.TINYINT, QueryDataType.TINYINT);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.SMALLINT, QueryDataType.SMALLINT);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.INTEGER, QueryDataType.INT);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.BIGINT, QueryDataType.BIGINT);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.DECIMAL, QueryDataType.DECIMAL);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.REAL, QueryDataType.REAL);
-        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.TINYINT, QueryDataType.TINYINT);
-        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.SMALLINT, QueryDataType.SMALLINT);
-        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.DOUBLE, QueryDataType.DOUBLE);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.FLOAT, QueryDataType.REAL);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.DOUBLE, QueryDataType.DOUBLE);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.NUMERIC, QueryDataType.DECIMAL);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.CHAR, QueryDataType.VARCHAR_CHARACTER);
-        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.TIMESTAMP, QueryDataType.TIMESTAMP);
-        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.TIMESTAMP_WITH_TIMEZONE, QueryDataType.TIMESTAMP_WITH_TZ_INSTANT);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.DATE, QueryDataType.DATE);
         SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.TIME, QueryDataType.TIME);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.TIMESTAMP, QueryDataType.TIMESTAMP);
+        SQL_TYPES_TO_QUERY_DATA_TYPE.put(Types.TIMESTAMP_WITH_TIMEZONE, QueryDataType.TIMESTAMP_WITH_TZ_INSTANT);
     }
 
-    private static void sqlColumnTypeMapping() {
+    private static void initColumnTypeMapping() {
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.VARCHAR, QueryDataType.VARCHAR);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.BOOLEAN, QueryDataType.BOOLEAN);
+        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.TINYINT, QueryDataType.TINYINT);
+        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.SMALLINT, QueryDataType.SMALLINT);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.INTEGER, QueryDataType.INT);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.BIGINT, QueryDataType.BIGINT);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.DECIMAL, QueryDataType.DECIMAL);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.REAL, QueryDataType.REAL);
-        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.TINYINT, QueryDataType.TINYINT);
-        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.SMALLINT, QueryDataType.SMALLINT);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.DOUBLE, QueryDataType.DOUBLE);
-        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.OBJECT, QueryDataType.OBJECT);
-        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.TIMESTAMP, QueryDataType.TIMESTAMP);
-        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.TIME, QueryDataType.TIME);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.DATE, QueryDataType.DATE);
+        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.TIME, QueryDataType.TIME);
+        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.TIMESTAMP, QueryDataType.TIMESTAMP);
         SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(
                 SqlColumnType.TIMESTAMP_WITH_TIME_ZONE, QueryDataType.TIMESTAMP_WITH_TZ_OFFSET_DATE_TIME);
+        SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.put(SqlColumnType.OBJECT, QueryDataType.OBJECT);
     }
 
     @SuppressWarnings("unchecked")
     static <T> T convertTo(Object object, Class<T> clazz) throws SQLException {
+        if (object == null) {
+            return null;
+        }
         QueryDataType queryDataType = QueryDataTypeUtils.resolveTypeForClass(clazz);
-        if (clazz == Timestamp.class) {
+        if (clazz == java.sql.Timestamp.class) {
             return (T) convertToTimestamp(object, queryDataType);
         }
-        if (clazz == Time.class) {
+        if (clazz == java.sql.Time.class) {
             return (T) convertToTime(object, queryDataType);
         }
-        if (clazz == Date.class) {
+        if (clazz == java.sql.Date.class) {
             return (T) convertToDate(object, queryDataType);
         }
         try {
@@ -219,33 +220,31 @@ final class TypeConverter {
         }
     }
 
-    static Timestamp convertToTimestamp(Object object, QueryDataType queryDataType) throws SQLException {
+    static Timestamp convertToTimestamp(Object object, SqlColumnType columnType) throws SQLException {
+        return convertToTimestamp(object, SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.get(columnType));
+    }
+
+    private static Timestamp convertToTimestamp(Object object, QueryDataType queryDataType) throws SQLException {
         if (object == null) {
             return null;
         }
         try {
-            return new Timestamp(toMillis(
-                    queryDataType.getConverter().asTimestampWithTimezone(object).toEpochSecond()));
+            return Timestamp.from(queryDataType.getConverter().asTimestampWithTimezone(object).toInstant());
         } catch (Exception e) {
             throw new SQLException(e.getMessage(), e);
         }
-    }
-
-    static Timestamp convertToTimestamp(Object object, SqlColumnType columnType) throws SQLException {
-        return convertToTimestamp(object, SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.get(columnType));
     }
 
     static Time convertToTime(Object object, SqlColumnType columnType) throws SQLException {
         return convertToTime(object, SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.get(columnType));
     }
 
-    static Time convertToTime(Object object, QueryDataType queryDataType) throws SQLException {
+    private static Time convertToTime(Object object, QueryDataType queryDataType) throws SQLException {
         if (object == null) {
             return null;
         }
         try {
-            return new Time(toMillis(
-                    queryDataType.getConverter().asTimestamp(object).toEpochSecond(ZoneOffset.UTC)));
+            return Time.valueOf(queryDataType.getConverter().asTime(object));
         } catch (Exception e) {
             throw new SQLException(e.getMessage(), e);
         }
@@ -255,19 +254,14 @@ final class TypeConverter {
         return convertToDate(object, SQL_COLUMN_TYPE_TO_QUERY_DATA_TYPE_MAP.get(columnType));
     }
 
-    static Date convertToDate(Object object, QueryDataType queryDataType)  throws SQLException  {
+    private static Date convertToDate(Object object, QueryDataType queryDataType)  throws SQLException  {
         if (object == null) {
             return null;
         }
         try {
-            return new Date(toMillis(
-                    queryDataType.getConverter().asDate(object).atStartOfDay().toEpochSecond(ZoneOffset.UTC)));
+            return Date.valueOf(queryDataType.getConverter().asDate(object));
         } catch (Exception e) {
             throw new SQLException(e.getMessage(), e);
         }
-    }
-
-    private static long toMillis(long seconds) {
-        return seconds * MILLIS_IN_SECONDS;
     }
 }

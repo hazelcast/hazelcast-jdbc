@@ -26,22 +26,44 @@ import java.util.regex.Pattern;
 
 final class JdbcUrl {
 
-    private static final Pattern JDBC_URL_PATTERN = Pattern.compile("^jdbc:hazelcast://"
+    private static final String PREFIX = "jdbc:hazelcast:";
+    private static final Pattern JDBC_URL_PATTERN = Pattern.compile(PREFIX + "//"
             + "(?<authority>\\S+?(?=[/]))"
             + "/(?<schema>\\S+?)"
-            + "(\\?(?<parameters>\\S*))?$");
+            + "(\\?(?<parameters>\\S*))?");
 
     private final List<String> authorities;
     private final String schema;
     private final String rawUrl;
-    private Properties properties = new Properties();
+    private final Properties properties = new Properties();
     private final String rawAuthority;
 
-    private JdbcUrl(String rawAuthority, String schema, String rawUrl) {
-        this.rawAuthority = rawAuthority;
+    public JdbcUrl(String url, Properties properties) {
+        Matcher matcher = JDBC_URL_PATTERN.matcher(url);
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("The URL doesn't match the structure - " +
+                    "jdbc:hazelcast://host:port[,host2:port...]/schema[?prop1=value1&...]");
+        }
+
+        this.rawAuthority = decodeUrl(matcher.group("authority"));
         this.authorities = Arrays.asList(rawAuthority.split(","));
-        this.schema = schema;
-        this.rawUrl = rawUrl;
+        this.schema = decodeUrl(matcher.group("schema"));
+        this.rawUrl = url;
+
+        if (properties != null) {
+            properties.forEach(this.properties::put);
+        }
+        String parametersString = matcher.group("parameters");
+        if (parametersString != null) {
+            for (String parameter : parametersString.split("&")) {
+                String[] paramAndValue = parameter.split("=", 2);
+                if (paramAndValue.length != 2) {
+                    paramAndValue = new String[]{paramAndValue[0], ""};
+                }
+                this.properties.setProperty(
+                    decodeUrl(paramAndValue[0]), decodeUrl(paramAndValue[1]));
+            }
+        }
     }
 
     public List<String> getAuthorities() {
@@ -64,39 +86,8 @@ final class JdbcUrl {
         return rawAuthority;
     }
 
-    private void parseProperties(String parametersString) {
-        if (parametersString == null) {
-            return;
-        }
-        for (String parameter : parametersString.split("&")) {
-            String[] paramAndValue = parameter.split("=", 2);
-            if (paramAndValue.length != 2) {
-                continue;
-            }
-            properties.setProperty(decodeUrl(paramAndValue[0]), decodeUrl(paramAndValue[1]));
-        }
-    }
-
     static boolean acceptsUrl(String url) {
-        return JDBC_URL_PATTERN.matcher(url).matches();
-    }
-
-    static JdbcUrl valueOf(String url, Properties info) {
-        Matcher matcher = JDBC_URL_PATTERN.matcher(url);
-        if (!matcher.matches()) {
-            return null;
-        }
-
-        JdbcUrl jdbcUrl = new JdbcUrl(decodeUrl(matcher.group("authority")), decodeUrl(matcher.group("schema")), url);
-        if (info != null) {
-            jdbcUrl.properties = info;
-        }
-        jdbcUrl.parseProperties(matcher.group("parameters"));
-        return jdbcUrl;
-    }
-
-    static JdbcUrl valueOf(String url) {
-        return valueOf(url, new Properties());
+        return url.startsWith(PREFIX);
     }
 
     private static String decodeUrl(String raw) {

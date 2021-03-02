@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 public class Driver implements java.sql.Driver {
 
     static final int VER_MAJOR = 4;
-
     static final int VER_MINOR = 0;
 
     private static final Driver INSTANCE = new Driver();
@@ -39,11 +38,17 @@ public class Driver implements java.sql.Driver {
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
         if (url == null) {
-            throw new SQLException("Url is null");
+            throw new SQLException("URL is null");
         }
-        JdbcUrl jdbcUrl = JdbcUrl.valueOf(url, info);
-        if (jdbcUrl == null) {
+        if (!JdbcUrl.acceptsUrl(url)) {
             return null;
+        }
+        JdbcUrl jdbcUrl;
+        try {
+            jdbcUrl = new JdbcUrl(url, info);
+        } catch (IllegalArgumentException e) {
+            // convert to SQLException
+            throw new SQLException(e.getMessage(), e);
         }
         JdbcConnection jdbcConnection = new JdbcConnection(new HazelcastSqlClient(jdbcUrl));
         jdbcConnection.setSchema(jdbcUrl.getSchema());
@@ -53,7 +58,7 @@ public class Driver implements java.sql.Driver {
     @Override
     public boolean acceptsURL(String url) throws SQLException {
         if (url == null) {
-            throw new SQLException("Url is null");
+            throw new SQLException("URL is null");
         }
         return JdbcUrl.acceptsUrl(url);
     }

@@ -15,7 +15,6 @@
  */
 package com.hazelcast.jdbc;
 
-
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -29,8 +28,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
-import java.util.Objects;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -41,7 +38,7 @@ public class JdbcConnectionIntegrationTest {
     @BeforeEach
     public void setUp() {
         HazelcastInstance member = Hazelcast.newHazelcastInstance();
-        client = new HazelcastSqlClient(Objects.requireNonNull(JdbcUrl.valueOf("jdbc:hazelcast://localhost:5701/public", new Properties())));
+        client = new HazelcastSqlClient(new JdbcUrl("jdbc:hazelcast://localhost:5701/public", null));
 
         IMap<Integer, Person> personMap = member.getMap("person");
         for (int i = 0; i < 3; i++) {

@@ -30,11 +30,11 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
     private static final String NOT_APPLICABLE = "";
 
     private static final Map<SqlColumnType, Integer> SQL_TYPES_MAPPING = new HashMap<>();
-    private static final Map<SqlColumnType, ColumnTypeInfo> SQL_TYPES_INFO = new HashMap<>();
+    private static final Map<SqlColumnType, SqlTypeInfo> SQL_TYPES_INFO = new HashMap<>();
 
     static {
-        setSqlTypesMapping();
-        setSqlTypesInfo();
+        initSqlTypesMapping();
+        initSqlTypesInfo();
     }
 
     private final SqlRowMetadata sqlRowMetadata;
@@ -43,7 +43,7 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
         this.sqlRowMetadata = sqlRowMetadata;
     }
 
-    private static void setSqlTypesMapping() {
+    private static void initSqlTypesMapping() {
         SQL_TYPES_MAPPING.put(SqlColumnType.VARCHAR, Types.VARCHAR);
         SQL_TYPES_MAPPING.put(SqlColumnType.BOOLEAN, Types.BOOLEAN);
         SQL_TYPES_MAPPING.put(SqlColumnType.TINYINT, Types.TINYINT);
@@ -61,36 +61,36 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
         SQL_TYPES_MAPPING.put(SqlColumnType.NULL, Types.NULL);
     }
 
-    private static void setSqlTypesInfo() {
-        SQL_TYPES_INFO.put(SqlColumnType.INTEGER, new ColumnTypeInfo(Constants.INTEGER_DISPLAY_SIZE,
+    private static void initSqlTypesInfo() {
+        SQL_TYPES_INFO.put(SqlColumnType.INTEGER, new SqlTypeInfo(Constants.INTEGER_DISPLAY_SIZE,
                 Constants.INTEGER_DISPLAY_SIZE, Constants.ZERO));
-        SQL_TYPES_INFO.put(SqlColumnType.BIGINT, new ColumnTypeInfo(Constants.BIGINT_DISPLAY_SIZE,
+        SQL_TYPES_INFO.put(SqlColumnType.BIGINT, new SqlTypeInfo(Constants.BIGINT_DISPLAY_SIZE,
                 Constants.BIGINT_DISPLAY_SIZE, Constants.ZERO));
-        SQL_TYPES_INFO.put(SqlColumnType.VARCHAR, new ColumnTypeInfo(Constants.MAX_STRING_LENGTH,
+        SQL_TYPES_INFO.put(SqlColumnType.VARCHAR, new SqlTypeInfo(Constants.STRING_DISPLAY_SIZE,
                 Constants.MAX_STRING_LENGTH, Constants.ZERO));
-        SQL_TYPES_INFO.put(SqlColumnType.BOOLEAN, new ColumnTypeInfo(Constants.BOOLEAN_DISPLAY_SIZE, Constants.BOOLEAN_PRECISION,
+        SQL_TYPES_INFO.put(SqlColumnType.BOOLEAN, new SqlTypeInfo(Constants.BOOLEAN_DISPLAY_SIZE, Constants.BOOLEAN_PRECISION,
                 Constants.ZERO));
-        SQL_TYPES_INFO.put(SqlColumnType.TINYINT, new ColumnTypeInfo(Constants.TINYINT_DISPLAY_SIZE, Constants.TINYINT_PRECISION,
+        SQL_TYPES_INFO.put(SqlColumnType.TINYINT, new SqlTypeInfo(Constants.TINYINT_DISPLAY_SIZE, Constants.TINYINT_PRECISION,
                 Constants.ZERO));
-        SQL_TYPES_INFO.put(SqlColumnType.SMALLINT, new ColumnTypeInfo(Constants.SMALLINT_DISPLAY_SIZE,
+        SQL_TYPES_INFO.put(SqlColumnType.SMALLINT, new SqlTypeInfo(Constants.SMALLINT_DISPLAY_SIZE,
                 Constants.SMALLINT_PRECISION, Constants.ZERO));
-        SQL_TYPES_INFO.put(SqlColumnType.REAL, new ColumnTypeInfo(Constants.REAL_DISPLAY_SIZE,
+        SQL_TYPES_INFO.put(SqlColumnType.REAL, new SqlTypeInfo(Constants.REAL_DISPLAY_SIZE,
                 Constants.REAL_PRECISION, Constants.REAL_PRECISION));
-        SQL_TYPES_INFO.put(SqlColumnType.DOUBLE, new ColumnTypeInfo(Constants.DOUBLE_DISPLAY_SIZE, Constants.DOUBLE_PRECISION,
+        SQL_TYPES_INFO.put(SqlColumnType.DOUBLE, new SqlTypeInfo(Constants.DOUBLE_DISPLAY_SIZE, Constants.DOUBLE_PRECISION,
+                Constants.DOUBLE_PRECISION));
+        SQL_TYPES_INFO.put(SqlColumnType.DECIMAL, new SqlTypeInfo(Constants.DECIMAL_DISPLAY_SIZE, Constants.DECIMAL_PRECISION,
                 Constants.DECIMAL_PRECISION));
-        SQL_TYPES_INFO.put(SqlColumnType.DECIMAL, new ColumnTypeInfo(Constants.DECIMAL_DISPLAY_SIZE, Constants.DECIMAL_PRECISION,
-                Constants.DECIMAL_PRECISION));
-        SQL_TYPES_INFO.put(SqlColumnType.NULL, new ColumnTypeInfo(Constants.NULL_DISPLAY_SIZE,
+        SQL_TYPES_INFO.put(SqlColumnType.NULL, new SqlTypeInfo(Constants.NULL_DISPLAY_SIZE,
                 Constants.BOOLEAN_PRECISION, Constants.ZERO));
-        SQL_TYPES_INFO.put(SqlColumnType.OBJECT, new ColumnTypeInfo(Constants.MAX_STRING_LENGTH,
+        SQL_TYPES_INFO.put(SqlColumnType.OBJECT, new SqlTypeInfo(Constants.MAX_STRING_LENGTH,
                 Constants.MAX_STRING_LENGTH, Constants.ZERO));
-        SQL_TYPES_INFO.put(SqlColumnType.DATE, new ColumnTypeInfo(Constants.DATE_DISPLAY_SIZE,
+        SQL_TYPES_INFO.put(SqlColumnType.DATE, new SqlTypeInfo(Constants.DATE_DISPLAY_SIZE,
                 Constants.DATE_DISPLAY_SIZE, Constants.ZERO));
-        SQL_TYPES_INFO.put(SqlColumnType.TIME, new ColumnTypeInfo(Constants.TIME_DISPLAY_SIZE,
+        SQL_TYPES_INFO.put(SqlColumnType.TIME, new SqlTypeInfo(Constants.TIME_DISPLAY_SIZE,
                 Constants.TIME_DISPLAY_SIZE, Constants.ZERO));
-        SQL_TYPES_INFO.put(SqlColumnType.TIMESTAMP, new ColumnTypeInfo(Constants.TIMESTAMP_DISPLAY_SIZE,
+        SQL_TYPES_INFO.put(SqlColumnType.TIMESTAMP, new SqlTypeInfo(Constants.TIMESTAMP_DISPLAY_SIZE,
                 Constants.TIMESTAMP_DISPLAY_SIZE, Constants.ZERO));
-        SQL_TYPES_INFO.put(SqlColumnType.TIMESTAMP_WITH_TIME_ZONE, new ColumnTypeInfo(Constants.TIMESTAMP_DISPLAY_SIZE,
+        SQL_TYPES_INFO.put(SqlColumnType.TIMESTAMP_WITH_TIME_ZONE, new SqlTypeInfo(Constants.TIMESTAMP_DISPLAY_SIZE,
                 Constants.TIMESTAMP_DISPLAY_SIZE, Constants.ZERO));
     }
 
@@ -128,13 +128,13 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
     public boolean isSigned(int column) {
         SqlColumnType type = getColumn(column).getType();
         switch (type) {
-            case REAL:
-            case BIGINT:
-            case DOUBLE:
-            case INTEGER:
             case TINYINT:
-            case DECIMAL:
             case SMALLINT:
+            case INTEGER:
+            case BIGINT:
+            case DECIMAL:
+            case REAL:
+            case DOUBLE:
                 return true;
             default:
                 return false;
@@ -183,11 +183,12 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int getColumnType(int column) throws SQLException {
-        Integer type = SQL_TYPES_MAPPING.get(getColumn(column).getType());
-        if (type == null) {
-            throw new SQLException("Unexpected null type for column " + column);
+        SqlColumnType hzType = getColumn(column).getType();
+        Integer jdbcType = SQL_TYPES_MAPPING.get(hzType);
+        if (jdbcType == null) {
+            throw new SQLException("Type mapping not found for type: " + hzType);
         }
-        return type;
+        return jdbcType;
     }
 
     @Override
@@ -229,12 +230,12 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
         return sqlRowMetadata.getColumn(column - 1);
     }
 
-    private static final class ColumnTypeInfo {
+    private static final class SqlTypeInfo {
         private final Integer displaySize;
         private final Integer precision;
         private final Integer scale;
 
-        private ColumnTypeInfo(Integer displaySize, Integer precision, Integer scale) {
+        private SqlTypeInfo(Integer displaySize, Integer precision, Integer scale) {
             this.displaySize = displaySize;
             this.precision = precision;
             this.scale = scale;

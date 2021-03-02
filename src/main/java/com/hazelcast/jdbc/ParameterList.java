@@ -19,22 +19,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Wraps the list of parameters used for {@link java.sql.PreparedStatement}.
- * Validates all the parameters are set and to the correct {@param parameterIndex}.
+ * Ensures that all the parameters are set at a correct {@code parameterIndex}.
  */
 class ParameterList {
 
     private static final Parameter NULL_VALUE = new Parameter(null);
 
-    private List<Parameter> parameters;
-
-    ParameterList() {
-        parameters = new ArrayList<>(0);
-    }
+    private final List<Parameter> parameters = new ArrayList<>(0);
 
     /**
      * @return the list of the parameter values
@@ -56,7 +50,8 @@ class ParameterList {
     }
 
     /**
-     * Sets the parameter value for the given {@param parameterIndex} of any type
+     * Sets the parameter value for the given {@code parameterIndex} of any type
+     *
      * @param parameterIndex first parameter is 1, second parameter is 2...
      * @param parameter parameter value
      */
@@ -65,7 +60,7 @@ class ParameterList {
     }
 
     /**
-     * Sets the {@literal null} for the given {@param parameterIndex} of any type
+     * Sets the {@literal null} for the given {@code parameterIndex} of any type
      * @param parameterIndex first parameter is 1, second parameter is 2...
      */
     void setNullValue(int parameterIndex) {
@@ -73,26 +68,15 @@ class ParameterList {
     }
 
     /**
-     * Sets the parameter value for the given {@param parameterIndex} of any type
+     * Sets the parameter value for the given {@code parameterIndex} of any type
      * @param parameterIndex first parameter is 1, second parameter is 2...
      * @param parameter {@code Parameter} wrapper for the value
      */
-    void setParameter(int parameterIndex, Parameter parameter) {
-        if (parameterIndex > parameters.size()) {
-            resizeParameters(parameterIndex);
+    private void setParameter(int parameterIndex, Parameter parameter) {
+        while (parameterIndex > parameters.size()) {
+            parameters.add(null);
         }
         parameters.set(parameterIndex - 1, parameter);
-    }
-
-    private void resizeParameters(int parameterIndex) {
-        parameters = IntStream.range(0, parameterIndex)
-                .mapToObj(i -> {
-                    if (i < parameters.size()) {
-                        return parameters.get(i);
-                    }
-                    return null;
-                })
-                .collect(Collectors.toList());
     }
 
     private static final class Parameter {

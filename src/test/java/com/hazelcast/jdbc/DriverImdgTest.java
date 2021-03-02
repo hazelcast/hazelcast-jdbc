@@ -35,14 +35,13 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
-public class DriverIMDGTest {
+public class DriverImdgTest {
 
     private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/public";
 
     private final Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
 
-    public DriverIMDGTest() throws SQLException {
+    public DriverImdgTest() throws SQLException {
     }
 
     @BeforeAll
@@ -61,7 +60,7 @@ public class DriverIMDGTest {
     }
 
     @Test
-    public void shouldHazelcastJdbcConnection() throws SQLException {
+    public void shouldHazelcastJdbcConnection() {
         assertThat(connection).isNotNull();
     }
 
@@ -115,7 +114,6 @@ public class DriverIMDGTest {
 
         assertThat(Person.valueOf(resultSet)).isEqualTo(new Person("Jack1", 1));
     }
-
 
     @Test
     public void shouldCloseStatement() throws SQLException {
@@ -179,7 +177,7 @@ public class DriverIMDGTest {
             actualResult.add(Person.valueOf(resultSet));
         }
 
-        assertThat(actualResult).hasSize(2);;
+        assertThat(actualResult).hasSize(2);
     }
 
     @Test

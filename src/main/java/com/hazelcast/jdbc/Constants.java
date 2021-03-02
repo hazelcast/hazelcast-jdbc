@@ -15,9 +15,6 @@
  */
 package com.hazelcast.jdbc;
 
-/**
- * Fixed values that are used internally in the whole Driver code
- */
 final class Constants {
 
     /**
@@ -105,7 +102,6 @@ final class Constants {
      */
     static final int TIME_DISPLAY_SIZE = 8;
 
-
     /**
      * The max display size for TIMESTAMP and TIMESTAMP_WITH_TIMEZONE types
      */
@@ -114,7 +110,12 @@ final class Constants {
     /**
      * The maximum allowed length for character string and other data types based on it
      */
-    static final int MAX_STRING_LENGTH = 2000;
+    static final int STRING_DISPLAY_SIZE = 64;
+
+    /**
+     * The maximum allowed length for character string and other data types based on it
+     */
+    static final int MAX_STRING_LENGTH = Integer.MAX_VALUE;
 
     static final int ZERO = 0;
 
