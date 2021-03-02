@@ -60,7 +60,8 @@ final class JdbcUrl {
                 if (paramAndValue.length != 2) {
                     paramAndValue = new String[]{paramAndValue[0], ""};
                 }
-                this.properties.setProperty(decodeUrl(paramAndValue[0]), decodeUrl(paramAndValue[1]));
+                this.properties.setProperty(
+                    decodeUrl(paramAndValue[0]), decodeUrl(paramAndValue[1]));
             }
         }
     }
