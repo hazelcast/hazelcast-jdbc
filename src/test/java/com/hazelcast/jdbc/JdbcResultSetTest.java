@@ -170,14 +170,14 @@ public class JdbcResultSetTest {
         assertFalse(resultSet.isBeforeFirst());
         assertTrue(resultSet.isAfterLast());
         assertFalse(resultSet.isFirst());
-        assertEquals(-1, resultSet.getRow());
+        assertEquals(0, resultSet.getRow());
 
         // sanity check
         assertFalse(resultSet.next());
         assertFalse(resultSet.isBeforeFirst());
         assertTrue(resultSet.isAfterLast());
         assertFalse(resultSet.isFirst());
-        assertEquals(-1, resultSet.getRow());
+        assertEquals(0, resultSet.getRow());
     }
 
     @Test
@@ -211,14 +211,14 @@ public class JdbcResultSetTest {
         assertFalse(resultSet.isBeforeFirst());
         assertTrue(resultSet.isAfterLast());
         assertFalse(resultSet.isFirst());
-        assertEquals(-1, resultSet.getRow());
+        assertEquals(0, resultSet.getRow());
 
         // sanity check
         assertFalse(resultSet.next());
         assertFalse(resultSet.isBeforeFirst());
         assertTrue(resultSet.isAfterLast());
         assertFalse(resultSet.isFirst());
-        assertEquals(-1, resultSet.getRow());
+        assertEquals(0, resultSet.getRow());
     }
 
     @Test

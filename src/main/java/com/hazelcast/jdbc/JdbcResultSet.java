@@ -421,6 +421,9 @@ public class JdbcResultSet implements ResultSet {
     @Override
     public int getRow() throws SQLException {
         checkClosed();
+        if (isAfterLast()) {
+            return 0;
+        }
         return rowsReturned;
     }
 

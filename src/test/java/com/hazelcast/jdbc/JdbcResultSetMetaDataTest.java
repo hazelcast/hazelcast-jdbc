@@ -69,7 +69,7 @@ class JdbcResultSetMetaDataTest {
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
         assertThat(resultSet.getMetaData().getColumnDisplaySize(2)).isEqualTo(Constants.INTEGER_DISPLAY_SIZE);
-        assertThat(resultSet.getMetaData().getColumnDisplaySize(3)).isEqualTo(Constants.MAX_STRING_LENGTH);
+        assertThat(resultSet.getMetaData().getColumnDisplaySize(3)).isEqualTo(Constants.STRING_DISPLAY_SIZE);
     }
 
     @Test
