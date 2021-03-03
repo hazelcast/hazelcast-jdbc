@@ -25,8 +25,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.ResultSet;
+import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Properties;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -68,6 +70,33 @@ public class JdbcConnectionTest {
         assertThat(connection.prepareStatement(
                 "SELECT * FROM person", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.CLOSE_CURSORS_AT_COMMIT))
                 .isNotNull();
+    }
+
+    @Test
+    void setClientInfoSupported() throws SQLException {
+        Properties testProperties = new Properties();
+        testProperties.setProperty("a", "b");
+        connection.setClientInfo(testProperties);
+
+        assertThat(connection.getClientInfo("a")).isEqualTo("b");
+        assertThat(connection.getClientInfo()).isEqualTo(testProperties);
+
+        assertThatThrownBy(() -> connection.setClientInfo(null, null)).isInstanceOf(SQLClientInfoException.class);
+        assertThatThrownBy(() -> connection.setClientInfo("b", null)).isInstanceOf(SQLClientInfoException.class);
+        assertThatThrownBy(() -> connection.getClientInfo(null)).isInstanceOf(SQLException.class);
+        assertThatThrownBy(() -> connection.getClientInfo("b")).isInstanceOf(SQLException.class);
+
+        connection.close();
+        assertThatThrownBy(() -> connection.setClientInfo("b", "c"))
+                .isInstanceOf(SQLException.class)
+                .hasMessage("Connection is closed");
+
+        Properties anotherProperties = new Properties();
+        testProperties.setProperty("b", "c");
+
+        assertThatThrownBy(() -> connection.setClientInfo(anotherProperties))
+                .isInstanceOf(SQLClientInfoException.class)
+                .hasMessage("Connection is closed");
     }
 
     @ParameterizedTest(name = "With ResultSet type {0}")

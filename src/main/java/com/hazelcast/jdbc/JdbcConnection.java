@@ -42,6 +42,7 @@ import java.util.concurrent.Executor;
 public class JdbcConnection implements Connection {
 
     private final HazelcastSqlClient client;
+    private Properties clientInfo;
 
     /**
      * Is connection closed.
@@ -65,6 +66,7 @@ public class JdbcConnection implements Connection {
 
     JdbcConnection(HazelcastSqlClient client) {
         this.client = client;
+        this.clientInfo = new Properties();
     }
 
     @Override
@@ -336,6 +338,13 @@ public class JdbcConnection implements Connection {
         if (isClosed()) {
             throw new SQLClientInfoException("Connection is closed", Collections.emptyMap());
         }
+        if (name == null) {
+            throw new SQLClientInfoException("Can't setup null key for client info properties.", Collections.emptyMap());
+        }
+        if (value == null) {
+            throw new SQLClientInfoException("Can't setup null value for client info properties.", Collections.emptyMap());
+        }
+        this.clientInfo.setProperty(name, value);
     }
 
     @Override
@@ -343,16 +352,28 @@ public class JdbcConnection implements Connection {
         if (isClosed()) {
             throw new SQLClientInfoException("Connection is closed", Collections.emptyMap());
         }
+        if (properties == null) {
+            throw new SQLClientInfoException("Can't setup null client info properties!", Collections.emptyMap());
+        }
+        this.clientInfo = properties;
     }
 
     @Override
     public String getClientInfo(String name) throws SQLException {
-        throw JdbcUtils.unsupported("Client Info is not supported");
+        if (name == null) {
+            throw JdbcUtils.sqlException("Null argument!");
+        }
+        String requestedValue = this.clientInfo.getProperty(name);
+        if (requestedValue != null) {
+            return requestedValue;
+        } else {
+            throw JdbcUtils.sqlException("No such client info property.");
+        }
     }
 
     @Override
     public Properties getClientInfo() throws SQLException {
-        throw JdbcUtils.unsupported("Client Info is not supported");
+        return this.clientInfo;
     }
 
     @Override
