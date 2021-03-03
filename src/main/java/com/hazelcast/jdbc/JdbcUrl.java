@@ -38,11 +38,11 @@ final class JdbcUrl {
     private final Properties properties = new Properties();
     private final String rawAuthority;
 
-    public JdbcUrl(String url, Properties properties) {
+    JdbcUrl(String url, Properties properties) {
         Matcher matcher = JDBC_URL_PATTERN.matcher(url);
         if (!matcher.matches()) {
-            throw new IllegalArgumentException("The URL doesn't match the structure - " +
-                    "jdbc:hazelcast://host:port[,host2:port...]/schema[?prop1=value1&...]");
+            throw new IllegalArgumentException("The URL doesn't match the structure - "
+                    + "jdbc:hazelcast://host:port[,host2:port...]/schema[?prop1=value1&...]");
         }
 
         this.rawAuthority = decodeUrl(matcher.group("authority"));

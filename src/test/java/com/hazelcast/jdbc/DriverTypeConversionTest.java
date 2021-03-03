@@ -390,8 +390,7 @@ class DriverTypeConversionTest {
         LocalTime localTime = LocalTime.of(7, 33);
         ResultSet resultSet = getResultSet(localTime);
 
-        Time expectedValue = new Time(LocalDateTime.of(LocalDate.now(), LocalTime.of(7, 33))
-                .toEpochSecond(ZoneOffset.UTC) * 1_000);
+        Time expectedValue = Time.valueOf(localTime);
         assertThat(resultSet.getTime("value")).isEqualTo(expectedValue);
         assertThat(resultSet.getTime(2)).isEqualTo(expectedValue);
     }
@@ -401,7 +400,7 @@ class DriverTypeConversionTest {
         LocalDate localDate = LocalDate.of(1999, Month.DECEMBER, 31);
         ResultSet resultSet = getResultSet(localDate);
 
-        Date expectedValue = new Date(946598400000L);
+        Date expectedValue = Date.valueOf(localDate);
         assertThat(resultSet.getDate("value")).isEqualTo(expectedValue);
         assertThat(resultSet.getDate(2)).isEqualTo(expectedValue);
     }
@@ -421,8 +420,7 @@ class DriverTypeConversionTest {
         LocalTime localTime = LocalTime.of(7, 33);
         ResultSet resultSet = getResultSet(localTime);
 
-        Time expectedValue = new Time(LocalDateTime.of(LocalDate.now(), LocalTime.of(7, 33))
-                .toEpochSecond(ZoneOffset.UTC) * 1_000);
+        Time expectedValue = Time.valueOf(localTime);
         assertThat(resultSet.getObject("value", Time.class)).isEqualTo(expectedValue);
         assertThat(resultSet.getObject(2, Time.class)).isEqualTo(expectedValue);
     }
@@ -432,7 +430,7 @@ class DriverTypeConversionTest {
         LocalDate localDate = LocalDate.of(1999, Month.DECEMBER, 31);
         ResultSet resultSet = getResultSet(localDate);
 
-        Date expectedValue = new Date(946598400000L);
+        Date expectedValue = Date.valueOf(localDate);
         assertThat(resultSet.getObject("value", Date.class)).isEqualTo(expectedValue);
         assertThat(resultSet.getObject(2, Date.class)).isEqualTo(expectedValue);
     }
