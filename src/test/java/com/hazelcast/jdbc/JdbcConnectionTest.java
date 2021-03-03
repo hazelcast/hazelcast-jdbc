@@ -79,12 +79,11 @@ public class JdbcConnectionTest {
         connection.setClientInfo(testProperties);
 
         assertThat(connection.getClientInfo("a")).isEqualTo("b");
+        assertThat(connection.getClientInfo("b")).isNull();
         assertThat(connection.getClientInfo()).isEqualTo(testProperties);
 
         assertThatThrownBy(() -> connection.setClientInfo(null, null)).isInstanceOf(SQLClientInfoException.class);
         assertThatThrownBy(() -> connection.setClientInfo("b", null)).isInstanceOf(SQLClientInfoException.class);
-        assertThatThrownBy(() -> connection.getClientInfo(null)).isInstanceOf(SQLException.class);
-        assertThatThrownBy(() -> connection.getClientInfo("b")).isInstanceOf(SQLException.class);
 
         connection.close();
         assertThatThrownBy(() -> connection.setClientInfo("b", "c"))

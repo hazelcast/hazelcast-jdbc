@@ -353,26 +353,18 @@ public class JdbcConnection implements Connection {
             throw new SQLClientInfoException("Connection is closed", Collections.emptyMap());
         }
         if (properties == null) {
-            throw new SQLClientInfoException("Can't setup null client info properties!", Collections.emptyMap());
+            throw new SQLClientInfoException("Hazelcast Mustang doesn't support null client info.", Collections.emptyMap());
         }
         this.clientInfo = properties;
     }
 
     @Override
-    public String getClientInfo(String name) throws SQLException {
-        if (name == null) {
-            throw JdbcUtils.sqlException("Null argument!");
-        }
-        String requestedValue = this.clientInfo.getProperty(name);
-        if (requestedValue != null) {
-            return requestedValue;
-        } else {
-            throw JdbcUtils.sqlException("No such client info property.");
-        }
+    public String getClientInfo(String name) {
+        return this.clientInfo.getProperty(name);
     }
 
     @Override
-    public Properties getClientInfo() throws SQLException {
+    public Properties getClientInfo() {
         return this.clientInfo;
     }
 
