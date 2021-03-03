@@ -42,7 +42,6 @@ import java.util.concurrent.Executor;
 public class JdbcConnection implements Connection {
 
     private final HazelcastSqlClient client;
-    private Properties clientInfo;
 
     /**
      * Is connection closed.
@@ -64,9 +63,13 @@ public class JdbcConnection implements Connection {
      */
     private boolean autoCommit;
 
+    /**
+     * SQL warning chain
+     */
+    private SQLWarning warnings;
+
     JdbcConnection(HazelcastSqlClient client) {
         this.client = client;
-        this.clientInfo = new Properties();
     }
 
     @Override
@@ -185,12 +188,13 @@ public class JdbcConnection implements Connection {
     @Override
     public SQLWarning getWarnings() throws SQLException {
         checkClosed();
-        return null;
+        return warnings;
     }
 
     @Override
     public void clearWarnings() throws SQLException {
         checkClosed();
+        warnings = null;
     }
 
     @Override
@@ -338,13 +342,7 @@ public class JdbcConnection implements Connection {
         if (isClosed()) {
             throw new SQLClientInfoException("Connection is closed", Collections.emptyMap());
         }
-        if (name == null) {
-            throw new SQLClientInfoException("Can't setup null key for client info properties.", Collections.emptyMap());
-        }
-        if (value == null) {
-            throw new SQLClientInfoException("Can't setup null value for client info properties.", Collections.emptyMap());
-        }
-        this.clientInfo.setProperty(name, value);
+        generateWarning("Hazelcast Mustang doesn't support client info.");
     }
 
     @Override
@@ -352,20 +350,17 @@ public class JdbcConnection implements Connection {
         if (isClosed()) {
             throw new SQLClientInfoException("Connection is closed", Collections.emptyMap());
         }
-        if (properties == null) {
-            throw new SQLClientInfoException("Hazelcast Mustang doesn't support null client info.", Collections.emptyMap());
-        }
-        this.clientInfo = properties;
+        generateWarning("Hazelcast Mustang doesn't support client info.");
     }
 
     @Override
     public String getClientInfo(String name) {
-        return this.clientInfo.getProperty(name);
+        return null;
     }
 
     @Override
     public Properties getClientInfo() {
-        return this.clientInfo;
+        return null;
     }
 
     @Override
@@ -436,6 +431,15 @@ public class JdbcConnection implements Connection {
 
     HazelcastInstance getClientInstance() {
         return client.getClient();
+    }
+
+    private void generateWarning(String reason) {
+        SQLWarning currentWarning = new SQLWarning(reason);
+        if (warnings != null) {
+            warnings.setNextWarning(currentWarning);
+        } else {
+            warnings = currentWarning;
+        }
     }
 
     private void checkClosed() throws SQLException {

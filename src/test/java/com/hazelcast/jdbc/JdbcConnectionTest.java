@@ -24,10 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.sql.ResultSet;
-import java.sql.SQLClientInfoException;
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
+import java.sql.*;
 import java.util.Properties;
 import java.util.stream.Stream;
 
@@ -77,13 +74,19 @@ public class JdbcConnectionTest {
         Properties testProperties = new Properties();
         testProperties.setProperty("a", "b");
         connection.setClientInfo(testProperties);
+        assertThat(connection.getClientInfo("a")).isNull();
 
-        assertThat(connection.getClientInfo("a")).isEqualTo("b");
+        connection.setClientInfo("b", "c");
         assertThat(connection.getClientInfo("b")).isNull();
-        assertThat(connection.getClientInfo()).isEqualTo(testProperties);
 
-        assertThatThrownBy(() -> connection.setClientInfo(null, null)).isInstanceOf(SQLClientInfoException.class);
-        assertThatThrownBy(() -> connection.setClientInfo("b", null)).isInstanceOf(SQLClientInfoException.class);
+        String expectedMessage = "Hazelcast Mustang doesn't support client info.";
+
+        // We called setClientInfo twice and we expect only two warnings in the chain.
+        assertThat(connection.getWarnings().getMessage())
+                .isEqualTo(expectedMessage);
+        assertThat(connection.getWarnings().getNextWarning().getMessage())
+                .isEqualTo(expectedMessage);
+        assertThat(connection.getWarnings().getNextWarning().getNextWarning()).isNull();
 
         connection.close();
         assertThatThrownBy(() -> connection.setClientInfo("b", "c"))
