@@ -342,7 +342,7 @@ public class JdbcConnection implements Connection {
         if (isClosed()) {
             throw new SQLClientInfoException("Connection is closed", Collections.emptyMap());
         }
-        generateWarning("Hazelcast Mustang doesn't support client info.");
+        generateWarning("Client info is not supported.");
     }
 
     @Override
@@ -350,7 +350,7 @@ public class JdbcConnection implements Connection {
         if (isClosed()) {
             throw new SQLClientInfoException("Connection is closed", Collections.emptyMap());
         }
-        generateWarning("Hazelcast Mustang doesn't support client info.");
+        generateWarning("Client info is not supported.");
     }
 
     @Override
@@ -360,7 +360,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public Properties getClientInfo() {
-        return null;
+        return new Properties();
     }
 
     @Override

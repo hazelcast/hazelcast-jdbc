@@ -70,7 +70,7 @@ public class JdbcConnectionTest {
     }
 
     @Test
-    void setClientInfoSupported() throws SQLException {
+    void clientInfoTest() throws SQLException {
         Properties testProperties = new Properties();
         testProperties.setProperty("a", "b");
         connection.setClientInfo(testProperties);
@@ -79,7 +79,7 @@ public class JdbcConnectionTest {
         connection.setClientInfo("b", "c");
         assertThat(connection.getClientInfo("b")).isNull();
 
-        String expectedMessage = "Hazelcast Mustang doesn't support client info.";
+        String expectedMessage = "Client info is not supported.";
 
         // We called setClientInfo twice and we expect only two warnings in the chain.
         assertThat(connection.getWarnings().getMessage())
@@ -88,6 +88,7 @@ public class JdbcConnectionTest {
                 .isEqualTo(expectedMessage);
         assertThat(connection.getWarnings().getNextWarning().getNextWarning()).isNull();
 
+        // Closed connection test case.
         connection.close();
         assertThatThrownBy(() -> connection.setClientInfo("b", "c"))
                 .isInstanceOf(SQLException.class)
