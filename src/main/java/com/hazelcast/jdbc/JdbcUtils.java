@@ -15,6 +15,7 @@
  */
 package com.hazelcast.jdbc;
 
+import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 
 final class JdbcUtils {
@@ -33,5 +34,9 @@ final class JdbcUtils {
 
     public static SQLFeatureNotSupportedException unsupported(String message) {
         return new SQLFeatureNotSupportedException(message);
+    }
+
+    public static SQLException sqlException(String message) {
+        return new SQLException(message);
     }
 }
