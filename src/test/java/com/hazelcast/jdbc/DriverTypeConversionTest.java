@@ -680,6 +680,21 @@ class DriverTypeConversionTest {
         assertThat(resultSet.next()).isTrue();
     }
 
+    @Test
+    void shouldSearchForNullValues() throws SQLException {
+        Person person = new Person("Jack", 20);
+        IMap<Object, Object> types = member.getMap("person");
+        types.put(1, person);
+
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT CAST(? AS OBJECT), name, age FROM person");
+        preparedStatement.setNull(1, Types.NULL);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        assertThat(resultSet.next()).isTrue();
+        assertThat(resultSet.getObject(1)).isNull();
+        assertThat(resultSet.getString(2)).isEqualTo("Jack");
+        assertThat(resultSet.getInt(3)).isEqualTo(20);
+    }
+
     private ResultSet getTemporalPreparedResultSet(Object value, int sqlTargetType) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM types WHERE \"this\" = ?");
         preparedStatement.setObject(1, value, sqlTargetType);
