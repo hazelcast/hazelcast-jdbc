@@ -111,3 +111,7 @@ The following list represents the properties supported by the `Hazelcast JDBC Dr
 | k8sNamespace                   | String  | Kubernetes Namespace where Hazelcast is running |
 | k8sServiceName                 | String  | Service name used to scan only PODs connected to the given service; if not specified, then all PODs in the namespace are checked |
 | k8sServicePort                 | Integer | Endpoint port of the service; if specified with a value greater than 0, it overrides the default; 0 by default |
+
+#### Overriding Configuration
+Any property available for the [Hazelcast Java Client](https://docs.hazelcast.com/imdg/4.2-beta-1/clients/java) can be 
+specified using [Overriding Configuration](https://docs.hazelcast.com/imdg/4.2-beta-1/configuration/overriding-configuration-settings)
