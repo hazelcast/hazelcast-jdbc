@@ -88,7 +88,7 @@ public class Driver implements java.sql.Driver {
         throw new SQLFeatureNotSupportedException("The driver does not use java.util.logging");
     }
 
-    private static synchronized void load() {
+    private static void load() {
         try {
             if (!registered) {
                 DriverManager.registerDriver(INSTANCE);
