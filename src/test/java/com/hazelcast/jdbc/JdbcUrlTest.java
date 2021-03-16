@@ -47,6 +47,11 @@ class JdbcUrlTest {
     }
 
     @Test
+    void name() {
+        System.out.println(new JdbcUrl("jdbc:hazelcast://foo/public", null));
+    }
+
+    @Test
     void test_propertyParsing() {
         JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost:5701/public?prop1=val1&prop2=val2", new Properties());
 
