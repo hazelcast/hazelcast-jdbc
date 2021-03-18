@@ -59,12 +59,18 @@ Hazelcast Cloud
 ### Connection properties
 The following list represents the properties supported by the `Hazelcast JDBC Driver`.
 
-| Property                      | Type    | Description   |
-| ----------------------------- | ------- | ------------- |
+#### Common properties
+
+| Property                       | Type    | Description   |
+| ------------------------------ | ------- | ------------- |
 | user                           | String  | Hazelcast client username |
 | password                       | String  | Hazelcast client password |
 | clusterName                    | String  | Hazelcast cluster name |
-| discoveryToken                  | String  | Hazelcast Cloud discovery token |
+| discoveryToken                 | String  | Hazelcast Cloud discovery token |
+
+#### SSL properties
+| Property                       | Type    | Description   |
+| ------------------------------ | ------- | ------------- |
 | sslEnabled                     | Boolean | Enable SSL for client connection |
 | trustStore                     | String  | Path to truststore file |
 | trustCertCollectionFile        | String  | Path to truststore file |
@@ -74,12 +80,20 @@ The following list represents the properties supported by the `Hazelcast JDBC Dr
 | keyStorePassword               | String  | Password to access the key from your keystore file |
 | keyCertChainFile               | String  | Path to an X.509 certificate chain file in PEM format |
 | factoryClassName               | String  | Fully qualified class name for the implementation of `SSLContextFactory` |
+
+#### GCP properties
+| Property                       | Type    | Description   |
+| ------------------------------ | ------- | ------------- |
 | gcpPrivateKeyPath              | String  | A filesystem path to the private key for GCP service account in the JSON format; if not set, the access token is fetched from the GCP VM instance |
 | gcpHzPort                      | String  | A range of ports where the plugin looks for Hazelcast members; if not set, the default value 5701-5708 is used |
 | gcpProjects                    | String  | A list of projects where the plugin looks for instances; if not set, the current project is used |
 | gcpRegion                      | String  | A region where the plugin looks for instances; if not set, the zones property is used; if it and zones property not set, all zones of the current region are used |
 | gcpLabel                       | String  | A filter to look only for instances labeled as specified; property format: `key=value` |
 | gcpUsePublicIp                 | Boolean | Use public IP Address |
+
+#### AWS properties
+| Property                       | Type    | Description   |
+| ------------------------------ | ------- | ------------- |
 | awsAccessKey                   | String  | Access key of your AWS account; if not set, iam-role is used |
 | awsSecretKey                   | String  | Secret key of your AWS account; if not set, iam-role is used |
 | awsIamRole                     | String  | IAM Role attached to EC2 instance used to fetch credentials (if `awsAccessKey`/`awsSecretKey` not specified); if not set, default IAM Role attached to EC2 instance is used |
@@ -92,6 +106,10 @@ The following list represents the properties supported by the `Hazelcast JDBC Dr
 | awsConnectionRetries           | Integer | Number of retries while connecting to AWS API; default to 3 |
 | awsHzPort                      | String  | A range of ports where the plugin looks for Hazelcast members; default is 5701-5708 |
 | awsUsePublicIp                 | Boolean | Use public IP Address |
+
+#### AZURE properties
+| Property                       | Type    | Description   |
+| ------------------------------ | ------- | ------------- |
 | azureInstanceMetadataAvailable | Boolean | This property should be configured as `false` in order to be able to use the azure properties. It is `true` by default. |
 | azureClientId                  | String  | Azure Active Directory Service Principal client ID |
 | azureClientSecret              | String  | Azure Active Directory Service Principal client secret |
@@ -100,11 +118,19 @@ The following list represents the properties supported by the `Hazelcast JDBC Dr
 | azureResourceGroup             | String  | Name of Azure resource group which the Hazelcast instance is running in |
 | azureScaleSet                  | String  | name of Azure VM scale set. If this setting is configured, the plugin will search for instances over the resources only within this scale set |
 | azureUsePublicIp               | Boolean | Use public IP Address |
+
+#### Kubernetes properties
+| Property                       | Type    | Description   |
+| ------------------------------ | ------- | ------------- |
 | k8sServiceDns                  | String  | Service DNS, usually in the form of `SERVICE-NAME.NAMESPACE.svc.cluster.local` |
 | k8sServiceDnsTimeout           | Integer | Custom time for how long the DNS Lookup is checked |
 | k8sNamespace                   | String  | Kubernetes Namespace where Hazelcast is running |
 | k8sServiceName                 | String  | Service name used to scan only PODs connected to the given service; if not specified, then all PODs in the namespace are checked |
 | k8sServicePort                 | Integer | Endpoint port of the service; if specified with a value greater than 0, it overrides the default; 0 by default |
+
+#### Hazelcast cloud configuration
+For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use `cluster-name` as a host in 
+the URL: `jdbc:hazelcast://<cluster-name>/<schema>?discoveryToken=<yourDiscoveryToken>`.
 
 #### Overriding Configuration
 Any property available for the [Hazelcast Java Client](https://docs.hazelcast.com/imdg/4.2-beta-1/clients/java) can be 
