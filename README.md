@@ -44,22 +44,16 @@ And the dependency:
 The implementation class of `java.sql.Driver` is `com.hazelcast.jdbc.Driver` and it's registered automatically. 
 
 ## Connection URL
-The driver recognises the following JDBC URLs form:
-
-```
-jdbc:hazelcast://host/database
-jdbc:hazelcast://host:port/database
-```
 The format of the URL must have the following structure, parts in `[]` are optional:
 ```
-jdbc:hazelcast://host[:port][,host[:port]...]/database[?property1=value1[&property2=value2]...]
+jdbc:hazelcast://host[:port][,host[:port]...]/schema[?property1=value1[&property2=value2]...]
 ```
 where:
 **jdbc:hazelcast:**: (Required) is a sub-protocol and is a constant.
 **host**: (Required) server address (or addresses separated with comma) to connect to, or the cluster name if the server is 
 Hazelcast Cloud
 **port**: (Optional) Server port. Defaults to 5701.
-**database**: (Required) Hazelcast database name.
+**schema**: (Required) Hazelcast schema name.
 **propertyN**: (Optional) List of connection properties in the key-value form.
 
 ### Connection properties
@@ -70,7 +64,7 @@ The following list represents the properties supported by the `Hazelcast JDBC Dr
 | user                           | String  | Hazelcast client username |
 | password                       | String  | Hazelcast client password |
 | clusterName                    | String  | Hazelcast cluster name |
-| discoverToken                  | String  | Hazelcast Cloud discovery token |
+| discoveryToken                  | String  | Hazelcast Cloud discovery token |
 | sslEnabled                     | Boolean | Enable SSL for client connection |
 | trustStore                     | String  | Path to truststore file |
 | trustCertCollectionFile        | String  | Path to truststore file |

@@ -45,7 +45,7 @@ class HazelcastConfigFactoryTest {
     @Test
     void shouldParseDiscoveryToken() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://cluster-name/public?discoverToken=token-value-123", null));
+                new JdbcUrl("jdbc:hazelcast://cluster-name/public?discoveryToken=token-value-123", null));
         assertThat(clientConfig).isEqualTo(ClientConfig.load()
                 .setProperty(ClientProperty.HAZELCAST_CLOUD_DISCOVERY_TOKEN.getName(), "token-value-123")
                 .setClusterName("cluster-name"));
