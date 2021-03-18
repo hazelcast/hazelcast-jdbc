@@ -1,10 +1,10 @@
 # Hazelcast JDBC Driver
-Hazelcast JDBC Driver allows Java application to connect to a Hazelcast using standard JDBC API.
+Hazelcast JDBC Driver allows Java applications to connect to Hazelcast using the standard JDBC API.
 
 ## Supported Hazeclast version
 
-The version on the driver should be compatible to the same Hazelcast version (i.e. `hazelcast-jdbc:4.2` is compatible to 
-`hazelcast:4.2`).
+The minor version of the driver must be the same as the Hazelcast version you're connecting to (e.g. `hazelcast-jdbc:4.2` is compatible to 
+`hazelcast:4.2`). In the future we plan to support broader client compatibility.
 
 ## Download the Driver
 
@@ -22,7 +22,7 @@ You can download the JDBC Driver using preferred dependency management tool:
 ```
 
 #### Snapshot version:
-To download the latest snapshot build (build from `main` branch) you need to add the snapshot repository:
+To download the latest snapshot build (built from the `main` branch) you need to add the snapshot repository:
 ```xml
 <repository>
     <id>snapshot-repository</id>
@@ -30,18 +30,18 @@ To download the latest snapshot build (build from `main` branch) you need to add
     <url>https://oss.sonatype.org/content/repositories/snapshots</url>
 </repository>
 ```
-And the dependecy:
+And the dependency:
 ```xml
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>4.3-SNAPSHOT</version>
+    <version>5.0-SNAPSHOT</version>
 </dependency>
 ```
 
 ## Documentation
 
-The implementation class of `java.sql.Driver` is `com.hazelcast.jdbc.Driver` and is registered automatically. 
+The implementation class of `java.sql.Driver` is `com.hazelcast.jdbc.Driver` and it's registered automatically. 
 
 ## Connection URL
 The driver recognises the following JDBC URLs form:
@@ -50,7 +50,7 @@ The driver recognises the following JDBC URLs form:
 jdbc:hazelcast://host/database
 jdbc:hazelcast://host:port/database
 ```
-The format of URL is represented below with square brackets (`[]`) being optional:
+The format of the URL must have the following structure, parts in `[]` are optional:
 ```
 jdbc:hazelcast://host[:port][,host[:port]...]/database[?property1=value1[&property2=value2]...]
 ```
