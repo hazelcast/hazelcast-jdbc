@@ -132,6 +132,8 @@ The following list represents the properties supported by the `Hazelcast JDBC Dr
 For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use `cluster-name` as a host in 
 the URL: `jdbc:hazelcast://<cluster-name>/<schema>?discoveryToken=<yourDiscoveryToken>`.
 
-#### Overriding Configuration
-Any property available for the [Hazelcast Java Client](https://docs.hazelcast.com/imdg/4.2-beta-1/clients/java) can be 
-specified using [Overriding Configuration](https://docs.hazelcast.com/imdg/4.2-beta-1/configuration/overriding-configuration-settings)
+#### Additional Configuration
+Besides URL, it is possible to use [Hazelcast Declarative Configuration](https://docs.hazelcast.com/imdg/4.1.
+2/configuration/configuring-declaratively.html) and  [Overriding Configuration](https://docs.hazelcast.com/imdg/4.
+2-beta-1/configuration/overriding-configuration-settings) to configure [Hazelcast Java Client](https://docs.hazelcast.com/imdg/4.
+2-beta-1/clients/java)
