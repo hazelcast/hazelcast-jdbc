@@ -3,8 +3,13 @@ Hazelcast JDBC Driver allows Java applications to connect to Hazelcast using the
 
 ## Supported Hazeclast version
 
-The minor version of the driver must be the same as the Hazelcast version you're connecting to (e.g. `hazelcast-jdbc:4.2` is compatible to 
+#### IMDG
+The version of the driver must be the same as the Hazelcast IMDG version you're connecting to (e.g. `hazelcast-jdbc:4.2` is 
+compatible to 
 `hazelcast:4.2`). In the future we plan to support broader client compatibility.
+
+#### Jet
+The JDBC Driver of version `4.2` supports Hazelcast Jet `4.5`.
 
 ## Download the Driver
 
@@ -72,8 +77,8 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 | Property                       | Type    | Description   |
 | ------------------------------ | ------- | ------------- |
 | sslEnabled                     | Boolean | Enable SSL for client connection |
-| trustStore                     | String  | Path to truststore file |
-| trustCertCollectionFile        | String  | Path to truststore file |
+| trustStore                     | String  | Path to truststore file. Alias for `trustCertCollectionFile` |
+| trustCertCollectionFile        | String  | Path to truststore file. Alias for `trustStore` |
 | trustStorePassword             | String  | Password to unlock the truststore file |
 | protocol                       | String  | Name of the algorithm which is used in your TLS/SSL; default to `TLS` |
 | keyStore                       | String  | Path to your keystore file |
