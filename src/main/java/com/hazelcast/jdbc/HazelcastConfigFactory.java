@@ -100,9 +100,9 @@ class HazelcastConfigFactory {
 
     ClientConfig clientConfig(JdbcUrl url) {
         ClientConfig clientConfig = securityConfig(url, ClientConfig.load());
-        String discoverToken = url.getProperty("discoverToken");
-        if (discoverToken != null) {
-            return cloudConfig(url, clientConfig, discoverToken);
+        String discoveryToken = url.getProperty("discoveryToken");
+        if (discoveryToken != null) {
+            return cloudConfig(url, clientConfig, discoveryToken);
         }
         ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(url.getAuthorities());
         clientConfig.setNetworkConfig(networkConfig);
@@ -125,8 +125,8 @@ class HazelcastConfigFactory {
         return clientConfig;
     }
 
-    private ClientConfig cloudConfig(JdbcUrl url, ClientConfig clientConfig, String discoverToken) {
-        clientConfig.setProperty(ClientProperty.HAZELCAST_CLOUD_DISCOVERY_TOKEN.getName(), discoverToken);
+    private ClientConfig cloudConfig(JdbcUrl url, ClientConfig clientConfig, String discoveryToken) {
+        clientConfig.setProperty(ClientProperty.HAZELCAST_CLOUD_DISCOVERY_TOKEN.getName(), discoveryToken);
         clientConfig.setClusterName(url.getRawAuthority());
         return clientConfig;
     }
