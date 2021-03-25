@@ -21,7 +21,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
@@ -80,15 +79,5 @@ public class JdbcConnectionIntegrationTest {
         resultSet.close();
 
         assertThat(statement.isClosed()).isTrue();
-    }
-
-    @Test
-    @Disabled("SQL module for now ignores the schema parameter from the API")
-    void shouldNotAffectCreatedStatementsWhenChangingSchema() throws SQLException {
-        Connection connection = new JdbcConnection(client);
-        Statement statement = connection.createStatement();
-        connection.setSchema("WrongSchema");
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
-        assertThat(resultSet.next()).isTrue();
     }
 }

@@ -16,7 +16,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <hazelcast.version>4.2-SNAPSHOT</hazelcast.version>
-        <hazelcast.jet.version>4.4-SNAPSHOT</hazelcast.jet.version>
+        <hazelcast.jet.version>4.5-SNAPSHOT</hazelcast.jet.version>
         <mockito.version>3.8.0</mockito.version>
         <maven.jacoco.plugin.version>0.8.6</maven.jacoco.plugin.version>
         <maven.findbugs.plugin.version>3.0.5</maven.findbugs.plugin.version>
@@ -90,13 +90,19 @@
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-sql</artifactId>
-            <version>${hazelcast.version}</version>
+            <groupId>com.hazelcast.jet</groupId>
+            <artifactId>hazelcast-jet</artifactId>
+            <version>${hazelcast.jet.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.hazelcast.jet</groupId>
+            <artifactId>hazelcast-jet-sql</artifactId>
+            <version>${hazelcast.jet.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <repositories>
