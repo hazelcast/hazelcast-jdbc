@@ -65,10 +65,12 @@ public class JdbcStatement implements Statement {
 
     private final HazelcastSqlClient client;
     private final Connection connection;
+    private final String schema;
 
-    JdbcStatement(HazelcastSqlClient client, Connection connection) {
+    JdbcStatement(HazelcastSqlClient client, Connection connection) throws SQLException {
         this.client = client;
         this.connection = connection;
+        schema = connection.getSchema();
     }
 
     @Override
@@ -400,7 +402,7 @@ public class JdbcStatement implements Statement {
         SqlStatement query = new SqlStatement(sql)
                 .setParameters(parameters)
                 .setExpectedResultType(expectedResult)
-                .setSchema(connection.getSchema());
+                .setSchema(schema);
         if (queryTimeout != 0) {
             query.setTimeoutMillis(SECONDS.toMillis(queryTimeout));
         }

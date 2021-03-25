@@ -44,7 +44,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     private ParameterList parameters;
     private final String sql;
 
-    JdbcPreparedStatement(String sql, HazelcastSqlClient client, Connection connection) {
+    JdbcPreparedStatement(String sql, HazelcastSqlClient client, Connection connection) throws SQLException {
         super(client, connection);
         this.sql = sql;
         parameters = new ParameterList();
