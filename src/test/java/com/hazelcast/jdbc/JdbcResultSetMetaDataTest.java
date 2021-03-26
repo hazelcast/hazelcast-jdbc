@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class JdbcResultSetMetaDataTest {
 
-    private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/public";
+    private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/";
 
     private final Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
 
