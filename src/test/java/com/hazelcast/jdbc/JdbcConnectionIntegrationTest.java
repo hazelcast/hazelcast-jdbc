@@ -38,7 +38,7 @@ public class JdbcConnectionIntegrationTest {
     @BeforeEach
     public void setUp() {
         HazelcastInstance member = Hazelcast.newHazelcastInstance();
-        client = new HazelcastSqlClient(new JdbcUrl("jdbc:hazelcast://localhost:5701/public", null));
+        client = new HazelcastSqlClient(new JdbcUrl("jdbc:hazelcast://localhost:5701/", null));
 
         IMap<Integer, Person> personMap = member.getMap("person");
         for (int i = 0; i < 3; i++) {

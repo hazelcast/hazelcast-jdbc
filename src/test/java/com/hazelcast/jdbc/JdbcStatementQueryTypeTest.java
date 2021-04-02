@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class JdbcStatementQueryTypeTest {
 
-    private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/public";
+    private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/";
 
     Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
 

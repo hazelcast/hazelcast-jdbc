@@ -51,14 +51,13 @@ The implementation class of `java.sql.Driver` is `com.hazelcast.jdbc.Driver` and
 ## Connection URL
 The format of the URL must have the following structure, parts in `[]` are optional:
 ```
-jdbc:hazelcast://host[:port][,host[:port]...]/schema[?property1=value1[&property2=value2]...]
+jdbc:hazelcast://host[:port][,host[:port]...]/[?property1=value1[&property2=value2]...]
 ```
 where:
 **jdbc:hazelcast:**: (Required) is a sub-protocol and is a constant.
 **host**: (Required) server address (or addresses separated with comma) to connect to, or the cluster name if the server is 
 Hazelcast Cloud
 **port**: (Optional) Server port. Defaults to 5701.
-**schema**: (Required) Hazelcast schema name.
 **propertyN**: (Optional) List of connection properties in the key-value form.
 
 ### Connection properties
@@ -135,7 +134,7 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 
 #### Hazelcast Cloud Configuration
 For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-name` as a host in 
-the URL: `jdbc:hazelcast://<cluster-name>/<schema>?discoveryToken=<yourDiscoveryToken>`.
+the URL: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>`.
 
 #### Additional Configuration
 Besides URL, it is possible to use [Hazelcast Declarative Configuration](https://docs.hazelcast.com/imdg/4.1.2/configuration/configuring-declaratively.html) and  [Overriding Configuration](https://docs.hazelcast.com/imdg/4.2-beta-1/configuration/overriding-configuration-settings) to configure [Hazelcast Java Client](https://docs.hazelcast.com/imdg/4.2-beta-1/clients/java)

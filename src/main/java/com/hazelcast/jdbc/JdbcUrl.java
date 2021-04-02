@@ -28,12 +28,10 @@ final class JdbcUrl {
 
     private static final String PREFIX = "jdbc:hazelcast:";
     private static final Pattern JDBC_URL_PATTERN = Pattern.compile(PREFIX + "//"
-            + "(?<authority>\\S+?(?=[/]))"
-            + "/(?<schema>\\S+?)"
+            + "(?<authority>\\S+?)/?"
             + "(\\?(?<parameters>\\S*))?");
 
     private final List<String> authorities;
-    private final String schema;
     private final String rawUrl;
     private final Properties properties = new Properties();
     private final String rawAuthority;
@@ -42,12 +40,11 @@ final class JdbcUrl {
         Matcher matcher = JDBC_URL_PATTERN.matcher(url);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("The URL doesn't match the structure - "
-                    + "jdbc:hazelcast://host:port[,host2:port...]/schema[?prop1=value1&...]");
+                    + "jdbc:hazelcast://host:port[,host2:port...]/[?prop1=value1&...]");
         }
 
         this.rawAuthority = decodeUrl(matcher.group("authority"));
         this.authorities = Arrays.asList(rawAuthority.split(","));
-        this.schema = decodeUrl(matcher.group("schema"));
         this.rawUrl = url;
 
         if (properties != null) {
@@ -68,10 +65,6 @@ final class JdbcUrl {
 
     public List<String> getAuthorities() {
         return authorities;
-    }
-
-    public String getSchema() {
-        return schema;
     }
 
     public String getProperty(String key) {

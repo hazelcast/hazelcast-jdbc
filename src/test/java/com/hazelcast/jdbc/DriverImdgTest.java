@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DriverImdgTest {
 
-    private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/public";
+    private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701";
 
     private final Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
 
@@ -125,11 +125,6 @@ public class DriverImdgTest {
 
         assertThat(statement.isClosed()).isTrue();
         assertThat(resultSet.isClosed()).isTrue();
-    }
-
-    @Test
-    void shouldSupportSchemaFromConnectionString() throws SQLException {
-        assertThat(connection.getSchema()).isEqualTo("public");
     }
 
     @Test

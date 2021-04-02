@@ -50,9 +50,7 @@ public class Driver implements java.sql.Driver {
             // convert to SQLException
             throw new SQLException(e.getMessage(), e);
         }
-        JdbcConnection jdbcConnection = new JdbcConnection(new HazelcastSqlClient(jdbcUrl));
-        jdbcConnection.setSchema(jdbcUrl.getSchema());
-        return jdbcConnection;
+        return new JdbcConnection(new HazelcastSqlClient(jdbcUrl));
     }
 
     @Override
