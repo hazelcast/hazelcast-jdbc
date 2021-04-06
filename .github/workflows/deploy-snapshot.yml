@@ -13,6 +13,7 @@ jobs:
       matrix:
         java: [ '8' ]
         architecture: [ 'x64' ]
+        distribution: [ 'adopt' ]
     name: Build SNAPSHOT version with JDK ${{ matrix.java }}
     steps:
       - uses: actions/checkout@v2.3.4
@@ -20,6 +21,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java }}
+          distribution: ${{ matrix.distribution }}
           server-id: snapshot-repository
           server-username: MAVEN_SNAPSHOT_USERNAME
           server-password: MAVEN_SNAPSHOT_PASSWORD
