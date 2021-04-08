@@ -138,3 +138,7 @@ the URL: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>`.
 
 #### Additional Configuration
 Besides URL, it is possible to use [Hazelcast Declarative Configuration](https://docs.hazelcast.com/imdg/4.1.2/configuration/configuring-declaratively.html) and  [Overriding Configuration](https://docs.hazelcast.com/imdg/4.2-beta-1/configuration/overriding-configuration-settings) to configure [Hazelcast Java Client](https://docs.hazelcast.com/imdg/4.2-beta-1/clients/java)
+
+## SQL
+The supported SQL syntax description can be found in [IMDG SQL docs](https://docs.hazelcast.com/imdg/4.2/sql/distributed-sql.html) 
+and [Jet SQL docs](https://jet-start.sh/docs/sql/intro).
