@@ -1,7 +1,7 @@
 # Hazelcast JDBC Driver
 Hazelcast JDBC Driver allows Java applications to connect to Hazelcast using the standard JDBC API.
 
-## Supported Hazeclast version
+## Supported Hazelcast version
 
 #### IMDG
 The version of the driver must be the same as the Hazelcast IMDG version you're connecting to (e.g. `hazelcast-jdbc:4.2` is 
