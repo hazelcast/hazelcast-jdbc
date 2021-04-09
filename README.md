@@ -9,7 +9,7 @@ compatible to
 `hazelcast:4.2`). In the future we plan to support broader client compatibility.
 
 #### Jet
-The JDBC Driver of version `4.2` supports Hazelcast Jet `4.5`.
+The JDBC Driver of version `4.2` supports Hazelcast Jet `4.5` (to be released soon).
 
 ## Download the Driver
 
@@ -54,11 +54,11 @@ The format of the URL must have the following structure, parts in `[]` are optio
 jdbc:hazelcast://host[:port][,host[:port]...]/[?property1=value1[&property2=value2]...]
 ```
 where:
-**jdbc:hazelcast:**: (Required) is a sub-protocol and is a constant.
-**host**: (Required) server address (or addresses separated with comma) to connect to, or the cluster name if the server is 
+* **jdbc:hazelcast:**: (Required) is a sub-protocol and is a constant.
+* **host**: (Required) server address (or addresses separated with comma) to connect to, or the cluster name if the server is 
 Hazelcast Cloud
-**port**: (Optional) Server port. Defaults to 5701.
-**propertyN**: (Optional) List of connection properties in the key-value form.
+* **port**: (Optional) Server port. Defaults to 5701.
+* **propertyN**: (Optional) List of connection properties in the key-value form.
 
 ### Connection properties
 The following list contains the properties supported by the `Hazelcast JDBC Driver`.
@@ -137,8 +137,7 @@ For connecting to the Hazelcast cloud you only need to specify `discoveryToken` 
 the URL: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>`.
 
 #### Additional Configuration
-Besides URL, it is possible to use [Hazelcast Declarative Configuration](https://docs.hazelcast.com/imdg/4.1.2/configuration/configuring-declaratively.html) and  [Overriding Configuration](https://docs.hazelcast.com/imdg/4.2-beta-1/configuration/overriding-configuration-settings) to configure [Hazelcast Java Client](https://docs.hazelcast.com/imdg/4.2-beta-1/clients/java)
+Besides URL, it is possible to use [Hazelcast Declarative Configuration](https://docs.hazelcast.com/imdg/4.2/configuration/configuring-declaratively.html) and  [Overriding Configuration](https://docs.hazelcast.com/imdg/4.2/configuration/overriding-configuration-settings) to configure [Hazelcast Java Client](https://docs.hazelcast.com/imdg/4.2/clients/java)
 
 ## SQL
-The supported SQL syntax description can be found in [IMDG SQL docs](https://docs.hazelcast.com/imdg/4.2/sql/distributed-sql.html) 
-and [Jet SQL docs](https://jet-start.sh/docs/sql/intro).
+The supported SQL syntax description can be found in [IMDG SQL docs](https://docs.hazelcast.com/imdg/4.2/sql/distributed-sql.html). Hazelcast Jet 4.5 that supports the JDBC driver will be released soon. You can take a look at its SQL capabilities in the [Jet SQL documentation](https://jet-start.sh/docs/get-started/intro). 
