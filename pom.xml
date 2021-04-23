@@ -33,6 +33,18 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <scm>
+        <connection>scm:git:git://github.com/hazelcast/hazelcast-jdbc.git</connection>
+        <developerConnection>scm:git:git@github.com:hazelcast/hazelcast-jdbc.git</developerConnection>
+        <url>https://github.com/hazelcast/hazelcast-jdbc/</url>
+    </scm>
+    <developers>
+        <developer>
+            <id>sbishyr</id>
+            <name>sergii bishyr</name>
+            <email>sergii.bishyr@hazelcast.com</email>
+        </developer>
+    </developers>
 
     <dependencyManagement>
         <dependencies>
