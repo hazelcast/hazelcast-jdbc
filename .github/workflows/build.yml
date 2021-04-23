@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         java: [ '8' ]
-        hazelcast: [ '4.2-SNAPSHOT' ]
+        hazelcast: [ '4.2' ]
         jet: [ '4.4-SNAPSHOT' ]
         architecture: [ 'x64' ]
         distribution: [ 'adopt' ]
