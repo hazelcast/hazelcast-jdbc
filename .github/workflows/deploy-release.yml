@@ -1,7 +1,7 @@
 name: Release version
 on:
-  create:
-    tag:
+  push:
+    tags:
       - '*'
 
 jobs:
