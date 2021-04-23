@@ -9,6 +9,7 @@
     <version>4.2</version>
 
     <name>hazelcast-jdbc</name>
+    <description>Hazelcast JDBC Driver</description>
     <url>http://github.com/hazelcast/hazelcast-jdbc</url>
 
     <properties>
