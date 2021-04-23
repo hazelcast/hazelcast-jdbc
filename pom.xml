@@ -6,7 +6,7 @@
 
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>4.2-SNAPSHOT</version>
+    <version>4.2</version>
 
     <name>hazelcast-jdbc</name>
     <url>http://github.com/hazelcast/hazelcast-jdbc</url>
