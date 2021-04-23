@@ -34,7 +34,7 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Build with Maven
-        run: mvn -q deploy -P release-snapshot,checkstyle,findbugs
+        run: mvn -q deploy -P release-snapshot
         env:
           MAVEN_SNAPSHOT_USERNAME: ${{ secrets.MAVEN_SNAPSHOT_USERNAME }}
           MAVEN_SNAPSHOT_PASSWORD: ${{ secrets.MAVEN_SNAPSHOT_PASSWORD }}
