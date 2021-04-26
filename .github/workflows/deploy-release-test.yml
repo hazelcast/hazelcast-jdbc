@@ -42,17 +42,28 @@ jobs:
           MAVEN_RELEASE_PASSWORD: ${{ secrets.MAVEN_RELEASE_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - run: npm ci
+      - run: npm install fs-extra
+
       - name: Upload release asset
         uses: actions/github-script@v4
         with:
           script: |
+            const fs = require('fs-extra')
             const tag = context.payload.ref.replace(/refs\/tags\//, '');
-            const releasePromise = github.repos.getReleaseByTag({
+            const release = await github.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag: tag
             });
-            releasePromise.then(function(release) {
-              console.log(release);
+            jar = fs.readFileSync("hazelcast-jdbc-" + tag.replace(/v/, '') + ".jar");
+            github.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.id,
+              data: jar
             });
 
