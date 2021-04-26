@@ -58,7 +58,8 @@ jobs:
               repo: context.repo.repo,
               tag: tag
             });
-            jar = fs.readFileSync("hazelcast-jdbc-" + tag.replace(/v/, '') + ".jar");
+#            jar = fs.readFileSync("hazelcast-jdbc-" + tag.replace(/v/, '') + ".jar");
+            jar = fs.readFileSync("hazelcast-jdbc-" + "5.0" + ".jar");
             github.repos.uploadReleaseAsset({
               owner: context.repo.owner,
               repo: context.repo.repo,
