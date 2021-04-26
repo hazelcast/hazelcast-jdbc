@@ -50,4 +50,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            console.log(release);
+            release.then(function(data) {
+              console.log(data);
+            });
+
