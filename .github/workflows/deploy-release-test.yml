@@ -1,4 +1,4 @@
-name: Release version
+name: Release version test
 on:
   push:
 #    tags:
@@ -47,7 +47,7 @@ jobs:
         with:
           script: |
             const release = github.repos.getLatestRelease({
-              owner,
-              repo,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
             });
             console.log(release);
