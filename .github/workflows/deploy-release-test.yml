@@ -46,14 +46,13 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
-            console.log(context.payload.ref);
-            const tag = context.payload.ref.replace(/\/refs\/tags\//, '');
-            const release = github.repos.getReleaseByTag({
+            const tag = context.payload.ref.replace(/refs\/tags\//, '');
+            const releasePromise = github.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag: tag
             });
-            release.then(function(data) {
+            releasePromise.then(function(release) {
               console.log(data);
             });
 
