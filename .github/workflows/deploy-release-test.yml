@@ -46,10 +46,11 @@ jobs:
         uses: actions/github-script@v4
         with:
           script: |
+            console.log(${{github.ref}});
             const release = github.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag: github.ref
+              tag: ${{github.ref}}
             });
             release.then(function(data) {
               console.log(data);
