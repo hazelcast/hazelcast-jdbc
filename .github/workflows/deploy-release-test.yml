@@ -60,6 +60,7 @@ jobs:
             });
             jar = fs.readFileSync("target/hazelcast-jdbc-" + "5.0-SNAPSHOT" + ".jar");
             console.log(release);
+            console.log(typeof release);
             const response = await github.repos.uploadReleaseAsset({
               owner: context.repo.owner,
               repo: context.repo.repo,
