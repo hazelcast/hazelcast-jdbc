@@ -48,7 +48,7 @@ jobs:
       - run: npm install fs-extra
 
       - name: Upload release asset
-        uses: actions/github-script@v4
+        uses: actions/github-script@v4.0.2
         with:
           script: |
             const fs = require('fs-extra')
@@ -65,7 +65,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: release.data.id,
-              data: jar
+              data: jar,
+              name: "hazelcast-jdbc-" + "5.0-SNAPSHOT" + ".jar"
             });
             console.log(response);
 
