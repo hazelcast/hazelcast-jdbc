@@ -53,6 +53,6 @@ jobs:
               tag: tag
             });
             releasePromise.then(function(release) {
-              console.log(data);
+              console.log(release);
             });
 
