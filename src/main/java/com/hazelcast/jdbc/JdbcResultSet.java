@@ -1162,10 +1162,9 @@ public class JdbcResultSet implements ResultSet {
     private static class EmptyJdbcResultSet extends JdbcResultSet {
         EmptyJdbcResultSet() {
             super(new SqlResult() {
-                @SuppressWarnings("ConstantConditions")
                 @Override
                 public SqlRowMetadata getRowMetadata() {
-                    return null;
+                    return new SqlRowMetadata(Collections.emptyList());
                 }
                 @Override
                 public Iterator<SqlRow> iterator() {
