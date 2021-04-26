@@ -1,8 +1,8 @@
 name: Release version test
 on:
   push:
-#    tags:
-#      - '*'
+    tags:
+      - '*'
 
 jobs:
   build:
