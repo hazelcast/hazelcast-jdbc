@@ -796,7 +796,7 @@ class DriverTypeConversionTest {
     private static String sqlColumnType(Class<?> clazz) {
         for (SqlColumnType value : SqlColumnType.values()) {
             if (value.getValueClass().equals(clazz)) {
-                return value.name();
+                return value.toString();
             }
         }
         return null;
