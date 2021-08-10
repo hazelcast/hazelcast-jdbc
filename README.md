@@ -3,6 +3,9 @@ Hazelcast JDBC Driver allows Java applications to connect to Hazelcast using the
 
 ## Supported Hazelcast version
 
+#### Platform (Beta)
+The JDBC driver version 5.0-BETA-2 is compatible with the latest Beta version of Hazelcast Platform project. 
+
 #### IMDG
 The version of the driver must be the same as the Hazelcast IMDG version you're connecting to (e.g. `hazelcast-jdbc:4.2` is 
 compatible to 
@@ -13,7 +16,8 @@ The JDBC Driver of version `4.2` supports Hazelcast Jet `4.5` (to be released so
 
 ## Download the Driver
 
-You can download the JDBC Driver using preferred dependency management tool:
+### Binaries
+Download directly the JAR file from [Releases](https://github.com/hazelcast/hazelcast-jdbc/releases) page.
 
 ### Maven Central
 
@@ -23,6 +27,15 @@ You can download the JDBC Driver using preferred dependency management tool:
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
     <version>4.2</version>
+</dependency>
+```
+
+#### Beta version for Platform:
+```xml
+<dependency>
+    <groupId>com.hazelcast</groupId>
+    <artifactId>hazelcast-jdbc</artifactId>
+    <version>5.0-BETA-2</version>
 </dependency>
 ```
 
