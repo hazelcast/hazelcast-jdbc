@@ -16,6 +16,7 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
@@ -37,7 +38,9 @@ public class JdbcConnectionIntegrationTest {
 
     @BeforeEach
     public void setUp() {
-        HazelcastInstance member = Hazelcast.newHazelcastInstance();
+        Config config = new Config();
+        config.getJetConfig().setEnabled(true);
+        HazelcastInstance member = Hazelcast.newHazelcastInstance(config);
         client = new HazelcastSqlClient(new JdbcUrl("jdbc:hazelcast://localhost:5701/", null));
 
         IMap<Integer, Person> personMap = member.getMap("person");

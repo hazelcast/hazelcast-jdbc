@@ -16,6 +16,7 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
@@ -66,7 +67,9 @@ class DriverTypeConversionTest {
 
     @BeforeAll
     public static void beforeClass() {
-        member = Hazelcast.newHazelcastInstance();
+        Config config = new Config();
+        config.getJetConfig().setEnabled(true);
+        member = Hazelcast.newHazelcastInstance(config);
     }
 
     @AfterAll

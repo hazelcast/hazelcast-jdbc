@@ -16,6 +16,7 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
@@ -36,7 +37,9 @@ public class JdbcPreparedStatementTest {
 
     @BeforeEach
     public void setUp() {
-        HazelcastInstance member = Hazelcast.newHazelcastInstance();
+        Config config = new Config();
+        config.getJetConfig().setEnabled(true);
+        HazelcastInstance member = Hazelcast.newHazelcastInstance(config);
         IMap<Integer, Person> personMap = member.getMap("person");
         for (int i = 0; i < 3; i++) {
             personMap.put(i, new Person("Jack" + i, i));
