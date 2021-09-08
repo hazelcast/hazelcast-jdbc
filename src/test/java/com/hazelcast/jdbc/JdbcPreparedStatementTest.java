@@ -29,6 +29,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import static com.hazelcast.jdbc.JdbcTestSupport.createMapping;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class JdbcPreparedStatementTest {
@@ -44,6 +45,7 @@ public class JdbcPreparedStatementTest {
         for (int i = 0; i < 3; i++) {
             personMap.put(i, new Person("Jack" + i, i));
         }
+        createMapping(member, personMap.getName(), int.class, Person.class);
     }
 
     @AfterEach

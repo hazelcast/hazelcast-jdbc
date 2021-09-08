@@ -34,6 +34,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.hazelcast.jdbc.JdbcTestSupport.createMapping;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DriverImdgTest {
@@ -54,6 +55,7 @@ public class DriverImdgTest {
         for (int i = 0; i < 3; i++) {
             personMap.put(i, new Person("Jack" + i, i));
         }
+        createMapping(member, personMap.getName(), int.class, Person.class);
     }
 
     @AfterAll
