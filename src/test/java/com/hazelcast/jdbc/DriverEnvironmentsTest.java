@@ -32,6 +32,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.hazelcast.jdbc.JdbcTestSupport.createMapping;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Tag("envs")
@@ -47,6 +48,7 @@ class DriverEnvironmentsTest {
         people.put(1, new Person("Emma", 27));
         people.put(2, new Person("Olivia", 42));
         people.put(3, new Person("Sophia", 35));
+        createMapping(client, people.getName(), int.class, Person.class);
     }
 
     @AfterEach

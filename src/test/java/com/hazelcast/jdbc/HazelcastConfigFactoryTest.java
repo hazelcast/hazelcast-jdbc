@@ -61,7 +61,6 @@ class HazelcastConfigFactoryTest {
         assertThat(credentials.getPassword()).isEqualTo("pass");
     }
 
-
     @Test
     void shouldParseSslConfigs() {
         ClientConfig clientConfig = configFactory.clientConfig(
