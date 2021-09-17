@@ -16,6 +16,7 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
@@ -51,13 +52,14 @@ import java.time.ZonedDateTime;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static com.hazelcast.jdbc.JdbcTestSupport.createMapping;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assumptions.assumeThat;
 
 class DriverTypeConversionTest {
 
-    private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/public";
+    private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/";
     private static HazelcastInstance member;
     private final Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
 
@@ -66,7 +68,9 @@ class DriverTypeConversionTest {
 
     @BeforeAll
     public static void beforeClass() {
-        member = Hazelcast.newHazelcastInstance();
+        Config config = new Config();
+        config.getJetConfig().setEnabled(true);
+        member = Hazelcast.newHazelcastInstance(config);
     }
 
     @AfterAll
@@ -323,6 +327,7 @@ class DriverTypeConversionTest {
 
         IMap<Object, Object> types = member.getMap("types");
         types.put(1, new TypesHolder(value));
+        createMapping(member, types.getName(), int.class, TypesHolder.class);
 
         ResultSet resultSet = getResultSet(value);
         assertThatThrownBy(() -> resultSet.getBigDecimal("value"))
@@ -604,6 +609,7 @@ class DriverTypeConversionTest {
     void shouldThrowExceptionWhenSqlTypeIsNotSupported() throws SQLException {
         IMap<Object, Object> types = member.getMap("types");
         types.put(1, new ValuesWrapper("String value"));
+        createMapping(member, types.getName(), int.class, ValuesWrapper.class);
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM types WHERE \"string\" = ?");
         assertThatThrownBy(() -> preparedStatement.setObject(1, "String value", 999))
                 .isInstanceOf(SQLException.class)
@@ -615,6 +621,7 @@ class DriverTypeConversionTest {
     void shouldConvertNullValues(ThrowingFunction<ResultSet, ?> resultSetFunction, Object expectedNullValue) throws SQLException {
         IMap<Object, Object> types = member.getMap("types");
         types.put(1, new TypesHolder(null));
+        createMapping(member, types.getName(), int.class, TypesHolder.class);
 
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM types");
@@ -628,6 +635,7 @@ class DriverTypeConversionTest {
         Instant value = Instant.now();
         IMap<Object, Object> types = member.getMap("timestamp");
         types.put(1, value);
+        createMapping(member, types.getName(), int.class, value.getClass());
 
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM \"timestamp\" WHERE \"this\" = ?");
         preparedStatement.setObject(1, value, Types.TIMESTAMP_WITH_TIMEZONE);
@@ -640,6 +648,7 @@ class DriverTypeConversionTest {
         LocalDateTime value = LocalDateTime.now();
         IMap<Object, Object> types = member.getMap("types");
         types.put(1, value);
+        createMapping(member, types.getName(), int.class, value.getClass());
 
         assertThat(getTemporalPreparedResultSet(value, Types.TIMESTAMP).next()).isTrue();
         assertThat(getTemporalPreparedResultSet(OffsetDateTime.of(value, ZoneOffset.UTC), Types.TIMESTAMP).next()).isTrue();
@@ -651,6 +660,7 @@ class DriverTypeConversionTest {
         LocalDate value = LocalDate.now();
         IMap<Object, Object> types = member.getMap("types");
         types.put(1, value);
+        createMapping(member, types.getName(), int.class, value.getClass());
 
         assertThat(getTemporalPreparedResultSet(value, Types.DATE).next()).isTrue();
         assertThat(getTemporalPreparedResultSet(
@@ -662,6 +672,7 @@ class DriverTypeConversionTest {
         LocalTime value = LocalTime.now();
         IMap<Object, Object> types = member.getMap("types");
         types.put(1, value);
+        createMapping(member, types.getName(), int.class, value.getClass());
 
         assertThat(getTemporalPreparedResultSet(value, Types.TIME).next()).isTrue();
         assertThat(getTemporalPreparedResultSet(
@@ -673,6 +684,7 @@ class DriverTypeConversionTest {
         Person person = new Person("John", 20);
         IMap<Object, Object> types = member.getMap("person");
         types.put(1, person);
+        createMapping(member, types.getName(), int.class, person.getClass());
 
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM person WHERE \"this\" = ?");
         preparedStatement.setObject(1, new Person("John", 20), Types.JAVA_OBJECT);
@@ -685,6 +697,7 @@ class DriverTypeConversionTest {
         Person person = new Person("Jack", 20);
         IMap<Object, Object> types = member.getMap("person");
         types.put(1, person);
+        createMapping(member, types.getName(), int.class, person.getClass());
 
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT CAST(? AS OBJECT), name, age FROM person");
         preparedStatement.setNull(1, Types.NULL);
@@ -706,6 +719,7 @@ class DriverTypeConversionTest {
             throws SQLException {
         IMap<Object, Object> types = member.getMap("types");
         types.put(1, valuesWrapper);
+        createMapping(member, types.getName(), int.class, ValuesWrapper.class);
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setObject(1, value, targetSqlType);
@@ -715,6 +729,7 @@ class DriverTypeConversionTest {
     private ResultSet getResultSet(Object value) throws SQLException {
         IMap<Object, Object> types = member.getMap("types");
         types.put(1, new TypesHolder(value));
+        createMapping(member, types.getName(), int.class, TypesHolder.class);
 
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM types");
@@ -796,7 +811,7 @@ class DriverTypeConversionTest {
     private static String sqlColumnType(Class<?> clazz) {
         for (SqlColumnType value : SqlColumnType.values()) {
             if (value.getValueClass().equals(clazz)) {
-                return value.name();
+                return value.toString();
             }
         }
         return null;

@@ -1,7 +1,7 @@
 name: Release version
 on:
-  create:
-    tag:
+  push:
+    tags:
       - '*'
 
 jobs:
@@ -11,13 +11,17 @@ jobs:
       matrix:
         java: [ '8' ]
         architecture: [ 'x64' ]
+        distribution: [ 'adopt' ]
     name: Build release version with JDK ${{ matrix.java }}
     steps:
       - uses: actions/checkout@v2.3.4
+        with:
+          ref: ${{ github.ref }}
       - name: Setup JDK
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java }}
+          distribution: ${{ matrix.distribution }}
           server-id: release-repository
           server-username: MAVEN_RELEASE_USERNAME
           server-password: MAVEN_RELEASE_PASSWORD
@@ -25,15 +29,41 @@ jobs:
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
-      - uses: actions/cache@v2.1.4
+      - uses: actions/cache@v2.1.6
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Build with Maven
-        run: mvn -q deploy -P release
+        run: mvn deploy -P release
         env:
           MAVEN_RELEASE_USERNAME: ${{ secrets.MAVEN_RELEASE_USERNAME }}
           MAVEN_RELEASE_PASSWORD: ${{ secrets.MAVEN_RELEASE_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - run: npm install fs-extra
+
+      - name: Upload release asset
+        uses: actions/github-script@v4.1
+        with:
+          script: |
+            const fs = require('fs-extra')
+            const tag = context.payload.ref.replace(/refs\/tags\//, '');
+            const release = await github.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: tag
+            });
+            const jarName = "hazelcast-jdbc-" + tag.replace(/v/, '') + ".jar";
+            const jar = fs.readFileSync("target/" + jarName);
+            const response = await github.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.data.id,
+              data: jar,
+              name: jarName
+            });

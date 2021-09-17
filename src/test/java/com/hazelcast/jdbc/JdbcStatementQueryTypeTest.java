@@ -16,6 +16,7 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
@@ -28,11 +29,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static com.hazelcast.jdbc.JdbcTestSupport.createMapping;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class JdbcStatementQueryTypeTest {
 
-    private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/public";
+    private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/";
 
     Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
 
@@ -41,11 +43,14 @@ class JdbcStatementQueryTypeTest {
 
     @BeforeAll
     public static void beforeClass() {
-        HazelcastInstance member = Hazelcast.newHazelcastInstance();
+        Config config = new Config();
+        config.getJetConfig().setEnabled(true);
+        HazelcastInstance member = Hazelcast.newHazelcastInstance(config);
         IMap<Integer, Person> personMap = member.getMap("person");
         for (int i = 0; i < 3; i++) {
             personMap.put(i, new Person("Jack" + i, i));
         }
+        createMapping(member, personMap.getName(), int.class, Person.class);
     }
 
     @AfterAll

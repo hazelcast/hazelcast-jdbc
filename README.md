@@ -1,14 +1,23 @@
 # Hazelcast JDBC Driver
 Hazelcast JDBC Driver allows Java applications to connect to Hazelcast using the standard JDBC API.
 
-## Supported Hazeclast version
+## Supported Hazelcast version
 
-The minor version of the driver must be the same as the Hazelcast version you're connecting to (e.g. `hazelcast-jdbc:4.2` is compatible to 
+#### Platform (Beta)
+The JDBC driver version 5.0-BETA-2 is compatible with the latest Beta version of Hazelcast Platform project. 
+
+#### IMDG
+The version of the driver must be the same as the Hazelcast IMDG version you're connecting to (e.g. `hazelcast-jdbc:4.2` is 
+compatible to 
 `hazelcast:4.2`). In the future we plan to support broader client compatibility.
+
+#### Jet
+The JDBC Driver of version `4.2` supports Hazelcast Jet `4.5` (to be released soon).
 
 ## Download the Driver
 
-You can download the JDBC Driver using preferred dependency management tool:
+### Binaries
+Download directly the JAR file from [Releases](https://github.com/hazelcast/hazelcast-jdbc/releases) page.
 
 ### Maven Central
 
@@ -18,6 +27,15 @@ You can download the JDBC Driver using preferred dependency management tool:
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
     <version>4.2</version>
+</dependency>
+```
+
+#### Beta version for Platform:
+```xml
+<dependency>
+    <groupId>com.hazelcast</groupId>
+    <artifactId>hazelcast-jdbc</artifactId>
+    <version>5.0-BETA-2</version>
 </dependency>
 ```
 
@@ -46,15 +64,14 @@ The implementation class of `java.sql.Driver` is `com.hazelcast.jdbc.Driver` and
 ## Connection URL
 The format of the URL must have the following structure, parts in `[]` are optional:
 ```
-jdbc:hazelcast://host[:port][,host[:port]...]/schema[?property1=value1[&property2=value2]...]
+jdbc:hazelcast://host[:port][,host[:port]...]/[?property1=value1[&property2=value2]...]
 ```
 where:
-**jdbc:hazelcast:**: (Required) is a sub-protocol and is a constant.
-**host**: (Required) server address (or addresses separated with comma) to connect to, or the cluster name if the server is 
+* **jdbc:hazelcast:**: (Required) is a sub-protocol and is a constant.
+* **host**: (Required) server address (or addresses separated with comma) to connect to, or the cluster name if the server is 
 Hazelcast Cloud
-**port**: (Optional) Server port. Defaults to 5701.
-**schema**: (Required) Hazelcast schema name.
-**propertyN**: (Optional) List of connection properties in the key-value form.
+* **port**: (Optional) Server port. Defaults to 5701.
+* **propertyN**: (Optional) List of connection properties in the key-value form.
 
 ### Connection properties
 The following list contains the properties supported by the `Hazelcast JDBC Driver`.
@@ -72,8 +89,8 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 | Property                       | Type    | Description   |
 | ------------------------------ | ------- | ------------- |
 | sslEnabled                     | Boolean | Enable SSL for client connection |
-| trustStore                     | String  | Path to truststore file |
-| trustCertCollectionFile        | String  | Path to truststore file |
+| trustStore                     | String  | Path to truststore file. Alias for `trustCertCollectionFile` |
+| trustCertCollectionFile        | String  | Path to truststore file. Alias for `trustStore` |
 | trustStorePassword             | String  | Password to unlock the truststore file |
 | protocol                       | String  | Name of the algorithm which is used in your TLS/SSL; default to `TLS` |
 | keyStore                       | String  | Path to your keystore file |
@@ -130,10 +147,10 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 
 #### Hazelcast Cloud Configuration
 For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-name` as a host in 
-the URL: `jdbc:hazelcast://<cluster-name>/<schema>?discoveryToken=<yourDiscoveryToken>`.
+the URL: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>`.
 
 #### Additional Configuration
-Besides URL, it is possible to use [Hazelcast Declarative Configuration](https://docs.hazelcast.com/imdg/4.1.
-2/configuration/configuring-declaratively.html) and  [Overriding Configuration](https://docs.hazelcast.com/imdg/4.
-2-beta-1/configuration/overriding-configuration-settings) to configure [Hazelcast Java Client](https://docs.hazelcast.com/imdg/4.
-2-beta-1/clients/java)
+Besides URL, it is possible to use [Hazelcast Declarative Configuration](https://docs.hazelcast.com/imdg/4.2/configuration/configuring-declaratively.html) and  [Overriding Configuration](https://docs.hazelcast.com/imdg/4.2/configuration/overriding-configuration-settings) to configure [Hazelcast Java Client](https://docs.hazelcast.com/imdg/4.2/clients/java)
+
+## SQL
+The supported SQL syntax description can be found in [IMDG SQL docs](https://docs.hazelcast.com/imdg/4.2/sql/distributed-sql.html). Hazelcast Jet 4.5 that supports the JDBC driver will be released soon. You can take a look at its SQL capabilities in the [Jet SQL documentation](https://jet-start.sh/docs/get-started/intro). 

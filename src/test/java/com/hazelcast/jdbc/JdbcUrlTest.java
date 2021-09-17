@@ -27,7 +27,7 @@ class JdbcUrlTest {
 
     @Test
     void acceptsUrl_when_validUrl_then_true() {
-        assertThat(JdbcUrl.acceptsUrl("jdbc:hazelcast://localhost:5701/public")).isTrue();
+        assertThat(JdbcUrl.acceptsUrl("jdbc:hazelcast://localhost:5701/")).isTrue();
     }
 
     @Test
@@ -48,24 +48,22 @@ class JdbcUrlTest {
 
     @Test
     void test_propertyParsing() {
-        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost:5701/public?prop1=val1&prop2=val2", new Properties());
+        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost:5701/?prop1=val1&prop2=val2", new Properties());
 
         assertThat(url).isNotNull();
         assertThat(url.getAuthorities()).contains("localhost:5701");
-        assertThat(url.getSchema()).isEqualTo("public");
         assertThat(url.getProperty("prop1")).isEqualTo("val1");
 
-        JdbcUrl urlWithoutPort = new JdbcUrl("jdbc:hazelcast://clustername/public", new Properties());
+        JdbcUrl urlWithoutPort = new JdbcUrl("jdbc:hazelcast://clustername/", new Properties());
         assertThat(urlWithoutPort).isNotNull();
         assertThat(urlWithoutPort.getAuthorities()).contains("clustername");
     }
 
     @Test
     void test_propertyParsing_withEscaping() {
-        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://local%68ost:5701/publi%63?a=%26&b%3d=c", new Properties());
+        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://local%68ost:5701/?a=%26&b%3d=c", new Properties());
         assertThat(url).isNotNull();
         assertThat(url.getAuthorities()).containsExactly("localhost:5701");
-        assertThat(url.getSchema()).isEqualTo("public");
         assertThat(url.getProperty("a")).isEqualTo("&");
         assertThat(url.getProperty("b=")).isEqualTo("c");
     }
@@ -74,13 +72,13 @@ class JdbcUrlTest {
     public void when_sameKeyInUrlAndProperties_then_thatFromUrlTakesPrecedence() {
         Properties props = new Properties();
         props.setProperty("a", "foo");
-        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost/schema?a=bar", props);
+        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost/?a=bar", props);
         assertEquals("bar", url.getProperty("a"));
     }
 
     @Test
     public void when_duplicateKeyInUrl_then_lastOccurrenceUsed() {
-        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost/schema?a=foo&a=bar", null);
+        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost/?a=foo&a=bar", null);
         assertEquals("bar", url.getProperty("a"));
     }
 }

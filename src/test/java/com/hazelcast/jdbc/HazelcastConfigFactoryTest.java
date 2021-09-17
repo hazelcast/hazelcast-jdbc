@@ -36,7 +36,7 @@ class HazelcastConfigFactoryTest {
     @Test
     void shouldParseClusterNameConfiguration() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://localhost:5701/public?clusterName=my-cluster", null));
+                new JdbcUrl("jdbc:hazelcast://localhost:5701/?clusterName=my-cluster", null));
         assertThat(clientConfig).isEqualTo(ClientConfig.load()
                 .setNetworkConfig(new ClientNetworkConfig().setAddresses(Collections.singletonList("localhost:5701")))
                 .setClusterName("my-cluster"));
@@ -45,7 +45,7 @@ class HazelcastConfigFactoryTest {
     @Test
     void shouldParseDiscoveryToken() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://cluster-name/public?discoveryToken=token-value-123", null));
+                new JdbcUrl("jdbc:hazelcast://cluster-name/?discoveryToken=token-value-123", null));
         assertThat(clientConfig).isEqualTo(ClientConfig.load()
                 .setProperty(ClientProperty.HAZELCAST_CLOUD_DISCOVERY_TOKEN.getName(), "token-value-123")
                 .setClusterName("cluster-name"));
@@ -54,18 +54,17 @@ class HazelcastConfigFactoryTest {
     @Test
     void shouldParseCredentials() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://localhost:5701/public?user=admin&password=pass", null));
+                new JdbcUrl("jdbc:hazelcast://localhost:5701/?user=admin&password=pass", null));
         UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) clientConfig.getSecurityConfig()
                 .getCredentialsIdentityConfig().getCredentials();
         assertThat(credentials.getName()).isEqualTo("admin");
         assertThat(credentials.getPassword()).isEqualTo("pass");
     }
 
-
     @Test
     void shouldParseSslConfigs() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://localhost:5701/public?sslEnabled=true&trustStore=truststore" +
+                new JdbcUrl("jdbc:hazelcast://localhost:5701/?sslEnabled=true&trustStore=truststore" +
                         "&trustStorePassword=123abc", null));
         ClientConfig expectedConfig = ClientConfig.load()
                 .setNetworkConfig(new ClientNetworkConfig()
@@ -81,7 +80,7 @@ class HazelcastConfigFactoryTest {
     @Test
     void shouldParseAwsConfigs() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://localhost:5701/public?awsTagKey=tagkey&awsTagValue=tagValue" +
+                new JdbcUrl("jdbc:hazelcast://localhost:5701/?awsTagKey=tagkey&awsTagValue=tagValue" +
                         "&awsAccessKey=accessKey&awsSecretKey=secretKey&awsIamRole=ADMIN&awsRegion=us-west-2&awsHostHeader=ec2" +
                         "&awsSecurityGroupName=securityGroup&awsConnectionTimeoutSeconds=10&awsReadTimeoutSeconds=5" +
                         "&awsConnectionRetries=3&awsHzPort=5801-5808&awsUsePublicIp=true", null));
@@ -109,7 +108,7 @@ class HazelcastConfigFactoryTest {
     @Test
     void shouldParseGcpConfigs() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://localhost:5701/public?gcpPrivateKeyPath=/home/name/service/account/key.json" +
+                new JdbcUrl("jdbc:hazelcast://localhost:5701/?gcpPrivateKeyPath=/home/name/service/account/key.json" +
                         "&gcpProjects=project-1,project-2&gcpRegion=us-east1&gcpHzPort=5701-5708" +
                         "&gcpLabel=application=hazelcast&gcpUsePublicIp=true", null));
         ClientConfig expectedConfig = ClientConfig.load()
@@ -130,7 +129,7 @@ class HazelcastConfigFactoryTest {
     @Test
     void shouldParseGcpConfigsWithMultipleLabels() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://localhost:5701/public?gcpPrivateKeyPath=/home/name/service/account/key.json" +
+                new JdbcUrl("jdbc:hazelcast://localhost:5701/?gcpPrivateKeyPath=/home/name/service/account/key.json" +
                         "&gcpProjects=project-1,project-2&gcpRegion=us-east1&gcpHzPort=5701-5708" +
                         "&gcpLabel=application=hazelcast,other=value&gcpUsePublicIp=true", null));
         ClientConfig expectedConfig = ClientConfig.load()
@@ -151,7 +150,7 @@ class HazelcastConfigFactoryTest {
     @Test
     void shouldParseConfigsForMultipleMemberInstances() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://198.51.100.11:5701,203.0.113.42:5702/public", null));
+                new JdbcUrl("jdbc:hazelcast://198.51.100.11:5701,203.0.113.42:5702/", null));
         assertThat(clientConfig).isEqualTo(ClientConfig.load()
                 .setNetworkConfig(new ClientNetworkConfig().setAddresses(Arrays.asList("198.51.100.11:5701", "203.0.113.42:5702")))
                 .setClusterName("dev"));
@@ -159,7 +158,7 @@ class HazelcastConfigFactoryTest {
 
     @Test
     void shouldDecodeUrlEncodedHost() {
-        ClientConfig clientConfig = configFactory.clientConfig(new JdbcUrl("jdbc:hazelcast://loc%61lhost:5701/public", null));
+        ClientConfig clientConfig = configFactory.clientConfig(new JdbcUrl("jdbc:hazelcast://loc%61lhost:5701/", null));
         assertThat(clientConfig).isEqualTo(ClientConfig.load()
                 .setNetworkConfig(new ClientNetworkConfig().setAddresses(Collections.singletonList("localhost:5701")))
                 .setClusterName("dev"));

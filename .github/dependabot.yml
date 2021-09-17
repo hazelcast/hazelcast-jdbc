@@ -5,8 +5,13 @@ updates:
     schedule:
       interval: "daily"
       time: "02:00"
+    reviewers:
+      - "viliam-durina"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
       time: "02:00"
+    reviewers:
+      - "viliam-durina"
