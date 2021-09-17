@@ -227,6 +227,11 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
     }
 
     private SqlColumnMetadata getColumn(int column) {
+        // We have to check the range here, even though sqlRowMetadata.getColumn() checks it too, to
+        // throw an exception where 1 is not subtracted from the column index
+        if (column <= 0 || column > getColumnCount()) {
+            throw new IndexOutOfBoundsException("Column index is out of bounds: " + column);
+        }
         return sqlRowMetadata.getColumn(column - 1);
     }
 

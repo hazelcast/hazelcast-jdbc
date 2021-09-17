@@ -19,8 +19,9 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.map.IMap;
+import com.hazelcast.sql.SqlService;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,25 +31,26 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 
-import static com.hazelcast.jdbc.JdbcTestSupport.createMapping;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class JdbcConnectionIntegrationTest {
+    private HazelcastInstance member;
     private HazelcastSqlClient client;
 
     @BeforeEach
     public void setUp() {
         Config config = new Config();
         config.getJetConfig().setEnabled(true);
-        HazelcastInstance member = Hazelcast.newHazelcastInstance(config);
+        member = Hazelcast.newHazelcastInstance(config);
+
         client = new HazelcastSqlClient(new JdbcUrl("jdbc:hazelcast://localhost:5701/", null));
 
-        IMap<Integer, Person> personMap = member.getMap("person");
-        for (int i = 0; i < 3; i++) {
-            personMap.put(i, new Person("Jack"+i, i));
-        }
-        createMapping(member, personMap.getName(), int.class, Person.class);
+//        IMap<Integer, Person> personMap = member.getMap("person");
+//        for (int i = 0; i < 3; i++) {
+//            personMap.put(i, new Person("Jack"+i, i));
+//        }
+//        createMapping(member, personMap.getName(), int.class, Person.class);
     }
 
     @AfterEach
@@ -84,5 +86,23 @@ public class JdbcConnectionIntegrationTest {
         resultSet.close();
 
         assertThat(statement.isClosed()).isTrue();
+    }
+
+    @Test
+    void when_schemaChangedOnConnection_then_shouldNotAffectExistingStatements() throws SQLException {
+        // test for https://github.com/hazelcast/hazelcast-jdbc/issues/58
+        SqlService sql = member.getSql();
+        sql.execute("CREATE OR REPLACE MAPPING mappings(__key INT, this INT) TYPE IMap " +
+                "OPTIONS('keyFormat'='int', 'valueFormat'='int')");
+
+        Connection connection = new JdbcConnection(client);
+        Statement statement = connection.createStatement();
+        connection.setSchema("information_schema");
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM mappings");
+        Assertions.assertEquals("__key", resultSet.getMetaData().getColumnName(1));
+
+        statement = connection.createStatement();
+        resultSet = statement.executeQuery("SELECT * FROM mappings");
+        Assertions.assertEquals("table_catalog", resultSet.getMetaData().getColumnName(1));
     }
 }
