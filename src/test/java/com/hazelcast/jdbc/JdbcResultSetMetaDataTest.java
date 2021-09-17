@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 
+import static com.hazelcast.jdbc.JdbcTestSupport.createMapping;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JdbcResultSetMetaDataTest {
@@ -51,6 +52,7 @@ class JdbcResultSetMetaDataTest {
         for (int i = 0; i < 3; i++) {
             personMap.put(i, new Person("Jack" + i, i));
         }
+        createMapping(member, personMap.getName(), int.class, Person.class);
     }
 
     @AfterAll
