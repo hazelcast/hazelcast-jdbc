@@ -76,7 +76,7 @@ public class JdbcStatementTest {
     @Test
     void shouldFailForQueryOnSqlUpdate() throws SQLException {
         when(client.execute(any())).thenThrow(new HazelcastSqlException(
-                UUID.randomUUID(), -1, "The statement doesn't produce rows", QueryException.error("")));
+                UUID.randomUUID(), -1, "The statement doesn't produce rows", QueryException.error(""), null));
         JdbcStatement statement = new JdbcStatement(client, connection);
 
         assertThatThrownBy(() -> statement.executeQuery("UPDATE person SET name='JOHN' WHERE age=10"))
@@ -87,7 +87,7 @@ public class JdbcStatementTest {
     @Test
     void shouldFailForUpdateOnSqlQuery() throws SQLException {
         when(client.execute(any())).thenThrow(new HazelcastSqlException(
-                UUID.randomUUID(), -1, "The statement doesn't produce update count", QueryException.error("")));
+                UUID.randomUUID(), -1, "The statement doesn't produce update count", QueryException.error(""), null));
         JdbcStatement statement = new JdbcStatement(client, connection);
 
         assertThatThrownBy(() -> statement.executeUpdate("SELECT * FROM person"))

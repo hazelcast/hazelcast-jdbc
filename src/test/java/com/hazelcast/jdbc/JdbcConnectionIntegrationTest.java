@@ -60,7 +60,7 @@ public class JdbcConnectionIntegrationTest {
     }
 
     @Test
-    public void shouldCloseConnection() throws SQLException {
+    public void test_connectionClose() throws SQLException {
         Connection connection = new JdbcConnection(client);
         connection.close();
         assertThatThrownBy(connection::createStatement)
@@ -70,7 +70,7 @@ public class JdbcConnectionIntegrationTest {
     }
 
     @Test
-    void shouldNotSupportPrepareCall() {
+    void when_prepareCall_then_notSupported() {
         Connection connection = new JdbcConnection(client);
         assertThatThrownBy(() -> connection.prepareCall("{call getPerson(?, ?)}"))
                 .isInstanceOf(SQLFeatureNotSupportedException.class)
@@ -78,7 +78,7 @@ public class JdbcConnectionIntegrationTest {
     }
 
     @Test
-    void shouldAutoCloseStatementWhenResultSetIsClosed() throws SQLException {
+    void when_resultSetClosed_then_statementClosed() throws SQLException {
         Connection connection = new JdbcConnection(client);
         Statement statement = connection.createStatement();
         statement.closeOnCompletion();
