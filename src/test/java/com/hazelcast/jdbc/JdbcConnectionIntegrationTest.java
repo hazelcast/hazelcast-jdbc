@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 
+import static com.hazelcast.jdbc.JdbcTestSupport.createMapping;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -45,12 +46,6 @@ public class JdbcConnectionIntegrationTest {
         member = Hazelcast.newHazelcastInstance(config);
 
         client = new HazelcastSqlClient(new JdbcUrl("jdbc:hazelcast://localhost:5701/", null));
-
-//        IMap<Integer, Person> personMap = member.getMap("person");
-//        for (int i = 0; i < 3; i++) {
-//            personMap.put(i, new Person("Jack"+i, i));
-//        }
-//        createMapping(member, personMap.getName(), int.class, Person.class);
     }
 
     @AfterEach
@@ -82,6 +77,7 @@ public class JdbcConnectionIntegrationTest {
         Connection connection = new JdbcConnection(client);
         Statement statement = connection.createStatement();
         statement.closeOnCompletion();
+        createMapping(member, "person", int.class, Person.class);
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
         resultSet.close();
 
