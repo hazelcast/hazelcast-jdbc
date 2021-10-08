@@ -53,14 +53,14 @@ jobs:
           script: |
             const fs = require('fs-extra')
             const tag = context.payload.ref.replace(/refs\/tags\//, '');
-            const release = await github.repos.getReleaseByTag({
+            const release = await github.rest.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag: tag
             });
             const jarName = "hazelcast-jdbc-" + tag.replace(/v/, '') + ".jar";
             const jar = fs.readFileSync("target/" + jarName);
-            const response = await github.repos.uploadReleaseAsset({
+            const response = await github.rest.repos.uploadReleaseAsset({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: release.data.id,
