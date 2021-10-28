@@ -3,8 +3,8 @@ Hazelcast JDBC Driver allows Java applications to connect to Hazelcast using the
 
 ## Supported Hazelcast version
 
-#### Platform (Beta)
-The JDBC driver version 5.0 is compatible with Hazelcast Platform version 5.x. For Hazelcast 4.2, use the JDBC Driver 4.2.
+#### Hazelcast 5
+The JDBC driver version 5.0 is compatible with Hazelcast version 5.x. For Hazelcast 4.2, use the JDBC Driver 4.2.
 
 ## Download the Driver
 
