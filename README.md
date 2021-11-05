@@ -3,16 +3,8 @@ Hazelcast JDBC Driver allows Java applications to connect to Hazelcast using the
 
 ## Supported Hazelcast version
 
-#### Platform (Beta)
-The JDBC driver version 5.0-BETA-2 is compatible with the latest Beta version of Hazelcast Platform project. 
-
-#### IMDG
-The version of the driver must be the same as the Hazelcast IMDG version you're connecting to (e.g. `hazelcast-jdbc:4.2` is 
-compatible to 
-`hazelcast:4.2`). In the future we plan to support broader client compatibility.
-
-#### Jet
-The JDBC Driver of version `4.2` supports Hazelcast Jet `4.5` (to be released soon).
+#### Hazelcast 5
+The JDBC driver version 5.0 is compatible with Hazelcast version 5.x. For Hazelcast 4.2, use the JDBC Driver 4.2.
 
 ## Download the Driver
 
@@ -26,16 +18,16 @@ Download directly the JAR file from [Releases](https://github.com/hazelcast/haze
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>4.2</version>
+    <version>5.0</version>
 </dependency>
 ```
 
-#### Beta version for Platform:
+#### SQL Beta release 4.2:
 ```xml
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.0-BETA-2</version>
+    <version>4.2</version>
 </dependency>
 ```
 
@@ -53,7 +45,7 @@ And the dependency:
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.0-SNAPSHOT</version>
+    <version>5.1-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -153,4 +145,4 @@ the URL: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>`.
 Besides URL, it is possible to use [Hazelcast Declarative Configuration](https://docs.hazelcast.com/imdg/4.2/configuration/configuring-declaratively.html) and  [Overriding Configuration](https://docs.hazelcast.com/imdg/4.2/configuration/overriding-configuration-settings) to configure [Hazelcast Java Client](https://docs.hazelcast.com/imdg/4.2/clients/java)
 
 ## SQL
-The supported SQL syntax description can be found in [IMDG SQL docs](https://docs.hazelcast.com/imdg/4.2/sql/distributed-sql.html). Hazelcast Jet 4.5 that supports the JDBC driver will be released soon. You can take a look at its SQL capabilities in the [Jet SQL documentation](https://jet-start.sh/docs/get-started/intro). 
+SQL support is in active development. Have a look at [SQL docs](https://docs.hazelcast.com/hazelcast/5.0/sql/sql-overview).
