@@ -45,7 +45,7 @@ And the dependency:
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.1-SNAPSHOT</version>
+    <version>5.1</version>
 </dependency>
 ```
 
