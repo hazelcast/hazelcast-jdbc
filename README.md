@@ -4,7 +4,7 @@ Hazelcast JDBC Driver allows Java applications to connect to Hazelcast using the
 ## Supported Hazelcast version
 
 #### Hazelcast 5
-The JDBC driver version 5.0 is compatible with Hazelcast version 5.x. For Hazelcast 4.2, use the JDBC Driver 4.2.
+The JDBC driver version 5.x is compatible with Hazelcast version 5.x. For Hazelcast 4.2, use the JDBC Driver 4.2.
 
 ## Download the Driver
 
@@ -18,11 +18,11 @@ Download directly the JAR file from [Releases](https://github.com/hazelcast/haze
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.0</version>
+    <version>5.1</version>
 </dependency>
 ```
 
-#### SQL Beta release 4.2:
+#### Release 4.2 (for Hazelcast 4.2, SQL in Beta):
 ```xml
 <dependency>
     <groupId>com.hazelcast</groupId>
@@ -45,13 +45,13 @@ And the dependency:
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.1-SNAPSHOT</version>
+    <version>5.2-SNAPSHOT</version>
 </dependency>
 ```
 
 ## Documentation
 
-The implementation class of `java.sql.Driver` is `com.hazelcast.jdbc.Driver` and it's registered automatically. 
+The implementation class of `java.sql.Driver` is `com.hazelcast.jdbc.Driver` and it's registered automatically.
 
 ## Connection URL
 The format of the URL must have the following structure, parts in `[]` are optional:
@@ -60,7 +60,7 @@ jdbc:hazelcast://host[:port][,host[:port]...]/[?property1=value1[&property2=valu
 ```
 where:
 * **jdbc:hazelcast:**: (Required) is a sub-protocol and is a constant.
-* **host**: (Required) server address (or addresses separated with comma) to connect to, or the cluster name if the server is 
+* **host**: (Required) server address (or addresses separated with comma) to connect to, or the cluster name if the server is
 Hazelcast Cloud
 * **port**: (Optional) Server port. Defaults to 5701.
 * **propertyN**: (Optional) List of connection properties in the key-value form.
@@ -138,11 +138,11 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 | k8sServicePort                 | Integer | Endpoint port of the service; if specified with a value greater than 0, it overrides the default; 0 by default |
 
 #### Hazelcast Cloud Configuration
-For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-name` as a host in 
+For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-name` as a host in
 the URL: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>`.
 
 #### Additional Configuration
-Besides URL, it is possible to use [Hazelcast Declarative Configuration](https://docs.hazelcast.com/imdg/4.2/configuration/configuring-declaratively.html) and  [Overriding Configuration](https://docs.hazelcast.com/imdg/4.2/configuration/overriding-configuration-settings) to configure [Hazelcast Java Client](https://docs.hazelcast.com/imdg/4.2/clients/java)
+Besides URL, it is possible to use [Configuration Files](https://docs.hazelcast.com/hazelcast/5.1/configuration/configuring-declaratively) and  [Overriding Configuration](https://docs.hazelcast.com/hazelcast/5.1/configuration/configuring-declaratively#overriding-configuration-with-system-properties-and-environment-variables) to configure the [Hazelcast Java Client](https://docs.hazelcast.com/hazelcast/5.1/clients/java)
 
 ## SQL
-SQL support is in active development. Have a look at [SQL docs](https://docs.hazelcast.com/hazelcast/5.0/sql/sql-overview).
+SQL support is in active development. Have a look at [SQL docs](https://docs.hazelcast.com/hazelcast/5.1/sql/sql-overview).
