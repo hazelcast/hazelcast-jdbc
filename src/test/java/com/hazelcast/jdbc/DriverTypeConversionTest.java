@@ -61,6 +61,7 @@ class DriverTypeConversionTest {
 
     private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/";
     private static HazelcastInstance member;
+
     private final Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
 
     DriverTypeConversionTest() throws SQLException {
