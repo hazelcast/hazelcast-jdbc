@@ -16,6 +16,7 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientConnectionStrategyConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.config.SSLConfig;
@@ -106,6 +107,12 @@ class HazelcastConfigFactory {
         }
         ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(url.getAuthorities());
         clientConfig.setNetworkConfig(networkConfig);
+
+        // Do not want infinite retry
+        ClientConnectionStrategyConfig clientConnectionStrategyConfig = clientConfig.getConnectionStrategyConfig();
+        if (clientConnectionStrategyConfig.getConnectionRetryConfig().getClusterConnectTimeoutMillis() < 0) {
+            clientConnectionStrategyConfig.getConnectionRetryConfig().setClusterConnectTimeoutMillis(5_000);
+        }
 
         CONFIGURATION_MAPPING.forEach((k, v) -> {
             String property = url.getProperty(k);
