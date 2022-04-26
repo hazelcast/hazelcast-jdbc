@@ -157,13 +157,13 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
-    public void setDate(int parameterIndex, Date x) throws SQLException {
-        throw JdbcUtils.unsupported("Date is not supported");
+    public void setTime(int parameterIndex, Time x) throws SQLException {
+        throw JdbcUtils.unsupported("Time is not supported");
     }
 
     @Override
-    public void setTime(int parameterIndex, Time x) throws SQLException {
-        throw JdbcUtils.unsupported("Time is not supported");
+    public void setDate(int parameterIndex, Date x) throws SQLException {
+        throw JdbcUtils.unsupported("Date is not supported");
     }
 
     @Override
