@@ -109,13 +109,13 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
-    public void setShort(int parameterIndex, short x) throws SQLException {
+    public void setInt(int parameterIndex, int x) throws SQLException {
         checkClosed();
         setParameter(parameterIndex, x);
     }
 
     @Override
-    public void setInt(int parameterIndex, int x) throws SQLException {
+    public void setShort(int parameterIndex, short x) throws SQLException {
         checkClosed();
         setParameter(parameterIndex, x);
     }
