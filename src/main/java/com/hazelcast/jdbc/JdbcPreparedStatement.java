@@ -64,15 +64,15 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
+    public ResultSet executeQuery(String sql) throws SQLException {
+        throw new SQLException("Method not supported by PreparedStatement");
+    }
+
+    @Override
     public long executeLargeUpdate() throws SQLException {
         checkClosed();
         doExecute(sql, parameters.asParameters(), SqlExpectedResultType.UPDATE_COUNT);
         return updateCount;
-    }
-
-    @Override
-    public ResultSet executeQuery(String sql) throws SQLException {
-        throw new SQLException("Method not supported by PreparedStatement");
     }
 
     @Override
