@@ -20,6 +20,9 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 
+import com.hazelcast.version.MemberVersion;
+import com.hazelcast.version.Version;
+
 public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     private static final int JDBC_VERSION_MAJOR = 4;
@@ -83,7 +86,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public String getDatabaseProductVersion() {
-        return connection.getClientInstance().getCluster().getClusterVersion().toString();
+        return this.getClusterVersion().toString();
     }
 
     @Override
@@ -832,12 +835,12 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public int getDatabaseMajorVersion() {
-        return connection.getClientInstance().getCluster().getClusterVersion().getMajor();
+        return this.getClusterVersion().getMajor();
     }
 
     @Override
     public int getDatabaseMinorVersion() {
-        return connection.getClientInstance().getCluster().getClusterVersion().getMinor();
+        return this.getClusterVersion().getMinor();
     }
 
     @Override
@@ -921,5 +924,13 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     @Override
     public boolean isWrapperFor(Class<?> iface) {
         return JdbcUtils.isWrapperFor(this, iface);
+    }
+
+    // See https://github.com/hazelcast/hazelcast/issues/21301
+    private Version getClusterVersion() {
+        // connection.getClientInstance().getCluster().getClusterVersion();
+        MemberVersion memberVersion = connection.getClientInstance().getCluster()
+                .getMembers().iterator().next().getVersion();
+        return Version.of(memberVersion.getMajor(), memberVersion.getMinor());
     }
 }
