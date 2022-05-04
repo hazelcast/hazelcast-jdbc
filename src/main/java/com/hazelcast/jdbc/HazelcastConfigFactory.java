@@ -18,6 +18,7 @@ package com.hazelcast.jdbc;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientConnectionStrategyConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.client.config.ConnectionRetryConfig;
 import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.config.SSLConfig;
 import com.hazelcast.security.UsernamePasswordCredentials;
@@ -31,6 +32,7 @@ import java.util.function.Consumer;
 class HazelcastConfigFactory {
 
     private static final Map<String, BiConsumer<ClientConfig, String>> CONFIGURATION_MAPPING;
+    public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 5_000;
 
     static {
         Map<String, BiConsumer<ClientConfig, String>> map = new HashMap<>();
@@ -108,10 +110,11 @@ class HazelcastConfigFactory {
         ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(url.getAuthorities());
         clientConfig.setNetworkConfig(networkConfig);
 
-        // Do not want infinite retry
-        ClientConnectionStrategyConfig clientConnectionStrategyConfig = clientConfig.getConnectionStrategyConfig();
-        if (clientConnectionStrategyConfig.getConnectionRetryConfig().getClusterConnectTimeoutMillis() < 0) {
-            clientConnectionStrategyConfig.getConnectionRetryConfig().setClusterConnectTimeoutMillis(5_000);
+        // JDBC users don't expect the driver to retry forever, if the driver can't connect. If the
+        // user didn't provide his own setting, we'll set a non-infinity value (infinity is the default in hz client).
+        ConnectionRetryConfig connectionRetryConfig = clientConfig.getConnectionStrategyConfig().getConnectionRetryConfig();
+        if (connectionRetryConfig.getClusterConnectTimeoutMillis() < 0) {
+            connectionRetryConfig.setClusterConnectTimeoutMillis(DEFAULT_CONNECT_TIMEOUT_MILLIS);
         }
 
         CONFIGURATION_MAPPING.forEach((k, v) -> {
