@@ -16,7 +16,6 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.config.ClientConnectionStrategyConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.client.config.ConnectionRetryConfig;
 import com.hazelcast.client.properties.ClientProperty;
@@ -31,8 +30,8 @@ import java.util.function.Consumer;
 
 class HazelcastConfigFactory {
 
-    private static final Map<String, BiConsumer<ClientConfig, String>> CONFIGURATION_MAPPING;
     public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 5_000;
+    private static final Map<String, BiConsumer<ClientConfig, String>> CONFIGURATION_MAPPING;
 
     static {
         Map<String, BiConsumer<ClientConfig, String>> map = new HashMap<>();
