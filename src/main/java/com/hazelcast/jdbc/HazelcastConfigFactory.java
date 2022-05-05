@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 
 class HazelcastConfigFactory {
 
-    public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 5_000;
+    static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 5_000;
     private static final Map<String, BiConsumer<ClientConfig, String>> CONFIGURATION_MAPPING;
 
     static {

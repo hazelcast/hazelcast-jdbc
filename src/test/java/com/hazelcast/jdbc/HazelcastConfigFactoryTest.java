@@ -73,6 +73,8 @@ class HazelcastConfigFactoryTest {
                                 .setEnabled(true)
                                 .setProperty("trustStorePassword", "123abc")
                                 .setProperty("trustStore", "truststore")));
+        expectedConfig.getConnectionStrategyConfig().getConnectionRetryConfig()
+                .setClusterConnectTimeoutMillis(HazelcastConfigFactory.DEFAULT_CONNECT_TIMEOUT_MILLIS);
 
         assertThat(clientConfig).isEqualTo(expectedConfig);
     }
