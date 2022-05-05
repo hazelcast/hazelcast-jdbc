@@ -103,11 +103,6 @@ class HazelcastConfigFactory {
     ClientConfig clientConfig(JdbcUrl url) {
         ClientConfig clientConfig = securityConfig(url, ClientConfig.load());
         String discoveryToken = url.getProperty("discoveryToken");
-        if (discoveryToken != null) {
-            return cloudConfig(url, clientConfig, discoveryToken);
-        }
-        ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(url.getAuthorities());
-        clientConfig.setNetworkConfig(networkConfig);
 
         // JDBC users don't expect the driver to retry forever, if the driver can't connect. If the
         // user didn't provide his own setting, we'll set a non-infinity value (infinity is the default in hz client).
@@ -115,6 +110,12 @@ class HazelcastConfigFactory {
         if (connectionRetryConfig.getClusterConnectTimeoutMillis() < 0) {
             connectionRetryConfig.setClusterConnectTimeoutMillis(DEFAULT_CONNECT_TIMEOUT_MILLIS);
         }
+
+        if (discoveryToken != null) {
+            return cloudConfig(url, clientConfig, discoveryToken);
+        }
+        ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(url.getAuthorities());
+        clientConfig.setNetworkConfig(networkConfig);
 
         CONFIGURATION_MAPPING.forEach((k, v) -> {
             String property = url.getProperty(k);
