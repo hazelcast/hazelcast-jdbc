@@ -86,7 +86,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public String getDatabaseProductVersion() {
-        return this.getClusterVersion().toString();
+        return this.getMasterVersion().toString();
     }
 
     @Override
@@ -835,12 +835,12 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public int getDatabaseMajorVersion() {
-        return this.getClusterVersion().getMajor();
+        return this.getMasterVersion().getMajor();
     }
 
     @Override
     public int getDatabaseMinorVersion() {
-        return this.getClusterVersion().getMinor();
+        return this.getMasterVersion().getMinor();
     }
 
     @Override
@@ -927,7 +927,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     // See https://github.com/hazelcast/hazelcast/issues/21301
-    private Version getClusterVersion() {
+    private Version getMasterVersion() {
         // connection.getClientInstance().getCluster().getClusterVersion();
         MemberVersion memberVersion = connection.getClientInstance().getCluster()
                 .getMembers().iterator().next().getVersion();

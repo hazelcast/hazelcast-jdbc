@@ -16,8 +16,8 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.config.ClientConnectionStrategyConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.client.config.ConnectionRetryConfig;
 import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.config.SSLConfig;
 import com.hazelcast.security.UsernamePasswordCredentials;
@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 
 class HazelcastConfigFactory {
 
+    static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 5_000;
     private static final Map<String, BiConsumer<ClientConfig, String>> CONFIGURATION_MAPPING;
 
     static {
@@ -102,17 +103,19 @@ class HazelcastConfigFactory {
     ClientConfig clientConfig(JdbcUrl url) {
         ClientConfig clientConfig = securityConfig(url, ClientConfig.load());
         String discoveryToken = url.getProperty("discoveryToken");
+
+        // JDBC users don't expect the driver to retry forever, if the driver can't connect. If the
+        // user didn't provide his own setting, we'll set a non-infinity value (infinity is the default in hz client).
+        ConnectionRetryConfig connectionRetryConfig = clientConfig.getConnectionStrategyConfig().getConnectionRetryConfig();
+        if (connectionRetryConfig.getClusterConnectTimeoutMillis() < 0) {
+            connectionRetryConfig.setClusterConnectTimeoutMillis(DEFAULT_CONNECT_TIMEOUT_MILLIS);
+        }
+
         if (discoveryToken != null) {
             return cloudConfig(url, clientConfig, discoveryToken);
         }
         ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(url.getAuthorities());
         clientConfig.setNetworkConfig(networkConfig);
-
-        // Do not want infinite retry
-        ClientConnectionStrategyConfig clientConnectionStrategyConfig = clientConfig.getConnectionStrategyConfig();
-        if (clientConnectionStrategyConfig.getConnectionRetryConfig().getClusterConnectTimeoutMillis() < 0) {
-            clientConnectionStrategyConfig.getConnectionRetryConfig().setClusterConnectTimeoutMillis(5_000);
-        }
 
         CONFIGURATION_MAPPING.forEach((k, v) -> {
             String property = url.getProperty(k);
