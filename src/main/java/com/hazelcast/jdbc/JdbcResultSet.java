@@ -1160,6 +1160,10 @@ public class JdbcResultSet implements ResultSet {
      * ResultSet with empty results
      */
     private static class EmptyJdbcResultSet extends JdbcResultSet {
+        // TODO: By default its considered Open, however the default close() implementation does not account for
+        // the fact that this.statement is null in this impl. Additionally since its Open, clients are not actually
+        // prevented from calling getColumnMetadata therefore making the exception unavoidable.
+        // Perhaps a better name for this result is ErrorResultSet since it will always throw an exception when accessed.
         EmptyJdbcResultSet() {
             super(new SqlResult() {
                 @Override
