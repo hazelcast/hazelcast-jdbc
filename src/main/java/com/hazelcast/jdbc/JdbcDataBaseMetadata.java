@@ -28,18 +28,22 @@ import com.hazelcast.version.Version;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
 
 public class JdbcDataBaseMetadata implements DatabaseMetaData {
     private static final Logger LOGGER = Logger.getLogger(JdbcDataBaseMetadata.class.getName());
@@ -644,11 +648,18 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getProcedures(String catalog, String schemaPattern, String procedureNamePattern) {
+    public ResultSet getProcedures(
+            String catalog,
+            String schemaPattern,
+            String procedureNamePattern
+    ) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("PROCEDURE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("PROCEDURE_SCHEM", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("PROCEDURE_NAME", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("?column?", SqlColumnType.VARCHAR, true),
+                new SqlColumnMetadata("?column?", SqlColumnType.VARCHAR, true),
+                new SqlColumnMetadata("?column?", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("REMARKS", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("PROCEDURE_TYPE", SqlColumnType.SMALLINT, false),
                 new SqlColumnMetadata("SPECIFIC_NAME", SqlColumnType.VARCHAR, false)
@@ -657,52 +668,101 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public ResultSet getProcedureColumns(
-            String catalog, String schemaPattern, String procedureNamePattern, String columnNamePattern) {
+            String catalog,
+            String schemaPattern,
+            String procedureNamePattern,
+            String columnNamePattern
+    ) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("PROCEDURE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("PROCEDURE_SCHEM", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("PROCEDURE_NAME", SqlColumnType.VARCHAR, false)
+                new SqlColumnMetadata("PROCEDURE_NAME", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("COLUMN_NAME", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("COLUMN_TYPE", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("TYPE_NAME", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("PRECISION", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("LENGTH", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("SCALE", SqlColumnType.SMALLINT, true),
+                new SqlColumnMetadata("RADIX", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("NULLABLE", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("REMARKS", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("COLUMN_DEF", SqlColumnType.VARCHAR, true),
+                new SqlColumnMetadata("SQL_DATA_TYPE", SqlColumnType.INTEGER, true),
+                new SqlColumnMetadata("SQL_DATETIME_SUB", SqlColumnType.INTEGER, true),
+                new SqlColumnMetadata("CHAR_OCTET_LENGTH", SqlColumnType.INTEGER, true),
+                new SqlColumnMetadata("ORDINAL_POSITION", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("IS_NULLABLE", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("SPECIFIC_NAME", SqlColumnType.VARCHAR, false)
         )));
     }
 
     @Override
-    public ResultSet getTables(String catalog, String schema, String tableName, String[] types) {
-        final String catalogPattern = catalog == null || catalog.isEmpty()
-                ? "%" : catalog;
-        final String schemaPattern = schema == null || schema.isEmpty()
-                ? "%" : schema;
-        final String tableNamePattern = tableName == null || tableName.isEmpty()
-                ? "%" : tableName;
-
-        final String sqlTemplate = "SELECT "
+    public ResultSet getTables(String catalog, String schema, String tableName, String[] types) throws SQLException {
+        final List<String> conditions = new ArrayList<>();
+        final List<Object> params = new ArrayList<>();
+        final StringBuilder sqlBuilder = new StringBuilder("SELECT "
                 + "table_catalog,"
                 + "table_schema,"
                 + "table_name,"
                 + "table_type "
-                + "FROM information_schema.tables "
-                + "WHERE table_catalog LIKE '%s' AND table_schema LIKE '%s' AND table_name LIKE '%s' %s";
-        final String typesFilter = types == null || types.length == 0
-                ? ""
-                : "AND table_type IN ("
-                        + Arrays.stream(types)
-                        .map(s -> String.format("'%s'", s))
-                        .collect(Collectors.joining(","))
-                        + ")";
-        final String sql = String.format(sqlTemplate, catalogPattern, schemaPattern, tableNamePattern, typesFilter);
-        final List<List<String>> tableData = new ArrayList<>();
-        try (ResultSet rs = this.connection.createStatement().executeQuery(sql)) {
-            while (rs.next()) {
-                tableData.add(asList(
-                        rs.getString(1), // catalog
-                        rs.getString(2), // schema
-                        rs.getString(3), // name
-                        rs.getString(4)) // type
-                );
-            }
+                + "FROM information_schema.tables");
 
-        } catch (SQLException e) {
-            LOGGER.fine(e.getMessage());
-            return JdbcResultSet.EMPTY;
+        if (catalog != null) {
+            if (catalog.isEmpty()) {
+                conditions.add("table_catalog = ''");
+            } else {
+                conditions.add("table_catalog LIKE ?");
+                params.add(catalog);
+            }
+        }
+
+        if (schema != null) {
+            if (schema.isEmpty()) {
+                conditions.add("table_schema = ''");
+            } else {
+                conditions.add("table_schema LIKE ?");
+                params.add(schema);
+            }
+        }
+
+        if (tableName != null) {
+            conditions.add("table_name LIKE ?");
+            params.add(tableName);
+        }
+
+        if (types != null && types.length > 0) {
+            conditions.add("table_type IN ("
+                    + stream(types).map(s -> "?").collect(joining(","))
+                    + ")"
+            );
+            params.addAll(stream(types)
+                    .map(type -> type.equals("MAPPING") ? "BASE TABLE" : type)
+                    .collect(Collectors.toList()));
+        }
+
+        if (!conditions.isEmpty()) {
+            sqlBuilder.append(" WHERE ");
+            sqlBuilder.append(String.join(" AND ", conditions));
+        }
+
+        sqlBuilder.append(" ORDER BY table_type, table_catalog, table_schema, table_name ASC");
+
+        final List<List<String>> tableData = new ArrayList<>();
+        try (final PreparedStatement statement = this.connection.prepareStatement(sqlBuilder.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                statement.setObject(i + 1, params.get(i));
+            }
+            try (final ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    tableData.add(asList(
+                            rs.getString(1), // catalog
+                            rs.getString(2), // schema
+                            rs.getString(3), // name
+                            rs.getString(4)) // type
+                    );
+                }
+            }
         }
 
         final SqlRowMetadata metadata = new SqlRowMetadata(asList(
@@ -724,7 +784,9 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                         data.get(0),
                         data.get(1),
                         data.get(2),
-                        data.get(3),
+                        data.get(3) != null && data.get(3).toUpperCase(Locale.ROOT).equals("BASE TABLE")
+                                ? "MAPPING"
+                                : data.get(3),
                         null,
                         null,
                         null,
@@ -733,36 +795,24 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                         null
                 }, metadata))
                 .collect(Collectors.toList());
-        try {
-            // TODO: fixedRowsStatement?
-            // Since this result has no resources attached to it and therefore can be just GC'd normally
-            // it might make sense to introduce a JdbcStatement that does.
-            return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
-        } catch (Exception e) {
-            LOGGER.fine(e.getMessage());
-            return JdbcResultSet.EMPTY;
-        }
+
+        return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
     }
 
     @Override
-    public ResultSet getSchemas() {
+    public ResultSet getSchemas() throws SQLException {
         final SqlRowMetadata metadata = new SqlRowMetadata(asList(
-                new SqlColumnMetadata("TABLE_CATALOG", SqlColumnType.VARCHAR, false),
-                new SqlColumnMetadata("TABLE_SCHEM", SqlColumnType.VARCHAR, false)
+                new SqlColumnMetadata("TABLE_SCHEM", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("TABLE_CATALOG", SqlColumnType.VARCHAR, true)
         ));
 
-        final List<SqlRow> rows = singletonList(makeSqlRow(new Object[]{"hazelcast", "public"}, metadata));
+        final List<SqlRow> rows = singletonList(makeSqlRow(new Object[]{"public", "hazelcast"}, metadata));
 
-        try {
-            return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
-        } catch (Exception e) {
-            LOGGER.fine(e.getMessage());
-            return JdbcResultSet.EMPTY;
-        }
+        return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
     }
 
     @Override
-    public ResultSet getCatalogs() {
+    public ResultSet getCatalogs() throws SQLException {
         final SqlRowMetadata metadata = new SqlRowMetadata(singletonList(new SqlColumnMetadata(
                 "TABLE_CAT",
                 SqlColumnType.VARCHAR,
@@ -771,16 +821,11 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
         final List<SqlRow> rows = singletonList(makeSqlRow(new Object[]{"hazelcast"}, metadata));
 
-        try {
-            return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
-        } catch (Exception e) {
-            LOGGER.fine(e.getMessage());
-            return JdbcResultSet.EMPTY;
-        }
+        return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
     }
 
     @Override
-    public ResultSet getTableTypes() {
+    public ResultSet getTableTypes() throws SQLException {
         final SqlRowMetadata metadata = new SqlRowMetadata(singletonList(new SqlColumnMetadata(
                 "TABLE_TYPE",
                 SqlColumnType.VARCHAR,
@@ -788,16 +833,11 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
         )));
 
         final List<SqlRow> rows = asList(
-                makeSqlRow(new Object[]{"BASE TABLE"}, metadata),
+                makeSqlRow(new Object[]{"MAPPING"}, metadata),
                 makeSqlRow(new Object[]{"VIEW"}, metadata)
         );
 
-        try {
-            return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
-        } catch (Exception e) {
-            LOGGER.fine(e.getMessage());
-            return JdbcResultSet.EMPTY;
-        }
+        return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
     }
 
     @Override
@@ -806,17 +846,10 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
             String schema,
             String tableName,
             String columnName
-    ) {
-        final String catalogPattern = catalog == null || catalog.isEmpty()
-                ? "%" : catalog;
-        final String schemaPattern = schema == null || schema.isEmpty()
-                ? "%" : schema;
-        final String tableNamePattern = tableName == null || tableName.isEmpty()
-                ? "%" : tableName;
-        final String columnNamePattern = columnName == null || columnName.isEmpty()
-                ? "%" : columnName;
-
-        final String sqlTemplate = "SELECT "
+    ) throws SQLException {
+        final List<String> conditions = new ArrayList<>();
+        final List<Object> params = new ArrayList<>();
+        final StringBuilder sqlBuilder = new StringBuilder("SELECT "
                 + "table_catalog,"
                 + "table_schema,"
                 + "table_name,"
@@ -824,37 +857,61 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                 + "data_type,"
                 + "is_nullable,"
                 + "ordinal_position "
-                + "FROM information_schema.columns "
-                + "WHERE table_catalog LIKE '%s' "
-                + "AND table_schema LIKE '%s' "
-                + "AND table_name LIKE '%s' "
-                + "AND column_name LIKE '%s' ";
+                + "FROM information_schema.columns ");
 
-        final String sql = String.format(
-                sqlTemplate,
-                catalogPattern,
-                schemaPattern,
-                tableNamePattern,
-                columnNamePattern
-        );
+        if (catalog != null) {
+            if (catalog.isEmpty()) {
+                conditions.add("table_catalog = ''");
+            } else {
+                conditions.add("table_catalog LIKE ?");
+                params.add(catalog);
+            }
+        }
+
+        if (schema != null) {
+            if (schema.isEmpty()) {
+                conditions.add("table_schema = ''");
+            } else {
+                conditions.add("table_schema LIKE ?");
+                params.add(schema);
+            }
+        }
+
+        if (tableName != null) {
+            conditions.add("table_name LIKE ?");
+            params.add(tableName);
+        }
+
+        if (columnName != null) {
+            conditions.add("column_name LIKE ?");
+            params.add(columnName);
+        }
+
+        if (!conditions.isEmpty()) {
+            sqlBuilder.append(" WHERE ");
+            sqlBuilder.append(String.join(" AND ", conditions));
+        }
+
+        sqlBuilder.append(" ORDER BY table_catalog, table_schema, table_name, ordinal_position ASC");
 
         final List<List<Object>> tableData = new ArrayList<>();
-        try (ResultSet rs = this.connection.createStatement().executeQuery(sql)) {
-            while (rs.next()) {
-                tableData.add(asList(
-                        rs.getString(1), // catalog
-                        rs.getString(2), // schema
-                        rs.getString(3), // table_name
-                        rs.getString(4), // column_name
-                        rs.getString(5), // column_type
-                        rs.getBoolean(6), // is_nullable
-                        rs.getInt(7) // column_index
-                ));
+        try (final PreparedStatement statement = this.connection.prepareStatement(sqlBuilder.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                statement.setObject(i + 1, params.get(i));
             }
-
-        } catch (SQLException e) {
-            LOGGER.fine(e.getMessage());
-            return JdbcResultSet.EMPTY;
+            try (final ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    tableData.add(asList(
+                            rs.getString(1), // catalog
+                            rs.getString(2), // schema
+                            rs.getString(3), // table_name
+                            rs.getString(4), // column_name
+                            rs.getString(5), // column_type
+                            rs.getBoolean(6), // is_nullable
+                            rs.getInt(7) // column_index
+                    ));
+                }
+            }
         }
 
         final SqlRowMetadata metadata = new SqlRowMetadata(asList(
@@ -862,7 +919,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                 new SqlColumnMetadata("TABLE_SCHEM", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TABLE_NAME", SqlColumnType.VARCHAR, false),
                 new SqlColumnMetadata("COLUMN_NAME", SqlColumnType.VARCHAR, false),
-                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.INTEGER, false),
                 new SqlColumnMetadata("TYPE_NAME", SqlColumnType.VARCHAR, false),
 
                 new SqlColumnMetadata("COLUMN_SIZE", SqlColumnType.INTEGER, false),
@@ -928,16 +985,17 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                     }, metadata);
                 })
                 .collect(Collectors.toList());
-        try {
-            return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
-        } catch (Exception e) {
-            LOGGER.fine(e.getMessage());
-            return JdbcResultSet.EMPTY;
-        }
+
+        return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
     }
 
     @Override
-    public ResultSet getColumnPrivileges(String catalog, String schema, String table, String columnNamePattern) {
+    public ResultSet getColumnPrivileges(
+            String catalog,
+            String schema,
+            String table,
+            String columnNamePattern
+    ) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("TABLE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TABLE_SCHEM", SqlColumnType.VARCHAR, true),
@@ -951,7 +1009,11 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getTablePrivileges(String catalog, String schemaPattern, String tableNamePattern) {
+    public ResultSet getTablePrivileges(
+            String catalog,
+            String schemaPattern,
+            String tableNamePattern
+    ) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("TABLE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TABLE_SCHEM", SqlColumnType.VARCHAR, true),
@@ -965,11 +1027,16 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public ResultSet getBestRowIdentifier(
-            String catalog, String schema, String table, int scope, boolean nullable) {
+            String catalog,
+            String schema,
+            String table,
+            int scope,
+            boolean nullable
+    ) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("SCOPE", SqlColumnType.SMALLINT, false),
                 new SqlColumnMetadata("COLUMN_NAME", SqlColumnType.VARCHAR, false),
-                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.INTEGER, false),
                 new SqlColumnMetadata("TYPE_NAME", SqlColumnType.VARCHAR, false),
                 new SqlColumnMetadata("COLUMN_SIZE", SqlColumnType.INTEGER, false),
                 new SqlColumnMetadata("BUFFER_LENGTH", SqlColumnType.INTEGER, true),
@@ -979,11 +1046,11 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getVersionColumns(String catalog, String schema, String table) {
+    public ResultSet getVersionColumns(String catalog, String schema, String table) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("SCOPE", SqlColumnType.SMALLINT, false),
                 new SqlColumnMetadata("COLUMN_NAME", SqlColumnType.VARCHAR, false),
-                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.INTEGER, false),
                 new SqlColumnMetadata("TYPE_NAME", SqlColumnType.VARCHAR, false),
                 new SqlColumnMetadata("COLUMN_SIZE", SqlColumnType.INTEGER, false),
                 new SqlColumnMetadata("BUFFER_LENGTH", SqlColumnType.INTEGER, true),
@@ -993,19 +1060,19 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getPrimaryKeys(String catalog, String schema, String table) {
+    public ResultSet getPrimaryKeys(String catalog, String schema, String table) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("TABLE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TABLE_SCHEM", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TABLE_NAME", SqlColumnType.VARCHAR, false),
                 new SqlColumnMetadata("COLUMN_NAME", SqlColumnType.VARCHAR, false),
                 new SqlColumnMetadata("KEY_SEQ", SqlColumnType.SMALLINT, false),
-                new SqlColumnMetadata("COLUMN_NAME", SqlColumnType.VARCHAR, true)
+                new SqlColumnMetadata("PK_NAME", SqlColumnType.VARCHAR, true)
         )));
     }
 
     @Override
-    public ResultSet getImportedKeys(String catalog, String schema, String table) {
+    public ResultSet getImportedKeys(String catalog, String schema, String table) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("PKTABLE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("PKTABLE_SCHEM", SqlColumnType.VARCHAR, true),
@@ -1026,7 +1093,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getExportedKeys(String catalog, String schema, String table) {
+    public ResultSet getExportedKeys(String catalog, String schema, String table) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("PKTABLE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("PKTABLE_SCHEM", SqlColumnType.VARCHAR, true),
@@ -1048,8 +1115,13 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public ResultSet getCrossReference(
-            String parentCatalog, String parentSchema, String parentTable,
-            String foreignCatalog, String foreignSchema, String foreignTable) {
+            String parentCatalog,
+            String parentSchema,
+            String parentTable,
+            String foreignCatalog,
+            String foreignSchema,
+            String foreignTable
+    ) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("PKTABLE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("PKTABLE_SCHEM", SqlColumnType.VARCHAR, true),
@@ -1070,26 +1142,26 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getTypeInfo() {
+    public ResultSet getTypeInfo() throws SQLException {
         final SqlRowMetadata metadata = new SqlRowMetadata(asList(
-                new SqlColumnMetadata("TYPE_NAME", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.INTEGER, true),
-                new SqlColumnMetadata("PRECISION", SqlColumnType.INTEGER, true),
+                new SqlColumnMetadata("TYPE_NAME", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("PRECISION", SqlColumnType.INTEGER, false),
                 new SqlColumnMetadata("LITERAL_PREFIX", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("LITERAL_SUFFIX", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("CREATE_PARAMS", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("NULLABLE", SqlColumnType.SMALLINT, true),
-                new SqlColumnMetadata("CASE_SENSITIVE", SqlColumnType.BOOLEAN, true),
-                new SqlColumnMetadata("SEARCHABLE", SqlColumnType.SMALLINT, true),
-                new SqlColumnMetadata("UNSIGNED_ATTRIBUTE", SqlColumnType.BOOLEAN, true),
-                new SqlColumnMetadata("FIXED_PREC_SCALE", SqlColumnType.BOOLEAN, true),
-                new SqlColumnMetadata("AUTO_INCREMENT", SqlColumnType.BOOLEAN, true),
+                new SqlColumnMetadata("NULLABLE", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("CASE_SENSITIVE", SqlColumnType.BOOLEAN, false),
+                new SqlColumnMetadata("SEARCHABLE", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("UNSIGNED_ATTRIBUTE", SqlColumnType.BOOLEAN, false),
+                new SqlColumnMetadata("FIXED_PREC_SCALE", SqlColumnType.BOOLEAN, false),
+                new SqlColumnMetadata("AUTO_INCREMENT", SqlColumnType.BOOLEAN, false),
                 new SqlColumnMetadata("LOCAL_TYPE_NAME", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("MINIMUM_SCALE", SqlColumnType.SMALLINT, true),
-                new SqlColumnMetadata("MAXIMUM_SCALE", SqlColumnType.SMALLINT, true),
+                new SqlColumnMetadata("MINIMUM_SCALE", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("MAXIMUM_SCALE", SqlColumnType.SMALLINT, false),
                 new SqlColumnMetadata("SQL_DATA_TYPE", SqlColumnType.INTEGER, true),
                 new SqlColumnMetadata("SQL_DATETIME_SUB", SqlColumnType.INTEGER, true),
-                new SqlColumnMetadata("NUM_PREC_RADIX", SqlColumnType.INTEGER, true)
+                new SqlColumnMetadata("NUM_PREC_RADIX", SqlColumnType.INTEGER, false)
         ));
 
         final List<SqlRow> rows = asList(
@@ -1110,35 +1182,33 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                 typeInfoRow(SqlColumnType.JSON, metadata)
         );
 
-        try {
-            return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
-        } catch (Exception e) {
-            LOGGER.fine(e.getMessage());
-            return JdbcResultSet.EMPTY;
-        }
+        rows.sort(Comparator.comparing(sqlRow -> sqlRow.getObject(2)));
+
+        return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
     }
 
     private SqlRow typeInfoRow(SqlColumnType columnType, SqlRowMetadata metadata) {
         final TypeUtil.SqlTypeInfo typeInfo = TypeUtil.getTypeInfo(columnType);
+
         final Object[] values = new Object[]{
-                TypeUtil.getName(columnType),
-                TypeUtil.getJdbcType(columnType),
-                typeInfo.getPrecision(),
-                null,
-                null,
-                null,
-                DatabaseMetaData.typeNullable,
-                true,
-                DatabaseMetaData.typeSearchable,
-                typeInfo.isSigned(),
-                false,
-                false,
-                null,
-                0,
-                0,
-                0,
-                0,
-                0
+                TypeUtil.getName(columnType), // TYPE_NAME
+                TypeUtil.getJdbcType(columnType), // DATA_TYPE
+                typeInfo.getPrecision(), // PRECISION
+                null, // LITERAL_PREFIX
+                null, // LITERAL_SUFFIX
+                null, // CREATE_PARAMS
+                DatabaseMetaData.typeNullable, // NULLABLE
+                true, // CASE_SENSITIVE
+                DatabaseMetaData.typeSearchable, // SEARCHABLE
+                typeInfo.isSigned(), // UNSIGNED_ATTRIBUTE
+                false, // FIXED_PREC_SCALE
+                false, // AUTO_INCREMENT
+                null, // LOCAL_TYPE_NAME
+                0, // MINIMUM_SCALE
+                0, // MAXIMUM_SCALE
+                null, // SQL_DATA_TYPE
+                null, // SQL_DATETIME_SUB
+                10 // NUM_PREC_RADIX
         };
         return makeSqlRow(values, metadata);
     }
@@ -1151,7 +1221,12 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public ResultSet getIndexInfo(
-            String catalog, String schema, String table, boolean unique, boolean approximate) {
+            String catalog,
+            String schema,
+            String table,
+            boolean unique,
+            boolean approximate
+    ) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("TABLE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TABLE_SCHEM", SqlColumnType.VARCHAR, true),
@@ -1230,13 +1305,18 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getUDTs(String catalog, String schemaPattern, String typeNamePattern, int[] types) {
+    public ResultSet getUDTs(
+            String catalog,
+            String schemaPattern,
+            String typeNamePattern,
+            int[] types
+    ) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("TYPE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TYPE_SCHEM", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TYPE_NAME", SqlColumnType.VARCHAR, false),
                 new SqlColumnMetadata("CLASS_NAME", SqlColumnType.VARCHAR, false),
-                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.INTEGER, false),
                 new SqlColumnMetadata("REMARKS", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("BASE_TYPE", SqlColumnType.SMALLINT, true)
         )));
@@ -1268,7 +1348,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getSuperTypes(String catalog, String schemaPattern, String typeNamePattern) {
+    public ResultSet getSuperTypes(String catalog, String schemaPattern, String typeNamePattern) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("TYPE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TYPE_SCHEM", SqlColumnType.VARCHAR, true),
@@ -1280,7 +1360,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getSuperTables(String catalog, String schemaPattern, String tableNamePattern) {
+    public ResultSet getSuperTables(String catalog, String schemaPattern, String tableNamePattern) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("TABLE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TABLE_SCHEM", SqlColumnType.VARCHAR, true),
@@ -1291,11 +1371,33 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public ResultSet getAttributes(
-            String catalog, String schemaPattern, String typeNamePattern, String attributeNamePattern) {
+            String catalog,
+            String schemaPattern,
+            String typeNamePattern,
+            String attributeNamePattern
+    ) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("TYPE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TYPE_SCHEM", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("TYPE_NAME", SqlColumnType.VARCHAR, false)
+                new SqlColumnMetadata("TYPE_NAME", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("ATTR_NAME", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("ATTR_TYPE_NAME", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("ATTR_SIZE", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("DECIMAL_DIGITS", SqlColumnType.INTEGER, true),
+                new SqlColumnMetadata("NUM_PREC_RADIX", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("NULLABLE", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("REMARKS", SqlColumnType.VARCHAR, true),
+                new SqlColumnMetadata("ATTR_DEF", SqlColumnType.VARCHAR, true),
+                new SqlColumnMetadata("SQL_DATA_TYPE", SqlColumnType.INTEGER, true),
+                new SqlColumnMetadata("SQL_DATETIME_SUB", SqlColumnType.INTEGER, true),
+                new SqlColumnMetadata("CHAR_OCTET_LENGTH", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("ORDINAL_POSITION", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("IS_NULLABLE", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("SCOPE_CATALOG", SqlColumnType.VARCHAR, true),
+                new SqlColumnMetadata("SCOPE_SCHEMA", SqlColumnType.VARCHAR, true),
+                new SqlColumnMetadata("SCOPE_TABLE", SqlColumnType.VARCHAR, true),
+                new SqlColumnMetadata("SOURCE_DATA_TYPE", SqlColumnType.SMALLINT, true)
         )));
     }
 
@@ -1350,7 +1452,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getSchemas(String catalog, String schemaPattern) {
+    public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException {
         return getSchemas();
     }
 
@@ -1365,18 +1467,21 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getClientInfoProperties() {
+    public ResultSet getClientInfoProperties() throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
-            new SqlColumnMetadata("NAME", SqlColumnType.VARCHAR, false),
-            new SqlColumnMetadata("LEN", SqlColumnType.INTEGER, false),
-            new SqlColumnMetadata("DEFAULT_VALUE", SqlColumnType.VARCHAR, false),
-            new SqlColumnMetadata("DESCRIPTION", SqlColumnType.VARCHAR, false)
+                new SqlColumnMetadata("NAME", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("LEN", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("DEFAULT_VALUE", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("DESCRIPTION", SqlColumnType.VARCHAR, false)
         )));
     }
 
     @Override
     public ResultSet getFunctions(
-            String catalog, String schemaPattern, String functionNamePattern) {
+            String catalog,
+            String schemaPattern,
+            String functionNamePattern
+    ) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("FUNCTION_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("FUNCTION_SCHEM", SqlColumnType.VARCHAR, true),
@@ -1389,7 +1494,11 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public ResultSet getFunctionColumns(
-            String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern) {
+            String catalog,
+            String schemaPattern,
+            String functionNamePattern,
+            String columnNamePattern
+    ) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("FUNCTION_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("FUNCTION_SCHEM", SqlColumnType.VARCHAR, true),
@@ -1399,13 +1508,17 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public ResultSet getPseudoColumns(
-            String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern) {
+            String catalog,
+            String schemaPattern,
+            String tableNamePattern,
+            String columnNamePattern
+    ) throws SQLException {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("TABLE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TABLE_SCHEM", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("TABLE_NAME", SqlColumnType.VARCHAR, false),
                 new SqlColumnMetadata("COLUMN_NAME", SqlColumnType.VARCHAR, false),
-                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.INTEGER, false),
                 new SqlColumnMetadata("COLUMN_SIZE", SqlColumnType.INTEGER, false),
                 new SqlColumnMetadata("DECIMAL_DIGITS", SqlColumnType.INTEGER, true),
                 new SqlColumnMetadata("NUM_PREC_RADIX", SqlColumnType.INTEGER, true),
@@ -1439,15 +1552,10 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
         return Version.of(memberVersion.getMajor(), memberVersion.getMinor());
     }
 
-    private ResultSet emptyResultSet(final SqlRowMetadata metadata) {
-        try {
-            return new JdbcResultSet(
-                    new FixedRowsSqlResult(metadata, emptyList()),
-                    new JdbcStatement(null, connection)
-            );
-        } catch (Exception e) {
-            LOGGER.fine(e.getMessage());
-            return JdbcResultSet.EMPTY;
-        }
+    private ResultSet emptyResultSet(final SqlRowMetadata metadata) throws SQLException {
+        return new JdbcResultSet(
+                new FixedRowsSqlResult(metadata, emptyList()),
+                new JdbcStatement(null, connection)
+        );
     }
 }

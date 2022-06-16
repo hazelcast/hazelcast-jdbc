@@ -26,6 +26,10 @@ import com.hazelcast.sql.impl.QueryException;
 import com.hazelcast.sql.impl.QueryId;
 import com.hazelcast.sql.impl.ResultIterator;
 
+/**
+ * Helper class for returning ResultSets with in-driver generated rows. Doesn't require to be explicitly closed as
+ * it holds no resources.
+ */
 public class FixedRowsSqlResult extends AbstractSqlResult {
 
     private final List<SqlRow> rows;
