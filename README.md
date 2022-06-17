@@ -138,9 +138,9 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 | k8sServicePort                 | Integer | Endpoint port of the service; if specified with a value greater than 0, it overrides the default; 0 by default |
 
 #### Miscellaneous properties
-| Property                       | Type    | Description   |
-| ------------------------------ | ------- | ------------- |
-| smartRouting                   | Boolean | Use `false`  to limit connections,  eg. via load balancer into Kubernetes from outside.
+| Property                       | Type    | Description                                                                                                                                     |
+| ------------------------------ | ------- |-------------------------------------------------------------------------------------------------------------------------------------------------|
+| smartRouting                   | Boolean | If `false`, the client will have only one connection to the cluster. Useful if there are many clients. Enabled by default. |
 
 #### Hazelcast Cloud Configuration
 For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-name` as a host in
