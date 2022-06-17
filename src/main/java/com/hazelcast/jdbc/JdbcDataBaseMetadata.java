@@ -657,9 +657,9 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                 new SqlColumnMetadata("PROCEDURE_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("PROCEDURE_SCHEM", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("PROCEDURE_NAME", SqlColumnType.VARCHAR, false),
-                new SqlColumnMetadata("?column?", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("?column?", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("?column?", SqlColumnType.VARCHAR, true),
+                new SqlColumnMetadata("EXPR$0", SqlColumnType.VARCHAR, true),
+                new SqlColumnMetadata("EXPR$1", SqlColumnType.VARCHAR, true),
+                new SqlColumnMetadata("EXPR$2", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("REMARKS", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("PROCEDURE_TYPE", SqlColumnType.SMALLINT, false),
                 new SqlColumnMetadata("SPECIFIC_NAME", SqlColumnType.VARCHAR, false)
@@ -699,104 +699,53 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public ResultSet getTables(String catalog, String schema, String tableName, String[] types) throws SQLException {
-        final List<String> conditions = new ArrayList<>();
         final List<Object> params = new ArrayList<>();
         final StringBuilder sqlBuilder = new StringBuilder("SELECT "
-                + "table_catalog,"
-                + "table_schema,"
-                + "table_name,"
-                + "table_type "
-                + "FROM information_schema.tables");
+                + "table_catalog TABLE_CAT,"
+                + "table_schema TABLE_SCHEM,"
+                + "table_name TABLE_NAME,"
+                + "CASE table_type WHEN 'BASE TABLE' THEN 'MAPPING' ELSE table_type END TABLE_TYPE, "
+                + "CAST(null as VARCHAR) REMARKS,"
+                + "CAST(null as VARCHAR) TYPE_CAT,"
+                + "CAST(null as VARCHAR) TYPE_SCHEM,"
+                + "CAST(null as VARCHAR) TYPE_NAME,"
+                + "CAST(null as VARCHAR) SELF_REFERENCING_COL_NAME,"
+                + "CAST(null as VARCHAR) REF_GENERATION "
+                + "FROM information_schema.tables "
+                + "WHERE 1=1");
 
         if (catalog != null) {
-            if (catalog.isEmpty()) {
-                conditions.add("table_catalog = ''");
-            } else {
-                conditions.add("table_catalog LIKE ?");
-                params.add(catalog);
-            }
+            sqlBuilder.append(" AND table_catalog LIKE ?");
+            params.add(catalog);
         }
 
         if (schema != null) {
-            if (schema.isEmpty()) {
-                conditions.add("table_schema = ''");
-            } else {
-                conditions.add("table_schema LIKE ?");
-                params.add(schema);
-            }
+            sqlBuilder.append(" AND table_schema LIKE ?");
+            params.add(schema);
         }
 
         if (tableName != null) {
-            conditions.add("table_name LIKE ?");
+            sqlBuilder.append(" AND table_name LIKE ?");
             params.add(tableName);
         }
 
         if (types != null && types.length > 0) {
-            conditions.add("table_type IN ("
+            sqlBuilder.append(" AND table_type IN ("
                     + stream(types).map(s -> "?").collect(joining(","))
                     + ")"
             );
-            params.addAll(stream(types)
+            stream(types)
                     .map(type -> type.equals("MAPPING") ? "BASE TABLE" : type)
-                    .collect(Collectors.toList()));
+                    .forEach(params::add);
         }
 
-        if (!conditions.isEmpty()) {
-            sqlBuilder.append(" WHERE ");
-            sqlBuilder.append(String.join(" AND ", conditions));
+        sqlBuilder.append(" ORDER BY TABLE_TYPE, table_catalog, table_schema, table_name");
+
+        PreparedStatement statement = connection.prepareStatement(sqlBuilder.toString());
+        for (int i = 0; i < params.size(); i++) {
+            statement.setObject(i + 1, params.get(i));
         }
-
-        sqlBuilder.append(" ORDER BY table_type, table_catalog, table_schema, table_name ASC");
-
-        final List<List<String>> tableData = new ArrayList<>();
-        try (final PreparedStatement statement = this.connection.prepareStatement(sqlBuilder.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                statement.setObject(i + 1, params.get(i));
-            }
-            try (final ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    tableData.add(asList(
-                            rs.getString(1), // catalog
-                            rs.getString(2), // schema
-                            rs.getString(3), // name
-                            rs.getString(4)) // type
-                    );
-                }
-            }
-        }
-
-        final SqlRowMetadata metadata = new SqlRowMetadata(asList(
-                new SqlColumnMetadata("TABLE_CAT", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("TABLE_SCHEM", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("TABLE_NAME", SqlColumnType.VARCHAR, false),
-                new SqlColumnMetadata("TABLE_TYPE", SqlColumnType.VARCHAR, true),
-
-                new SqlColumnMetadata("REMARKS", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("TYPE_CAT", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("TYPE_SCHEM", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("TYPE_NAME", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("SELF_REFERENCING_COL_NAME", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("REF_GENERATION", SqlColumnType.VARCHAR, true)
-        ));
-
-        final List<SqlRow> rows = tableData.stream()
-                .map(data -> makeSqlRow(new Object[]{
-                        data.get(0),
-                        data.get(1),
-                        data.get(2),
-                        data.get(3) != null && data.get(3).toUpperCase(Locale.ROOT).equals("BASE TABLE")
-                                ? "MAPPING"
-                                : data.get(3),
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
-                }, metadata))
-                .collect(Collectors.toList());
-
-        return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
+        return statement.executeQuery();
     }
 
     @Override
@@ -809,6 +758,11 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
         final List<SqlRow> rows = singletonList(makeSqlRow(new Object[]{"public", "hazelcast"}, metadata));
 
         return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
+    }
+
+    @Override
+    public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException {
+        return getSchemas();
     }
 
     @Override
@@ -860,21 +814,13 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                 + "FROM information_schema.columns ");
 
         if (catalog != null) {
-            if (catalog.isEmpty()) {
-                conditions.add("table_catalog = ''");
-            } else {
-                conditions.add("table_catalog LIKE ?");
-                params.add(catalog);
-            }
+            conditions.add("table_catalog LIKE ?");
+            params.add(catalog);
         }
 
         if (schema != null) {
-            if (schema.isEmpty()) {
-                conditions.add("table_schema = ''");
-            } else {
-                conditions.add("table_schema LIKE ?");
-                params.add(schema);
-            }
+            conditions.add("table_schema LIKE ?");
+            params.add(schema);
         }
 
         if (tableName != null) {
@@ -893,26 +839,6 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
         }
 
         sqlBuilder.append(" ORDER BY table_catalog, table_schema, table_name, ordinal_position ASC");
-
-        final List<List<Object>> tableData = new ArrayList<>();
-        try (final PreparedStatement statement = this.connection.prepareStatement(sqlBuilder.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                statement.setObject(i + 1, params.get(i));
-            }
-            try (final ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    tableData.add(asList(
-                            rs.getString(1), // catalog
-                            rs.getString(2), // schema
-                            rs.getString(3), // table_name
-                            rs.getString(4), // column_name
-                            rs.getString(5), // column_type
-                            rs.getBoolean(6), // is_nullable
-                            rs.getInt(7) // column_index
-                    ));
-                }
-            }
-        }
 
         final SqlRowMetadata metadata = new SqlRowMetadata(asList(
                 new SqlColumnMetadata("TABLE_CAT", SqlColumnType.VARCHAR, true),
@@ -945,21 +871,25 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                 new SqlColumnMetadata("IS_GENERATEDCOLUMN", SqlColumnType.VARCHAR, true)
         ));
 
-        final List<SqlRow> rows = tableData.stream()
-                .map(data -> {
-                    final SqlColumnType sqlColumnType = TypeUtil.getTypeByQDTName((String) data.get(4));
-                    final boolean isNullable = (boolean) data.get(5);
+        final List<SqlRow> rows = new ArrayList<>();
+        try (final PreparedStatement statement = this.connection.prepareStatement(sqlBuilder.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                statement.setObject(i + 1, params.get(i));
+            }
+            try (final ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    final SqlColumnType sqlColumnType = TypeUtil.getTypeByQDTName(rs.getString("data_type"));
+                    final boolean isNullable = rs.getBoolean("is_nullable");
                     final TypeUtil.SqlTypeInfo typeInfo = TypeUtil.getTypeInfo(sqlColumnType);
 
-
-                    return makeSqlRow(new Object[]{
-                            data.get(0), // CAT
-                            data.get(1), // SCHEM
-                            data.get(2), // TABLE_NAME
-                            data.get(3), // COLUMN_NAME
+                    rows.add(makeSqlRow(new Object[]{
+                            rs.getString("table_catalog"),
+                            rs.getString("table_schema"),
+                            rs.getString("table_name"),
+                            rs.getString("column_name"),
                             TypeUtil.getJdbcType(sqlColumnType), // DATA_TYPE
                             // Source column is QueryDataTypeFamily.name()
-                            ((String) data.get(4)).replaceAll("_", " "), // TYPE_NAME
+                            rs.getString("data_type").replaceAll("_", " "), // TYPE_NAME
 
                             typeInfo.getPrecision(), // COLUMN_SIZE
                             null, // BUFFER_LENGTH
@@ -973,18 +903,19 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                             null, // SQL_DATETIME_SUB
 
                             sqlColumnType.equals(SqlColumnType.VARCHAR) ? typeInfo.getPrecision() : null, // CHAR_OCTET_LENGTH
-                            data.get(6), // ORDINAL_POSITION
+                            rs.getInt("ordinal_position"),
                             isNullable ? "YES" : "NO", // IS_NULLABLE
 
                             null, // SCOPE_CATALOG
                             null, // SCOPE_SCHEMA
                             null, // SCOPE_TABLE
                             null, // SOURCE_DATA_TYPE
-                            null, // IS_AUTOINCREMENT
-                            null // IS_GENERATEDCOLUMN
-                    }, metadata);
-                })
-                .collect(Collectors.toList());
+                            "", // IS_AUTOINCREMENT
+                            "" // IS_GENERATEDCOLUMN
+                    }, metadata));
+                }
+            }
+        }
 
         return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
     }
@@ -1182,7 +1113,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                 typeInfoRow(SqlColumnType.JSON, metadata)
         );
 
-        rows.sort(Comparator.comparing(sqlRow -> sqlRow.getObject(2)));
+        rows.sort(Comparator.comparing(sqlRow -> sqlRow.getObject(1)));
 
         return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
     }
@@ -1193,7 +1124,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
         final Object[] values = new Object[]{
                 TypeUtil.getName(columnType), // TYPE_NAME
                 TypeUtil.getJdbcType(columnType), // DATA_TYPE
-                typeInfo.getPrecision(), // PRECISION
+                0, // PRECISION - it's not defined what it should be. Other vendors also return 0 here.
                 null, // LITERAL_PREFIX
                 null, // LITERAL_SUFFIX
                 null, // CREATE_PARAMS
@@ -1211,12 +1142,6 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                 10 // NUM_PREC_RADIX
         };
         return makeSqlRow(values, metadata);
-    }
-
-    private SqlRow makeSqlRow(Object[] values, SqlRowMetadata sqlRowMetadata) {
-        SerializationService serializationService = new DefaultSerializationServiceBuilder().build();
-        JetSqlRow jetSqlRow = new JetSqlRow(serializationService, values);
-        return new SqlRowImpl(sqlRowMetadata, jetSqlRow);
     }
 
     @Override
@@ -1452,11 +1377,6 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException {
-        return getSchemas();
-    }
-
-    @Override
     public boolean supportsStoredFunctionsUsingCallSyntax() {
         return false;
     }
@@ -1502,7 +1422,21 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
         return emptyResultSet(new SqlRowMetadata(asList(
                 new SqlColumnMetadata("FUNCTION_CAT", SqlColumnType.VARCHAR, true),
                 new SqlColumnMetadata("FUNCTION_SCHEM", SqlColumnType.VARCHAR, true),
-                new SqlColumnMetadata("FUNCTION_NAME", SqlColumnType.VARCHAR, false)
+                new SqlColumnMetadata("FUNCTION_NAME", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("COLUMN_NAME", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("COLUMN_TYPE", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("DATA_TYPE", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("TYPE_NAME", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("PRECISION", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("LENGTH", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("SCALE", SqlColumnType.SMALLINT, true),
+                new SqlColumnMetadata("RADIX", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("NULLABLE", SqlColumnType.SMALLINT, false),
+                new SqlColumnMetadata("REMARKS", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("CHAR_OCTET_LENGTH", SqlColumnType.INTEGER, true),
+                new SqlColumnMetadata("ORDINAL_POSITION", SqlColumnType.INTEGER, false),
+                new SqlColumnMetadata("IS_NULLABLE", SqlColumnType.VARCHAR, false),
+                new SqlColumnMetadata("SPECIFIC_NAME", SqlColumnType.VARCHAR, false)
         )));
     }
 
@@ -1542,6 +1476,12 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     @Override
     public boolean isWrapperFor(Class<?> iface) {
         return JdbcUtils.isWrapperFor(this, iface);
+    }
+
+    private SqlRow makeSqlRow(Object[] values, SqlRowMetadata sqlRowMetadata) {
+        SerializationService serializationService = new DefaultSerializationServiceBuilder().build();
+        JetSqlRow jetSqlRow = new JetSqlRow(serializationService, values);
+        return new SqlRowImpl(sqlRowMetadata, jetSqlRow);
     }
 
     // See https://github.com/hazelcast/hazelcast/issues/21301
