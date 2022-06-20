@@ -55,6 +55,12 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -115,6 +121,12 @@
             <artifactId>hazelcast-sql</artifactId>
             <version>${hazelcast.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>findbugs-annotations</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
@@ -267,7 +279,6 @@
                         <version>${maven.findbugs.plugin.version}</version>
                         <configuration>
                             <failOnError>true</failOnError>
-                            <excludeFilterFile>${project.basedir}/findbugs/findbugs-exclude.xml</excludeFilterFile>
                         </configuration>
 
                         <executions>
