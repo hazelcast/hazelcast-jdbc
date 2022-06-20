@@ -25,6 +25,7 @@ import com.hazelcast.sql.impl.SqlRowImpl;
 import com.hazelcast.sql.impl.row.JetSqlRow;
 import com.hazelcast.version.MemberVersion;
 import com.hazelcast.version.Version;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -70,6 +71,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
+    @SuppressFBWarnings("NP_NONNULL_RETURN_VIOLATION")
     public String getUserName() {
         return null;
     }
@@ -695,6 +697,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
+    @SuppressFBWarnings({"OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE", "ODR_OPEN_DATABASE_RESOURCE"})
     public ResultSet getTables(String catalog, String schema, String tableName, String[] types) throws SQLException {
         final List<Object> params = new ArrayList<>();
         final StringBuilder sqlBuilder = new StringBuilder("SELECT "
@@ -896,7 +899,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                             typeInfo.getPrecision(), // COLUMN_SIZE
                             null, // BUFFER_LENGTH
                             typeInfo.getScale() == 0 ? null : typeInfo.getScale(), // DECIMAL_DIGITS
-                            TypeUtil.isNumeric(sqlColumnType) ? DEFAULT_NUMBER_RADIX : null, // NUM_PREC_RADIX
+                            DEFAULT_NUMBER_RADIX, // NUM_PREC_RADIX
                             isNullable ? DatabaseMetaData.columnNullable : DatabaseMetaData.columnNoNulls, // NULLABLE
 
                             null, // REMARKS
@@ -1141,7 +1144,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                 0, // MAXIMUM_SCALE
                 null, // SQL_DATA_TYPE
                 null, // SQL_DATETIME_SUB
-                10 // NUM_PREC_RADIX
+                DEFAULT_NUMBER_RADIX // NUM_PREC_RADIX
         };
         return makeSqlRow(values, metadata);
     }
