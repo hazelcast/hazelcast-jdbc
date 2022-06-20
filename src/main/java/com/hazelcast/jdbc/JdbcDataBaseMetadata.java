@@ -214,7 +214,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
     @Override
     public String getSearchStringEscape() {
-        return "%";
+        return "";
     }
 
     @Override
