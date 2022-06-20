@@ -48,8 +48,8 @@ import static java.util.stream.Collectors.joining;
 public class JdbcDataBaseMetadata implements DatabaseMetaData {
     private static final Logger LOGGER = Logger.getLogger(JdbcDataBaseMetadata.class.getName());
 
-    private static final int JDBC_VERSION_MAJOR = 4;
-    private static final int JDBC_VERSION_MINOR = 3;
+    private static final int JDBC_VERSION_MAJOR = 5;
+    private static final int JDBC_VERSION_MINOR = 2;
 
     private final JdbcConnection connection;
 
