@@ -25,7 +25,6 @@ import com.hazelcast.sql.impl.SqlRowImpl;
 import com.hazelcast.sql.impl.row.JetSqlRow;
 import com.hazelcast.version.MemberVersion;
 import com.hazelcast.version.Version;
-import org.graalvm.compiler.core.common.SuppressFBWarnings;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -739,13 +738,11 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
         sqlBuilder.append(" ORDER BY TABLE_TYPE, table_catalog, table_schema, table_name");
 
-        try (PreparedStatement statement = connection.prepareStatement(sqlBuilder.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                statement.setObject(i + 1, params.get(i));
-            }
-
-            return statement.executeQuery();
+        PreparedStatement statement = connection.prepareStatement(sqlBuilder.toString());
+        for (int i = 0; i < params.size(); i++) {
+            statement.setObject(i + 1, params.get(i));
         }
+        return statement.executeQuery();
     }
 
     @Override
@@ -795,8 +792,11 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
-    @SuppressWarnings({"checkstyle:CyclomaticComplexity", "checkstyle:MethodLength", "checkstyle:NPathComplexity"})
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive")
+    @SuppressWarnings({
+            "checkstyle:CyclomaticComplexity",
+            "checkstyle:MethodLength",
+            "checkstyle:NPathComplexity"
+    })
     public ResultSet getColumns(
             String catalog,
             String schema,

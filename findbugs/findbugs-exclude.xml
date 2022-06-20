@@ -4,4 +4,12 @@
         <Class name="com.hazelcast.jdbc.Driver" />
         <Bug pattern="NM_SAME_SIMPLE_NAME_AS_INTERFACE"/>
     </Match>
+    <Match>
+        <Class name="com.hazelcast.jdbc.JdbcDataBaseMetadata"/>
+        <Method name="getTables"/>
+        <Or>
+            <Bug pattern="OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE"/>
+            <Bug pattern="ODR_OPEN_DATABASE_RESOURCE"/>
+        </Or>
+    </Match>
 </FindBugsFilter>
