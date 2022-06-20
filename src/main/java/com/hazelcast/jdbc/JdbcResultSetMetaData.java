@@ -21,9 +21,6 @@ import com.hazelcast.sql.SqlRowMetadata;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Types;
-import java.util.HashMap;
-import java.util.Map;
 
 public class JdbcResultSetMetaData implements ResultSetMetaData {
 

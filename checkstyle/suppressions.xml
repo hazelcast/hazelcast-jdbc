@@ -23,4 +23,5 @@
 <suppressions>
     <suppress files="com.hazelcast.jdbc.(JdbcResultSet|JdbcConnection|JdbcStatement|JdbcPreparedStatement|JdbcDataBaseMetadata)"
               checks="MethodCount"/>
+    <suppress files="com.hazelcast.jdbc.JdbcDataBaseMetadata" checks="FileLength"/>
 </suppressions>

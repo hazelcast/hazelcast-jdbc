@@ -23,12 +23,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("checkstyle:ExecutableStatementCount")
 final class TypeUtil {
     private static final Map<SqlColumnType, String> SQL_TYPES_NAME_MAPPING = new HashMap<>();
     private static final Map<SqlColumnType, Integer> SQL_TYPES_MAPPING = new HashMap<>();
     private static final Map<SqlColumnType, SqlTypeInfo> SQL_TYPES_INFO = new HashMap<>();
     private static final Map<String, SqlColumnType> QDT_NAMES_TO_SQL_TYPES_MAPPING = new HashMap<>();
     private static final Set<SqlColumnType> NUMERIC_TYPES = new HashSet<>();
+
+    private TypeUtil() { }
 
     static {
         SQL_TYPES_NAME_MAPPING.put(SqlColumnType.BIGINT, "BIGINT");

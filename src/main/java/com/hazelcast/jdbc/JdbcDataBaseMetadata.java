@@ -25,6 +25,7 @@ import com.hazelcast.sql.impl.SqlRowImpl;
 import com.hazelcast.sql.impl.row.JetSqlRow;
 import com.hazelcast.version.MemberVersion;
 import com.hazelcast.version.Version;
+import org.graalvm.compiler.core.common.SuppressFBWarnings;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -35,9 +36,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
@@ -45,11 +43,11 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 
+@SuppressWarnings("checkstyle:TrailingComment")
 public class JdbcDataBaseMetadata implements DatabaseMetaData {
-    private static final Logger LOGGER = Logger.getLogger(JdbcDataBaseMetadata.class.getName());
-
     private static final int JDBC_VERSION_MAJOR = 5;
     private static final int JDBC_VERSION_MINOR = 2;
+    private static final int DEFAULT_NUMBER_RADIX = 10;
 
     private final JdbcConnection connection;
 
@@ -741,11 +739,13 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
 
         sqlBuilder.append(" ORDER BY TABLE_TYPE, table_catalog, table_schema, table_name");
 
-        PreparedStatement statement = connection.prepareStatement(sqlBuilder.toString());
-        for (int i = 0; i < params.size(); i++) {
-            statement.setObject(i + 1, params.get(i));
+        try (PreparedStatement statement = connection.prepareStatement(sqlBuilder.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                statement.setObject(i + 1, params.get(i));
+            }
+
+            return statement.executeQuery();
         }
-        return statement.executeQuery();
     }
 
     @Override
@@ -795,6 +795,8 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
     }
 
     @Override
+    @SuppressWarnings({"checkstyle:CyclomaticComplexity", "checkstyle:MethodLength", "checkstyle:NPathComplexity"})
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive")
     public ResultSet getColumns(
             String catalog,
             String schema,
@@ -872,11 +874,11 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
         ));
 
         final List<SqlRow> rows = new ArrayList<>();
-        try (final PreparedStatement statement = this.connection.prepareStatement(sqlBuilder.toString())) {
+        try (PreparedStatement statement = this.connection.prepareStatement(sqlBuilder.toString())) {
             for (int i = 0; i < params.size(); i++) {
                 statement.setObject(i + 1, params.get(i));
             }
-            try (final ResultSet rs = statement.executeQuery()) {
+            try (ResultSet rs = statement.executeQuery()) {
                 while (rs.next()) {
                     final SqlColumnType sqlColumnType = TypeUtil.getTypeByQDTName(rs.getString("data_type"));
                     final boolean isNullable = rs.getBoolean("is_nullable");
@@ -894,7 +896,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                             typeInfo.getPrecision(), // COLUMN_SIZE
                             null, // BUFFER_LENGTH
                             typeInfo.getScale() == 0 ? null : typeInfo.getScale(), // DECIMAL_DIGITS
-                            TypeUtil.isNumeric(sqlColumnType) ? 10 : null, // NUM_PREC_RADIX
+                            TypeUtil.isNumeric(sqlColumnType) ? DEFAULT_NUMBER_RADIX : null, // NUM_PREC_RADIX
                             isNullable ? DatabaseMetaData.columnNullable : DatabaseMetaData.columnNoNulls, // NULLABLE
 
                             null, // REMARKS

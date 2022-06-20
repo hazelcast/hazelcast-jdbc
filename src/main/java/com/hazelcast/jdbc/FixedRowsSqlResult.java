@@ -35,12 +35,12 @@ public class FixedRowsSqlResult extends AbstractSqlResult {
     private final List<SqlRow> rows;
     private final QueryId queryId = new QueryId();
     private final SqlRowMetadata sqlRowMetadata;
-    
+
     FixedRowsSqlResult(SqlRowMetadata sqlRowMetadata, List<SqlRow> rows) {
         this.rows = rows;
         this.sqlRowMetadata = sqlRowMetadata;
     }
-    
+
     @Override
     public SqlRowMetadata getRowMetadata() {
         return this.sqlRowMetadata;
@@ -72,8 +72,8 @@ public class FixedRowsSqlResult extends AbstractSqlResult {
     private static final class FixedRowsSqlResultIterator implements ResultIterator<SqlRow> {
 
         private final Iterator<SqlRow> iterator;
-        
-        public FixedRowsSqlResultIterator(Iterator<SqlRow> arg0) {
+
+        FixedRowsSqlResultIterator(Iterator<SqlRow> arg0) {
             this.iterator = arg0;
         }
 
