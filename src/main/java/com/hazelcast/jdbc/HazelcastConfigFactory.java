@@ -105,6 +105,7 @@ class HazelcastConfigFactory {
             return cloudConfig(url, clientConfig, discoveryToken);
         }
         ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(url.getAuthorities());
+        networkConfig.setSmartRouting(parseBoolean(url, "smart-routing", networkConfig.isSmartRouting()));
         clientConfig.setNetworkConfig(networkConfig);
 
         CONFIGURATION_MAPPING.forEach((k, v) -> {
@@ -174,5 +175,21 @@ class HazelcastConfigFactory {
                 .getGcpConfig()
                 .setEnabled(true)
                 .setProperty(property, value);
+    }
+
+    protected static boolean parseBoolean(JdbcUrl url, String key, boolean def) {
+        String value = url.getProperty(key);
+        if (value == null) {
+            return def;
+        }
+        if ("true".equalsIgnoreCase(value)) {
+            return true;
+        }
+        if ("false".equalsIgnoreCase(value)) {
+            return false;
+        }
+        // Fail fast rather than default to false
+        String message = String.format("'%s' not boolean, '%s'", key, value);
+        throw new RuntimeException(message);
     }
 }
