@@ -85,6 +85,11 @@ Temporary Items
 # *.iml
 # *.ipr
 
+# Eclipse
+.classpath
+.project
+.settings
+
 # File-based project format
 *.iws
 

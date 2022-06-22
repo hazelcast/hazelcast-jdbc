@@ -15,6 +15,8 @@
  */
 package com.hazelcast.jdbc;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
@@ -23,6 +25,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+@SuppressFBWarnings("NM_SAME_SIMPLE_NAME_AS_INTERFACE")
 public class Driver implements java.sql.Driver {
 
     static final int VER_MAJOR = 4;
