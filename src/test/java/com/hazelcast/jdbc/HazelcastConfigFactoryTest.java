@@ -166,7 +166,6 @@ class HazelcastConfigFactoryTest {
                 .setClusterName("dev"));
     }
 
-<<<<<<< HEAD
     @Test
     void shouldParseSmartRouting() {
         String localMember = "localhost:5701";
