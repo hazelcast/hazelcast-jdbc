@@ -174,19 +174,19 @@ class HazelcastConfigFactoryTest {
         ClientConfig clientConfigWithout = configFactory.clientConfig(
                 new JdbcUrl(baseUrl, null));
         ClientConfig clientConfigTrue = configFactory.clientConfig(
-                new JdbcUrl(baseUrl + "?smart-routing=true", null));
+                new JdbcUrl(baseUrl + "?smartRouting=true", null));
         ClientConfig clientConfigFalse = configFactory.clientConfig(
-                new JdbcUrl(baseUrl + "?smart-routing=false", null));
+                new JdbcUrl(baseUrl + "?smartRouting=false", null));
         
         List<String> addresses = Collections.singletonList(localMember);
         
-        ClientConfig expectedClientConfigWithout = ClientConfig.load()
+        ClientConfig expectedClientConfigWithout = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig()
                         .setAddresses(addresses));
-        ClientConfig expectedClientConfigTrue = ClientConfig.load()
+        ClientConfig expectedClientConfigTrue = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig()
                         .setSmartRouting(true).setAddresses(addresses));
-        ClientConfig expectedClientConfigFalse = ClientConfig.load()
+        ClientConfig expectedClientConfigFalse = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig()
                         .setSmartRouting(false).setAddresses(addresses));
 
@@ -203,7 +203,7 @@ class HazelcastConfigFactoryTest {
         .as("clientConfigOther")
         .isThrownBy(() -> {
             configFactory.clientConfig(
-                    new JdbcUrl(baseUrl + "?smart-routing=other", null));
+                    new JdbcUrl(baseUrl + "?smartRouting=other", null));
         });
     }
 

@@ -115,7 +115,7 @@ class HazelcastConfigFactory {
             return cloudConfig(url, clientConfig, discoveryToken);
         }
         ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(url.getAuthorities());
-        networkConfig.setSmartRouting(parseBoolean(url, "smart-routing", networkConfig.isSmartRouting()));
+        networkConfig.setSmartRouting(parseBoolean(url, "smartRouting", networkConfig.isSmartRouting()));
         clientConfig.setNetworkConfig(networkConfig);
 
         CONFIGURATION_MAPPING.forEach((k, v) -> {
