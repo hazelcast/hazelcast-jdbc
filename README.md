@@ -140,7 +140,7 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 #### Miscellaneous properties
 | Property                       | Type    | Description   |
 | ------------------------------ | ------- | ------------- |
-| smart-routing                  | Boolean | Use `false`  to limit connections,  eg. via load balancer into Kubernetes from outside.
+| smartRouting                   | Boolean | Use `false`  to limit connections,  eg. via load balancer into Kubernetes from outside.
 
 #### Hazelcast Cloud Configuration
 For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-name` as a host in
