@@ -26,8 +26,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class HazelcastConfigFactoryTest {
 
@@ -164,10 +166,77 @@ class HazelcastConfigFactoryTest {
                 .setClusterName("dev"));
     }
 
+    @Test
+    void shouldParseSmartRouting() {
+        String localMember = "localhost:5701";
+        String baseUrl = "jdbc:hazelcast://" + localMember + "/";
+        
+        ClientConfig clientConfigWithout = configFactory.clientConfig(
+                new JdbcUrl(baseUrl, null));
+        ClientConfig clientConfigTrue = configFactory.clientConfig(
+                new JdbcUrl(baseUrl + "?smartRouting=true", null));
+        ClientConfig clientConfigFalse = configFactory.clientConfig(
+                new JdbcUrl(baseUrl + "?smartRouting=false", null));
+        
+        List<String> addresses = Collections.singletonList(localMember);
+        
+        ClientConfig expectedClientConfigWithout = defaultJdbcClientConfig()
+                .setNetworkConfig(new ClientNetworkConfig()
+                        .setAddresses(addresses));
+        ClientConfig expectedClientConfigTrue = defaultJdbcClientConfig()
+                .setNetworkConfig(new ClientNetworkConfig()
+                        .setSmartRouting(true).setAddresses(addresses));
+        ClientConfig expectedClientConfigFalse = defaultJdbcClientConfig()
+                .setNetworkConfig(new ClientNetworkConfig()
+                        .setSmartRouting(false).setAddresses(addresses));
+
+        assertThat(clientConfigWithout)
+        .as("clientConfigWithout")
+        .isEqualTo(expectedClientConfigWithout);
+        assertThat(clientConfigTrue)
+        .as("clientConfigTrue")
+        .isEqualTo(expectedClientConfigTrue);
+        assertThat(clientConfigFalse)
+        .as("clientConfigFalse")
+        .isEqualTo(expectedClientConfigFalse);
+        assertThatExceptionOfType(RuntimeException.class)
+        .as("clientConfigOther")
+        .isThrownBy(() -> {
+            configFactory.clientConfig(
+                    new JdbcUrl(baseUrl + "?smartRouting=other", null));
+        });
+    }
+
+    @Test
+    void shouldParseBinary() {
+        String localMember = "localhost:5701";
+        String baseUrl = "jdbc:hazelcast://" + localMember + "/";
+        String propertyName = System.getProperty("user.name");
+        
+        JdbcUrl urlNone = new JdbcUrl(baseUrl, null);
+        JdbcUrl urlTrue = new JdbcUrl(baseUrl + "?" + propertyName + "=true", null);
+        JdbcUrl urlFalse = new JdbcUrl(baseUrl + "?" + propertyName + "=false", null);
+        JdbcUrl urlOther = new JdbcUrl(baseUrl + "?" + propertyName + "=other", null);
+
+        boolean resultNoneTrue = HazelcastConfigFactory.parseBoolean(urlNone, propertyName, true);
+        boolean resultNoneFalse = HazelcastConfigFactory.parseBoolean(urlNone, propertyName, false);
+        boolean resultTrue = HazelcastConfigFactory.parseBoolean(urlTrue, propertyName, false);
+        boolean resultFalse = HazelcastConfigFactory.parseBoolean(urlFalse, propertyName, true);
+        
+        assertThat(resultNoneTrue).as("resultNoneTrue").isEqualTo(true);
+        assertThat(resultNoneFalse).as("resultNoneFalse").isEqualTo(false);
+        assertThat(resultTrue).as("resultTrue").isEqualTo(true);
+        assertThat(resultFalse).as("resultFalse").isEqualTo(false);
+        assertThatExceptionOfType(RuntimeException.class)
+        .as("resultOther")
+        .isThrownBy(() -> HazelcastConfigFactory.parseBoolean(urlOther, propertyName, true));
+    }    
+
     private ClientConfig defaultJdbcClientConfig() {
         ClientConfig config = ClientConfig.load();
         config.getConnectionStrategyConfig().getConnectionRetryConfig()
                 .setClusterConnectTimeoutMillis(HazelcastConfigFactory.DEFAULT_CONNECT_TIMEOUT_MILLIS);
         return config;
     }
+
 }

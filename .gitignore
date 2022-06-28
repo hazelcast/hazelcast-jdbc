@@ -93,6 +93,11 @@ Temporary Items
 # File-based project format
 *.iws
 
+# Eclipse
+.classpath
+.project
+.settings
+
 # IntelliJ
 out/
 

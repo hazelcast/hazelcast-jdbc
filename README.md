@@ -137,6 +137,11 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 | k8sServiceName                 | String  | Service name used to scan only PODs connected to the given service; if not specified, then all PODs in the namespace are checked |
 | k8sServicePort                 | Integer | Endpoint port of the service; if specified with a value greater than 0, it overrides the default; 0 by default |
 
+#### Miscellaneous properties
+| Property                       | Type    | Description                                                                                                                                     |
+| ------------------------------ | ------- |-------------------------------------------------------------------------------------------------------------------------------------------------|
+| smartRouting                   | Boolean | If `false`, the client will have only one connection to the cluster. Useful, if there are many clients, and we want to avoid each of them connecting to each member. `true` by default. |
+
 #### Hazelcast Cloud Configuration
 For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-name` as a host in
 the URL: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>`.
