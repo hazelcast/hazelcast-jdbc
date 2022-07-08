@@ -17,6 +17,8 @@ package com.hazelcast.jdbc;
 
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.client.config.ClientSqlConfig;
+import com.hazelcast.client.config.ClientSqlResubmissionMode;
 import com.hazelcast.client.config.ConnectionRetryConfig;
 import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.config.SSLConfig;
@@ -117,7 +119,9 @@ class HazelcastConfigFactory {
         ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(url.getAuthorities());
         networkConfig.setSmartRouting(parseBoolean(url, "smartRouting", networkConfig.isSmartRouting()));
         clientConfig.setNetworkConfig(networkConfig);
-
+        ClientSqlConfig sqlConfig = new ClientSqlConfig();
+        sqlConfig.setSqlResubmissionMode(parseSqlResubmissionMode(url, "resubmissionMode", ClientSqlResubmissionMode.NEVER));
+        clientConfig.setSqlConfig(sqlConfig);
         CONFIGURATION_MAPPING.forEach((k, v) -> {
             String property = url.getProperty(k);
             if (property != null) {
@@ -185,6 +189,23 @@ class HazelcastConfigFactory {
                 .getGcpConfig()
                 .setEnabled(true)
                 .setProperty(property, value);
+    }
+
+    private static ClientSqlResubmissionMode parseSqlResubmissionMode(JdbcUrl url, String key, ClientSqlResubmissionMode def) {
+        String value = url.getProperty(key);
+        if (value == null) {
+            return def;
+        }
+        try {
+            return ClientSqlResubmissionMode.valueOf(value);
+        } catch (RuntimeException e) {
+            String message = String.format("'%s' not valid SQL resubmission mode, '%s'", key, value);
+            throw new RuntimeException(message, e);
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(ClientSqlResubmissionMode.valueOf("dupa"));
     }
 
     protected static boolean parseBoolean(JdbcUrl url, String key, boolean def) {

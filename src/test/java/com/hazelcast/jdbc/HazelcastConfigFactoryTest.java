@@ -17,6 +17,8 @@ package com.hazelcast.jdbc;
 
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
+import com.hazelcast.client.config.ClientSqlConfig;
+import com.hazelcast.client.config.ClientSqlResubmissionMode;
 import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.config.AwsConfig;
 import com.hazelcast.config.GcpConfig;
@@ -204,6 +206,62 @@ class HazelcastConfigFactoryTest {
         .isThrownBy(() -> {
             configFactory.clientConfig(
                     new JdbcUrl(baseUrl + "?smartRouting=other", null));
+        });
+    }
+
+    @Test
+    void shouldParseResubmissionMode() {
+        String localMember = "localhost:5701";
+        String baseUrl = "jdbc:hazelcast://" + localMember + "/";
+
+        ClientConfig clientConfigWithout = configFactory.clientConfig(
+                new JdbcUrl(baseUrl, null));
+        ClientConfig clientConfigNever = configFactory.clientConfig(
+                new JdbcUrl(baseUrl + "?resubmissionMode=NEVER", null));
+        ClientConfig clientConfigRetrySelects = configFactory.clientConfig(
+                new JdbcUrl(baseUrl + "?resubmissionMode=RETRY_SELECTS", null));
+        ClientConfig clientConfigRetrySelectsDups = configFactory.clientConfig(
+                new JdbcUrl(baseUrl + "?resubmissionMode=RETRY_SELECTS_ALLOW_DUPLICATES", null));
+        ClientConfig clientConfigRetryAll = configFactory.clientConfig(
+                new JdbcUrl(baseUrl + "?resubmissionMode=RETRY_ALL", null));
+
+        List<String> addresses = Collections.singletonList(localMember);
+        ClientConfig expectedClientConfigWithout = defaultJdbcClientConfig()
+                .setNetworkConfig(new ClientNetworkConfig().setAddresses(addresses))
+                .setSqlConfig(new ClientSqlConfig().setSqlResubmissionMode(ClientSqlResubmissionMode.NEVER));
+        ClientConfig expectedClientConfigNever = defaultJdbcClientConfig()
+                .setNetworkConfig(new ClientNetworkConfig().setAddresses(addresses))
+                .setSqlConfig(new ClientSqlConfig().setSqlResubmissionMode(ClientSqlResubmissionMode.NEVER));
+        ClientConfig expectedClientConfigRetrySelects = defaultJdbcClientConfig()
+                .setNetworkConfig(new ClientNetworkConfig().setAddresses(addresses))
+                .setSqlConfig(new ClientSqlConfig().setSqlResubmissionMode(ClientSqlResubmissionMode.RETRY_SELECTS));
+        ClientConfig expectedClientConfigRetrySelectsDups = defaultJdbcClientConfig()
+                .setNetworkConfig(new ClientNetworkConfig().setAddresses(addresses))
+                .setSqlConfig(new ClientSqlConfig()
+                        .setSqlResubmissionMode(ClientSqlResubmissionMode.RETRY_SELECTS_ALLOW_DUPLICATES));
+        ClientConfig expectedClientConfigRetryAll = defaultJdbcClientConfig()
+                .setNetworkConfig(new ClientNetworkConfig().setAddresses(addresses))
+                .setSqlConfig(new ClientSqlConfig().setSqlResubmissionMode(ClientSqlResubmissionMode.RETRY_ALL));
+
+        assertThat(clientConfigWithout)
+        .as("clientConfigWithout")
+        .isEqualTo(expectedClientConfigWithout);
+        assertThat(clientConfigNever)
+        .as("clientConfigNever")
+        .isEqualTo(expectedClientConfigNever);
+        assertThat(clientConfigRetrySelects)
+        .as("clientConfigRetrySelects")
+        .isEqualTo(expectedClientConfigRetrySelects);
+        assertThat(clientConfigRetrySelectsDups)
+        .as("clientConfigRetrySelectsDups")
+        .isEqualTo(expectedClientConfigRetrySelectsDups);
+        assertThat(clientConfigRetryAll)
+        .as("clientConfigRetryAll")
+        .isEqualTo(expectedClientConfigRetryAll);
+        assertThatExceptionOfType(RuntimeException.class)
+        .as("clientConfigOther")
+        .isThrownBy(() -> {
+            configFactory.clientConfig(new JdbcUrl(baseUrl + "?resubmissionMode=OTHER", null));
         });
     }
 
