@@ -191,21 +191,17 @@ class HazelcastConfigFactory {
                 .setProperty(property, value);
     }
 
-    private static ClientSqlResubmissionMode parseSqlResubmissionMode(JdbcUrl url, String key, ClientSqlResubmissionMode def) {
+    private static ClientSqlResubmissionMode parseSqlResubmissionMode(JdbcUrl url, String key, ClientSqlResubmissionMode defaultVal) {
         String value = url.getProperty(key);
         if (value == null) {
-            return def;
+            return defaultVal;
         }
         try {
             return ClientSqlResubmissionMode.valueOf(value);
-        } catch (RuntimeException e) {
-            String message = String.format("'%s' not valid SQL resubmission mode, '%s'", key, value);
+        } catch (IllegalArgumentException e) {
+            String message = String.format("'%s' not valid for SQL resubmission mode, '%s'", key, value);
             throw new RuntimeException(message, e);
         }
-    }
-
-    public static void main(String[] args) {
-        System.out.println(ClientSqlResubmissionMode.valueOf("dupa"));
     }
 
     protected static boolean parseBoolean(JdbcUrl url, String key, boolean def) {
