@@ -191,7 +191,11 @@ class HazelcastConfigFactory {
                 .setProperty(property, value);
     }
 
-    private static ClientSqlResubmissionMode parseSqlResubmissionMode(JdbcUrl url, String key, ClientSqlResubmissionMode defaultVal) {
+    private static ClientSqlResubmissionMode parseSqlResubmissionMode(
+            JdbcUrl url,
+            String key,
+            ClientSqlResubmissionMode defaultVal
+    ) {
         String value = url.getProperty(key);
         if (value == null) {
             return defaultVal;
