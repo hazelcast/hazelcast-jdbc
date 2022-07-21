@@ -1144,9 +1144,7 @@ public class JdbcResultSet implements ResultSet {
 
     private <T> T getByIndex(int columnIndex) {
         T result = currentRow.getObject(columnIndex);
-        if (result == null) {
-            wasNull = true;
-        }
+        wasNull = result == null;
         return result;
     }
 
