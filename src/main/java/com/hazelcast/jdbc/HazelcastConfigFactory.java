@@ -120,7 +120,7 @@ class HazelcastConfigFactory {
         networkConfig.setSmartRouting(parseBoolean(url, "smartRouting", networkConfig.isSmartRouting()));
         clientConfig.setNetworkConfig(networkConfig);
         ClientSqlConfig sqlConfig = new ClientSqlConfig();
-        sqlConfig.setSqlResubmissionMode(parseSqlResubmissionMode(url, "resubmissionMode", ClientSqlResubmissionMode.NEVER));
+        sqlConfig.setResubmissionMode(parseSqlResubmissionMode(url, "resubmissionMode", ClientSqlResubmissionMode.NEVER));
         clientConfig.setSqlConfig(sqlConfig);
         CONFIGURATION_MAPPING.forEach((k, v) -> {
             String property = url.getProperty(k);
@@ -203,7 +203,7 @@ class HazelcastConfigFactory {
         try {
             return ClientSqlResubmissionMode.valueOf(value);
         } catch (IllegalArgumentException e) {
-            String message = String.format("'%s' not valid for SQL resubmission mode, '%s'", key, value);
+            String message = String.format("'%s' not valid for SQL resubmission mode, '%s'", value, key);
             throw new RuntimeException(message, e);
         }
     }

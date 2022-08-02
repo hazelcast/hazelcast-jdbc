@@ -228,20 +228,20 @@ class HazelcastConfigFactoryTest {
         List<String> addresses = Collections.singletonList(localMember);
         ClientConfig expectedClientConfigWithout = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig().setAddresses(addresses))
-                .setSqlConfig(new ClientSqlConfig().setSqlResubmissionMode(ClientSqlResubmissionMode.NEVER));
+                .setSqlConfig(new ClientSqlConfig().setResubmissionMode(ClientSqlResubmissionMode.NEVER));
         ClientConfig expectedClientConfigNever = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig().setAddresses(addresses))
-                .setSqlConfig(new ClientSqlConfig().setSqlResubmissionMode(ClientSqlResubmissionMode.NEVER));
+                .setSqlConfig(new ClientSqlConfig().setResubmissionMode(ClientSqlResubmissionMode.NEVER));
         ClientConfig expectedClientConfigRetrySelects = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig().setAddresses(addresses))
-                .setSqlConfig(new ClientSqlConfig().setSqlResubmissionMode(ClientSqlResubmissionMode.RETRY_SELECTS));
+                .setSqlConfig(new ClientSqlConfig().setResubmissionMode(ClientSqlResubmissionMode.RETRY_SELECTS));
         ClientConfig expectedClientConfigRetrySelectsDups = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig().setAddresses(addresses))
                 .setSqlConfig(new ClientSqlConfig()
-                        .setSqlResubmissionMode(ClientSqlResubmissionMode.RETRY_SELECTS_ALLOW_DUPLICATES));
+                        .setResubmissionMode(ClientSqlResubmissionMode.RETRY_SELECTS_ALLOW_DUPLICATES));
         ClientConfig expectedClientConfigRetryAll = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig().setAddresses(addresses))
-                .setSqlConfig(new ClientSqlConfig().setSqlResubmissionMode(ClientSqlResubmissionMode.RETRY_ALL));
+                .setSqlConfig(new ClientSqlConfig().setResubmissionMode(ClientSqlResubmissionMode.RETRY_ALL));
 
         assertThat(clientConfigWithout)
         .as("clientConfigWithout")
@@ -262,7 +262,8 @@ class HazelcastConfigFactoryTest {
         .as("clientConfigOther")
         .isThrownBy(() -> {
             configFactory.clientConfig(new JdbcUrl(baseUrl + "?resubmissionMode=OTHER", null));
-        });
+        })
+        .withMessage("'OTHER' not valid for SQL resubmission mode, 'resubmissionMode'");
     }
 
     @Test
