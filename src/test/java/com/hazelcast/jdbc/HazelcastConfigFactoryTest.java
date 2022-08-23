@@ -244,26 +244,26 @@ class HazelcastConfigFactoryTest {
                 .setSqlConfig(new ClientSqlConfig().setResubmissionMode(ClientSqlResubmissionMode.RETRY_ALL));
 
         assertThat(clientConfigWithout)
-        .as("clientConfigWithout")
-        .isEqualTo(expectedClientConfigWithout);
+                .as("clientConfigWithout")
+                .isEqualTo(expectedClientConfigWithout);
         assertThat(clientConfigNever)
-        .as("clientConfigNever")
-        .isEqualTo(expectedClientConfigNever);
+                .as("clientConfigNever")
+                .isEqualTo(expectedClientConfigNever);
         assertThat(clientConfigRetrySelects)
-        .as("clientConfigRetrySelects")
-        .isEqualTo(expectedClientConfigRetrySelects);
+                .as("clientConfigRetrySelects")
+                .isEqualTo(expectedClientConfigRetrySelects);
         assertThat(clientConfigRetrySelectsDups)
-        .as("clientConfigRetrySelectsDups")
-        .isEqualTo(expectedClientConfigRetrySelectsDups);
+                .as("clientConfigRetrySelectsDups")
+                .isEqualTo(expectedClientConfigRetrySelectsDups);
         assertThat(clientConfigRetryAll)
-        .as("clientConfigRetryAll")
-        .isEqualTo(expectedClientConfigRetryAll);
+                .as("clientConfigRetryAll")
+                .isEqualTo(expectedClientConfigRetryAll);
         assertThatExceptionOfType(RuntimeException.class)
-        .as("clientConfigOther")
-        .isThrownBy(() -> {
-            configFactory.clientConfig(new JdbcUrl(baseUrl + "?resubmissionMode=OTHER", null));
-        })
-        .withMessage("'OTHER' not valid for SQL resubmission mode, 'resubmissionMode'");
+                .as("clientConfigOther")
+                .isThrownBy(() -> {
+                    configFactory.clientConfig(new JdbcUrl(baseUrl + "?resubmissionMode=FOO", null));
+                })
+                .withMessage("'FOO' not a valid value for 'resubmissionMode'");
     }
 
     @Test

@@ -203,7 +203,7 @@ class HazelcastConfigFactory {
         try {
             return ClientSqlResubmissionMode.valueOf(value);
         } catch (IllegalArgumentException e) {
-            String message = String.format("'%s' not valid for SQL resubmission mode, '%s'", value, key);
+            String message = String.format("'%s' not a valid value for '%s'", value, key);
             throw new RuntimeException(message, e);
         }
     }
