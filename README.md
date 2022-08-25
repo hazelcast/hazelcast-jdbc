@@ -138,9 +138,10 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 | k8sServicePort                 | Integer | Endpoint port of the service; if specified with a value greater than 0, it overrides the default; 0 by default |
 
 #### Miscellaneous properties
-| Property                       | Type    | Description                                                                                                                                     |
-| ------------------------------ | ------- |-------------------------------------------------------------------------------------------------------------------------------------------------|
+| Property                       | Type    | Description                                                                                                                                                                             |
+| ------------------------------ | ------- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | smartRouting                   | Boolean | If `false`, the client will have only one connection to the cluster. Useful, if there are many clients, and we want to avoid each of them connecting to each member. `true` by default. |
+| resubmissionMode               | String  | Strategy to retry failed queries. Valid values are: `NEVER` (the default), `RETRY_SELECTS`, `RETRY_SELECTS_ALLOW_DUPLICATES` and `RETRY_ALL`.                                           |
 
 #### Hazelcast Cloud Configuration
 For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-name` as a host in
