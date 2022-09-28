@@ -42,7 +42,7 @@ jobs:
           MAVEN_RELEASE_PASSWORD: ${{ secrets.MAVEN_RELEASE_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
-      - uses: actions/setup-node@v3.4.1
+      - uses: actions/setup-node@v3.5.0
         with:
           node-version: 16
       - run: npm install fs-extra
