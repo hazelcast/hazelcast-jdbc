@@ -51,10 +51,10 @@ class HazelcastConfigFactoryTest {
         ClientConfig clientConfig = configFactory.clientConfig(
                 new JdbcUrl("jdbc:hazelcast://cluster-name/?discoveryToken=token-value-123", null));
 
-        ClientNetworkConfig _ = defaultJdbcClientConfig().getNetworkConfig().setAddresses(singletonList("cluster-name"));
+        ClientNetworkConfig cnc = defaultJdbcClientConfig().getNetworkConfig().setAddresses(singletonList("cluster-name"));
 
         assertThat(clientConfig).isEqualTo(defaultJdbcClientConfig()
-                .setNetworkConfig(_)
+                .setNetworkConfig(cnc)
                 .setProperty(ClientProperty.HAZELCAST_CLOUD_DISCOVERY_TOKEN.getName(), "token-value-123")
                 .setClusterName("cluster-name"));
     }
