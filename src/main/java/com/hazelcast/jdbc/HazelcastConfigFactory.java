@@ -113,9 +113,6 @@ class HazelcastConfigFactory {
             connectionRetryConfig.setClusterConnectTimeoutMillis(DEFAULT_CONNECT_TIMEOUT_MILLIS);
         }
 
-        if (discoveryToken != null) {
-            return cloudConfig(url, clientConfig, discoveryToken);
-        }
         ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(url.getAuthorities());
         networkConfig.setSmartRouting(parseBoolean(url, "smartRouting", networkConfig.isSmartRouting()));
         clientConfig.setNetworkConfig(networkConfig);
@@ -128,6 +125,10 @@ class HazelcastConfigFactory {
                 v.accept(clientConfig, property);
             }
         });
+
+        if (discoveryToken != null) {
+            return cloudConfig(url, clientConfig, discoveryToken);
+        }
         return clientConfig;
     }
 
