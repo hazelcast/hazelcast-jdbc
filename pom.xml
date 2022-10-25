@@ -6,7 +6,7 @@
 
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.2.0</version>
+    <version>5.2.1-SNAPSHOT</version>
 
     <name>hazelcast-jdbc</name>
     <description>Hazelcast JDBC Driver</description>
