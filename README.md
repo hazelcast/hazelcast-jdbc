@@ -18,7 +18,7 @@ Download directly the JAR file from [Releases](https://github.com/hazelcast/haze
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.1</version>
+    <version>5.2</version>
 </dependency>
 ```
 
@@ -45,7 +45,7 @@ And the dependency:
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.2-SNAPSHOT</version>
+    <version>5.3-SNAPSHOT</version>
 </dependency>
 ```
 
