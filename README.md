@@ -49,10 +49,6 @@ And the dependency:
 </dependency>
 ```
 
-## Documentation
-
-The implementation class of `java.sql.Driver` is `com.hazelcast.jdbc.Driver` and it's registered automatically.
-
 ## Connection URL
 The format of the URL must have the following structure, parts in `[]` are optional:
 ```
