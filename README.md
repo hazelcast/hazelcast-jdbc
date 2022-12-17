@@ -50,6 +50,7 @@ And the dependency:
 ```
 
 ## Connection URL
+
 The format of the URL must have the following structure, parts in `[]` are optional:
 ```
 jdbc:hazelcast://host[:port][,host[:port]...]/[?property1=value1[&property2=value2]...]
