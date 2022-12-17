@@ -15,6 +15,7 @@
  */
 package com.hazelcast.jdbc;
 
+import com.hazelcast.spi.annotation.PrivateApi;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.sql.Connection;
@@ -25,6 +26,11 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+/**
+ * Use {@link DriverManager#getConnection(String)} instead of directly using
+ * this class.
+ */
+@PrivateApi
 @SuppressFBWarnings("NM_SAME_SIMPLE_NAME_AS_INTERFACE")
 public class Driver implements java.sql.Driver {
 

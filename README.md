@@ -18,7 +18,7 @@ Download directly the JAR file from [Releases](https://github.com/hazelcast/haze
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.2</version>
+    <version>5.3</version>
 </dependency>
 ```
 
@@ -48,10 +48,6 @@ And the dependency:
     <version>5.3-SNAPSHOT</version>
 </dependency>
 ```
-
-## Documentation
-
-The implementation class of `java.sql.Driver` is `com.hazelcast.jdbc.Driver` and it's registered automatically.
 
 ## Connection URL
 The format of the URL must have the following structure, parts in `[]` are optional:
@@ -148,7 +144,7 @@ For connecting to the Hazelcast cloud you only need to specify `discoveryToken` 
 the URL: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>`.
 
 #### Additional Configuration
-Besides URL, it is possible to use [Configuration Files](https://docs.hazelcast.com/hazelcast/5.1/configuration/configuring-declaratively) and  [Overriding Configuration](https://docs.hazelcast.com/hazelcast/5.1/configuration/configuring-declaratively#overriding-configuration-with-system-properties-and-environment-variables) to configure the [Hazelcast Java Client](https://docs.hazelcast.com/hazelcast/5.1/clients/java)
+Besides URL, it is possible to use [Configuration Files](https://docs.hazelcast.com/hazelcast/5.3/configuration/configuring-declaratively) and  [Overriding Configuration](https://docs.hazelcast.com/hazelcast/5.3/configuration/configuring-declaratively#overriding-configuration-with-system-properties-and-environment-variables) to configure the [Hazelcast Java Client](https://docs.hazelcast.com/hazelcast/5.3/clients/java)
 
 ## SQL
-SQL support is in active development. Have a look at [SQL docs](https://docs.hazelcast.com/hazelcast/5.1/sql/sql-overview).
+SQL support is in active development. Have a look at [SQL docs](https://docs.hazelcast.com/hazelcast/5.3/sql/sql-overview).
