@@ -41,15 +41,6 @@
         </license>
     </licenses>
 
-    <developers>
-        <developer>
-            <name>Viliam Durina</name>
-            <email>viliam@hazelcast.com</email>
-            <organization>Hazelcast</organization>
-            <organizationUrl>https://www.hazelcast.com</organizationUrl>
-        </developer>
-    </developers>
-
     <scm>
         <connection>scm:git:git://github.com/hazelcast/hazelcast-jdbc.git</connection>
         <developerConnection>scm:git:git@github.com:hazelcast/hazelcast-jdbc.git</developerConnection>

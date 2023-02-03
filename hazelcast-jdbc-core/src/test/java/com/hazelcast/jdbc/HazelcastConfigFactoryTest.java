@@ -69,14 +69,15 @@ class HazelcastConfigFactoryTest {
     void shouldParseSslConfigs() {
         ClientConfig clientConfig = configFactory.clientConfig(
                 new JdbcUrl("jdbc:hazelcast://localhost:5701/?sslEnabled=true&trustStore=truststore" +
-                        "&trustStorePassword=123abc", null));
+                        "&trustStorePassword=123abc&javax.net.ssl.foo=bar", null));
         ClientConfig expectedConfig = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig()
                         .setAddresses(Collections.singletonList("localhost:5701"))
                         .setSSLConfig(new SSLConfig()
                                 .setEnabled(true)
                                 .setProperty("trustStorePassword", "123abc")
-                                .setProperty("trustStore", "truststore")));
+                                .setProperty("trustStore", "truststore")
+                                .setProperty("javax.net.ssl.foo", "bar")));
 
         assertThat(clientConfig).isEqualTo(expectedConfig);
     }

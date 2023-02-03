@@ -20,6 +20,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -69,6 +70,10 @@ final class JdbcUrl {
 
     public String getProperty(String key) {
         return properties.getProperty(key);
+    }
+
+    public Map<String, String> getProperties() {
+        return (Map) properties;
     }
 
     public String getRawUrl() {
