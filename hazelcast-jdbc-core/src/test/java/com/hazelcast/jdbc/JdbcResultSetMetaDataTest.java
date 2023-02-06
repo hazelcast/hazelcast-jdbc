@@ -40,7 +40,7 @@ class JdbcResultSetMetaDataTest {
 
     private final Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
 
-    public JdbcResultSetMetaDataTest() throws SQLException {
+    JdbcResultSetMetaDataTest() throws SQLException {
     }
 
     @BeforeAll

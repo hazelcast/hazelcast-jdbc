@@ -19,6 +19,7 @@
     </modules>
 
     <properties>
+        <main.basedir>${project.basedir}</main.basedir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -31,6 +32,12 @@
         <maven.gpg.plugin.version>3.0.1</maven.gpg.plugin.version>
         <maven.javadoc.plugin.version>3.4.1</maven.javadoc.plugin.version>
         <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
+
+        <!-- needed for CheckStyle -->
+        <checkstyle.version>8.38</checkstyle.version>
+        <checkstyle.configLocation>${main.basedir}/checkstyle/checkstyle.xml</checkstyle.configLocation>
+        <checkstyle.supressionsLocation>${main.basedir}/checkstyle/suppressions.xml</checkstyle.supressionsLocation>
+        <checkstyle.headerLocation>${main.basedir}/checkstyle/ClassHeaderApache.txt</checkstyle.headerLocation>
     </properties>
 
     <licenses>
@@ -179,22 +186,38 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-checkstyle-plugin</artifactId>
                         <version>${maven.checkstyle.plugin.version}</version>
-                        <configuration>
-                            <!--  Checkstyle file copied from https://github.com/hazelcast/hazelcast/tree/master/checkstyle -->
-                            <failOnViolation>true</failOnViolation>
-                            <configLocation>${project.basedir}/checkstyle/checkstyle.xml</configLocation>
-                            <propertyExpansion>main.basedir=${project.basedir}</propertyExpansion>
-                        </configuration>
                         <executions>
                             <execution>
                                 <phase>validate</phase>
                                 <goals>
-                                    <goal>check</goal>
+                                    <goal>checkstyle</goal>
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <configLocation>${checkstyle.configLocation}</configLocation>
+                            <suppressionsLocation>${checkstyle.supressionsLocation}</suppressionsLocation>
+                            <headerLocation>${checkstyle.headerLocation}</headerLocation>
+                            <enableRSS>false</enableRSS>
+                            <linkXRef>false</linkXRef>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                            <failOnViolation>true</failOnViolation>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                            <enableRulesSummary>true</enableRulesSummary>
+                            <propertyExpansion>main.basedir=${main.basedir}</propertyExpansion>
+                            <excludes>**/module-info.java</excludes>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.puppycrawl.tools</groupId>
+                                <artifactId>checkstyle</artifactId>
+                                <version>${checkstyle.version}</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
 
                 </plugins>

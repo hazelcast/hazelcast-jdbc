@@ -12,6 +12,11 @@
     </parent>
 
     <artifactId>hazelcast-jdbc-core</artifactId>
+
+    <properties>
+        <!-- needed for CheckStyle -->
+        <main.basedir>${project.parent.basedir}</main.basedir>
+    </properties>
   
     <dependencies>
         <dependency>

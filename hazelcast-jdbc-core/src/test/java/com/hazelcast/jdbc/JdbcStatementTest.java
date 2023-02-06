@@ -15,6 +15,7 @@
  */
 package com.hazelcast.jdbc;
 
+import com.hazelcast.internal.util.UuidUtil;
 import com.hazelcast.sql.HazelcastSqlException;
 import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlRow;
@@ -35,7 +36,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -76,7 +76,7 @@ public class JdbcStatementTest {
     @Test
     void shouldFailForQueryOnSqlUpdate() throws SQLException {
         when(client.execute(any())).thenThrow(new HazelcastSqlException(
-                UUID.randomUUID(), -1, "The statement doesn't produce rows", QueryException.error(""), null));
+                UuidUtil.newUnsecureUUID(), -1, "The statement doesn't produce rows", QueryException.error(""), null));
         JdbcStatement statement = new JdbcStatement(client, connection);
 
         assertThatThrownBy(() -> statement.executeQuery("UPDATE person SET name='JOHN' WHERE age=10"))
@@ -87,7 +87,7 @@ public class JdbcStatementTest {
     @Test
     void shouldFailForUpdateOnSqlQuery() throws SQLException {
         when(client.execute(any())).thenThrow(new HazelcastSqlException(
-                UUID.randomUUID(), -1, "The statement doesn't produce update count", QueryException.error(""), null));
+                UuidUtil.newUnsecureUUID(), -1, "The statement doesn't produce update count", QueryException.error(""), null));
         JdbcStatement statement = new JdbcStatement(client, connection);
 
         assertThatThrownBy(() -> statement.executeUpdate("SELECT * FROM person"))

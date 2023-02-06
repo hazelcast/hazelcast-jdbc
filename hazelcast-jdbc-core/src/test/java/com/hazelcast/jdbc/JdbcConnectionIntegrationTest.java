@@ -88,8 +88,8 @@ public class JdbcConnectionIntegrationTest {
     void when_schemaChangedOnConnection_then_shouldNotAffectExistingStatements() throws SQLException {
         // test for https://github.com/hazelcast/hazelcast-jdbc/issues/58
         SqlService sql = member.getSql();
-        sql.execute("CREATE OR REPLACE MAPPING mappings(__key INT, this INT) TYPE IMap " +
-                "OPTIONS('keyFormat'='int', 'valueFormat'='int')");
+        sql.execute("CREATE OR REPLACE MAPPING mappings(__key INT, this INT) TYPE IMap "
+                + "OPTIONS('keyFormat'='int', 'valueFormat'='int')");
 
         Connection connection = new JdbcConnection(client);
         Statement statement = connection.createStatement();

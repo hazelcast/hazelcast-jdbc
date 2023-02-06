@@ -16,11 +16,8 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.config.ClientNetworkConfig;
-import com.hazelcast.client.config.ClientSqlConfig;
 import com.hazelcast.client.config.ClientSqlResubmissionMode;
 import com.hazelcast.client.config.ConnectionRetryConfig;
-import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.config.SSLConfig;
 import com.hazelcast.security.UsernamePasswordCredentials;
 

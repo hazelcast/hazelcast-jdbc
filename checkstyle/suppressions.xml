@@ -24,4 +24,24 @@
     <suppress files="com.hazelcast.jdbc.(JdbcResultSet|JdbcConnection|JdbcStatement|JdbcPreparedStatement|JdbcDataBaseMetadata)"
               checks="MethodCount"/>
     <suppress files="com.hazelcast.jdbc.JdbcDataBaseMetadata" checks="FileLength"/>
+
+    <suppress
+            checks="FileLength|MethodLength|LineLength|AnonInnerLength|MethodCount|ReturnCount|ExecutableStatementCount"
+            files="[\\/]src[\\/]test[\\/]"/>
+    <suppress
+            checks="Javadoc|MagicNumber|ClassDataAbstractionCoupling|ClassFanOutComplexityCheck|IllegalImport|IllegalType"
+            files="[\\/]src[\\/]test[\\/]"/>
+    <suppress
+            checks="NPathComplexity|CyclomaticComplexity|BooleanExpressionComplexity"
+            files="[\\/]src[\\/]test[\\/]"/>
+    <suppress
+            checks="TypeName|MemberName|ConstantName|LocalVariableName|LocalFinalVariableName|MethodName"
+            files="[\\/]src[\\/]test[\\/]"/>
+    <suppress
+            checks="FinalClass|HideUtilityClassConstructor|InnerAssignment|EmptyBlock|DeclarationOrder|VisibilityModifier"
+            files="[\\/]src[\\/]test[\\/]"/>
+    <suppress
+            checks="ExplicitInitialization|EqualsHashCode|MissingSwitchDefault|TrailingComment"
+            files="[\\/]src[\\/]test[\\/]"/>
+
 </suppressions>
