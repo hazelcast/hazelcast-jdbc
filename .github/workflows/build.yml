@@ -25,4 +25,4 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        run: mvn clean package -V -B -P checkstyle,findbugs
+        run: ./mvnw clean package -V -B -P checkstyle,findbugs

@@ -41,20 +41,20 @@ jobs:
 
       - name: Prepare Deployment
         run: |
-          mvn versions:set -B -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.release-version }}
+          ./mvnw versions:set -B -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.release-version }}
           git commit -am "Set version to ${{ github.event.inputs.release-version }}"
           git tag v${{ github.event.inputs.release-version }}
-          mvn clean install -V -B
+          ./mvnw clean install -V -B
 
       - name: Deploy OS with Maven
-        run: mvn -V -B deploy -Djdbc-release -DskipTests
+        run: ./mvnw -V -B deploy -Djdbc-release -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.SONATYPE_OSS_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.SONATYPE_OSS_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
       - name: Deploy EE with Maven
-        run: mvn -f hazelcast-jdbc-enterprise -V -B deploy -Djdbc-release -DskipTests
+        run: ./mvnw -f hazelcast-jdbc-enterprise -V -B deploy -Djdbc-release -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.JFROG_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
@@ -62,7 +62,7 @@ jobs:
 
       - name: Finish Deployment
         run: |
-          mvn versions:set -B -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.next-snapshot-version }}
+          ./mvnw versions:set -B -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.next-snapshot-version }}
           git commit -am "Set version to ${{ github.event.inputs.next-snapshot-version }}"
           git push origin v${{ github.event.inputs.release-version }}
           if [ -n "${{ github.event.inputs.release-branch }}" ]; then
