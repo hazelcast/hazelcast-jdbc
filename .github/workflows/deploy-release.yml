@@ -37,8 +37,8 @@ jobs:
 
       - name: Build OS with Maven
         run: |
-          mvn -V -B install
-          mvn -V -B deploy -Djdbc-release -DskipTests
+          ./mvnw -V -B install
+          ./mvnw -V -B deploy -Djdbc-release -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.SONATYPE_OSS_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.SONATYPE_OSS_PASSWORD }}
@@ -47,7 +47,7 @@ jobs:
       - name: Build EE with Maven
         run: |
           cd hazelcast-jdbc-enterprise
-          mvn -V -B deploy -Djdbc-release -DskipTests
+          ./mvnw -V -B deploy -Djdbc-release -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.JFROG_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
