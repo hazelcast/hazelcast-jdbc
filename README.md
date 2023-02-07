@@ -110,7 +110,7 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 | password       | String  | Hazelcast cluster password      |
 | clusterName    | String  | Hazelcast cluster name          |
 | discoveryToken | String  | Hazelcast Cloud discovery token |
-| cloutUrl       | String  | Hazelcast Cloud URL             |
+| cloudUrl       | String  | Hazelcast Cloud URL             |
 
 #### SSL properties
 | Property                | Type    | Description                                                              |
