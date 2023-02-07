@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2023, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,15 @@
 package com.hazelcast.jdbc;
 
 import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.config.ClientNetworkConfig;
-import com.hazelcast.client.config.ClientSqlConfig;
 import com.hazelcast.client.config.ClientSqlResubmissionMode;
 import com.hazelcast.client.config.ConnectionRetryConfig;
-import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.config.SSLConfig;
 import com.hazelcast.security.UsernamePasswordCredentials;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -70,6 +68,8 @@ class HazelcastConfigFactory {
         map.put("sslEnabled", (c, p) -> sslConfig(c, (ssl) -> ssl.setEnabled(p.equalsIgnoreCase("true"))));
         map.put("trustStore", (c, p) -> sslConfig(c, "trustStore", p));
         map.put("trustStorePassword", (c, p) -> sslConfig(c, "trustStorePassword", p));
+        map.put("keyStore", (c, p) -> sslConfig(c, "keyStore", p));
+        map.put("keyStorePassword", (c, p) -> sslConfig(c, "keyStorePassword", p));
         map.put("protocol", (c, p) -> sslConfig(c, "protocol", p));
         map.put("trustCertCollectionFile", (c, p) -> sslConfig(c, "trustCertCollectionFile", p));
         map.put("keyFile", (c, p) -> sslConfig(c, "keyFile", p));
@@ -103,7 +103,8 @@ class HazelcastConfigFactory {
     }
 
     ClientConfig clientConfig(JdbcUrl url) {
-        ClientConfig clientConfig = securityConfig(url, ClientConfig.load());
+        ClientConfig clientConfig = ClientConfig.load();
+        securityConfig(url, clientConfig);
         String discoveryToken = url.getProperty("discoveryToken");
 
         // JDBC users don't expect the driver to retry forever, if the driver can't connect. If the
@@ -112,38 +113,49 @@ class HazelcastConfigFactory {
         if (connectionRetryConfig.getClusterConnectTimeoutMillis() < 0) {
             connectionRetryConfig.setClusterConnectTimeoutMillis(DEFAULT_CONNECT_TIMEOUT_MILLIS);
         }
+        clientConfig.getSqlConfig().setResubmissionMode(parseSqlResubmissionMode(url, ClientSqlResubmissionMode.NEVER));
 
         if (discoveryToken != null) {
-            return cloudConfig(url, clientConfig, discoveryToken);
+            cloudConfig(url, clientConfig, discoveryToken);
+        } else {
+            clientConfig.getNetworkConfig().setAddresses(url.getAuthorities());
+            clientConfig.getNetworkConfig().setSmartRouting(parseBoolean(url, "smartRouting", true));
         }
-        ClientNetworkConfig networkConfig = new ClientNetworkConfig().setAddresses(url.getAuthorities());
-        networkConfig.setSmartRouting(parseBoolean(url, "smartRouting", networkConfig.isSmartRouting()));
-        clientConfig.setNetworkConfig(networkConfig);
-        ClientSqlConfig sqlConfig = new ClientSqlConfig();
-        sqlConfig.setResubmissionMode(parseSqlResubmissionMode(url, "resubmissionMode", ClientSqlResubmissionMode.NEVER));
-        clientConfig.setSqlConfig(sqlConfig);
+
         CONFIGURATION_MAPPING.forEach((k, v) -> {
             String property = url.getProperty(k);
             if (property != null) {
                 v.accept(clientConfig, property);
             }
         });
+
+        // non-specific SSL properties
+        for (Entry<String, String> en : url.getProperties().entrySet()) {
+            if (en.getKey().startsWith("javax.net.ssl.")) {
+                sslConfig(clientConfig, en.getKey(), en.getValue());
+            }
+        }
+
         return clientConfig;
     }
 
-    private ClientConfig securityConfig(JdbcUrl url, ClientConfig clientConfig) {
+    private void securityConfig(JdbcUrl url, ClientConfig c) {
         String user = url.getProperty("user");
         String password = url.getProperty("password");
         if (user != null || password != null) {
-            clientConfig.getSecurityConfig().setCredentials(new UsernamePasswordCredentials(user, password));
+            c.getSecurityConfig().setCredentials(new UsernamePasswordCredentials(user, password));
         }
-        return clientConfig;
     }
 
-    private ClientConfig cloudConfig(JdbcUrl url, ClientConfig clientConfig, String discoveryToken) {
-        clientConfig.setProperty(ClientProperty.HAZELCAST_CLOUD_DISCOVERY_TOKEN.getName(), discoveryToken);
-        clientConfig.setClusterName(url.getRawAuthority());
-        return clientConfig;
+    private void cloudConfig(JdbcUrl url, ClientConfig c, String discoveryToken) {
+        c.getNetworkConfig().getCloudConfig().setEnabled(true);
+        c.getNetworkConfig().getCloudConfig().setDiscoveryToken(discoveryToken);
+        c.setClusterName(url.getRawAuthority());
+
+        String cloudUrl = url.getProperty("cloudUrl");
+        if (cloudUrl != null) {
+            c.setProperty("hazelcast.client.cloud.url", cloudUrl);
+        }
     }
 
     private static void k8sConfig(ClientConfig clientConfig, String property, String value) {
@@ -193,18 +205,16 @@ class HazelcastConfigFactory {
 
     private static ClientSqlResubmissionMode parseSqlResubmissionMode(
             JdbcUrl url,
-            String key,
             ClientSqlResubmissionMode defaultVal
     ) {
-        String value = url.getProperty(key);
+        String value = url.getProperty("resubmissionMode");
         if (value == null) {
             return defaultVal;
         }
         try {
             return ClientSqlResubmissionMode.valueOf(value);
         } catch (IllegalArgumentException e) {
-            String message = String.format("'%s' not a valid value for '%s'", value, key);
-            throw new RuntimeException(message, e);
+            throw new RuntimeException(String.format("'%s' not a valid value for 'resubmissionMode'", value), e);
         }
     }
 
