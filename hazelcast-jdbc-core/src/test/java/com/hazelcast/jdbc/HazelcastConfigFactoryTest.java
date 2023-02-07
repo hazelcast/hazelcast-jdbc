@@ -19,7 +19,6 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.client.config.ClientSqlConfig;
 import com.hazelcast.client.config.ClientSqlResubmissionMode;
-import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.config.AwsConfig;
 import com.hazelcast.config.GcpConfig;
 import com.hazelcast.config.SSLConfig;
@@ -48,11 +47,11 @@ class HazelcastConfigFactoryTest {
 
     @Test
     void shouldParseDiscoveryToken() {
-        ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://cluster-name/?discoveryToken=token-value-123", null));
-        assertThat(clientConfig).isEqualTo(defaultJdbcClientConfig()
-                .setProperty(ClientProperty.HAZELCAST_CLOUD_DISCOVERY_TOKEN.getName(), "token-value-123")
-                .setClusterName("cluster-name"));
+        ClientConfig clientConfig = configFactory
+                .clientConfig(new JdbcUrl("jdbc:hazelcast://cluster-name/?discoveryToken=token-value-123", null));
+        ClientConfig expectedClientConfig = defaultJdbcClientConfig().setClusterName("cluster-name");
+        expectedClientConfig.getNetworkConfig().getCloudConfig().setEnabled(true).setDiscoveryToken("token-value-123");
+        assertThat(clientConfig).isEqualTo(expectedClientConfig);
     }
 
     @Test
