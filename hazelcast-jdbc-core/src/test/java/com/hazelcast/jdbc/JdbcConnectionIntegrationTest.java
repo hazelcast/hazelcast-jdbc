@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2023, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,8 +88,8 @@ public class JdbcConnectionIntegrationTest {
     void when_schemaChangedOnConnection_then_shouldNotAffectExistingStatements() throws SQLException {
         // test for https://github.com/hazelcast/hazelcast-jdbc/issues/58
         SqlService sql = member.getSql();
-        sql.execute("CREATE OR REPLACE MAPPING mappings(__key INT, this INT) TYPE IMap " +
-                "OPTIONS('keyFormat'='int', 'valueFormat'='int')");
+        sql.execute("CREATE OR REPLACE MAPPING mappings(__key INT, this INT) TYPE IMap "
+                + "OPTIONS('keyFormat'='int', 'valueFormat'='int')");
 
         Connection connection = new JdbcConnection(client);
         Statement statement = connection.createStatement();

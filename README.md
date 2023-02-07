@@ -9,16 +9,36 @@ The JDBC driver version 5.x is compatible with Hazelcast version 5.x. For Hazelc
 ## Download the Driver
 
 ### Binaries
+
+The driver comes in two packages:
+1. `hazelcast-jdbc-{version}.jar` (open source)
+2. `hazelcast-jdbc-enterprise-{version}.jar` (enterprise)
+
+The open source one isn't able to connect to Hazelcast EE clusters, but has an
+open source licence. The latter one uses proprietary licence, and can be used
+for connecting to both OS and EE clusters.
+
 Download directly the JAR file from [Releases](https://github.com/hazelcast/hazelcast-jdbc/releases) page.
 
 ### Maven Central
 
 #### Stable version:
+
+Open source:
 ```xml
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.3</version>
+    <version>5.2.0</version>
+</dependency>
+```
+
+Enterprise:
+```xml
+<dependency>
+    <groupId>com.hazelcast</groupId>
+    <artifactId>hazelcast-jdbc-enterprise</artifactId>
+    <version>5.2.0</version>
 </dependency>
 ```
 
@@ -41,22 +61,40 @@ To download the latest snapshot build (built from the `main` branch) you need to
 </repository>
 ```
 And the dependency:
+
+Open source:
 ```xml
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.3-SNAPSHOT</version>
+    <version>5.2.1-SNAPSHOT</version>
+</dependency>
+```
+
+Enterprise:
+```xml
+<dependency>
+    <groupId>com.hazelcast</groupId>
+    <artifactId>hazelcast-jdbc-enterprise</artifactId>
+    <version>5.2.1-SNAPSHOT</version>
 </dependency>
 ```
 
 ## Connection URL
-The format of the URL must have the following structure, parts in `[]` are optional:
+
+The URL must have the following structure, parts in `[]` are optional:
 ```
 jdbc:hazelcast://host[:port][,host[:port]...]/[?property1=value1[&property2=value2]...]
 ```
+
+For connecting to the Cloud service, use:
+```
+jdbc:hazelcast://cluster-id/discoveryToken=value[&property1=value1[&property2=value2]...]
+```
+
 where:
 * **jdbc:hazelcast:**: (Required) is a sub-protocol and is a constant.
-* **host**: (Required) server address (or addresses separated with comma) to connect to, or the cluster name if the server is
+* **host**: (Required) server address (or addresses separated with comma) to connect to, or the cluster name if the cluster is
 Hazelcast Cloud
 * **port**: (Optional) Server port. Defaults to 5701.
 * **propertyN**: (Optional) List of connection properties in the key-value form.
@@ -66,25 +104,29 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 
 #### Common properties
 
-| Property                       | Type    | Description   |
-| ------------------------------ | ------- | ------------- |
-| user                           | String  | Hazelcast cluster username |
-| password                       | String  | Hazelcast cluster password |
-| clusterName                    | String  | Hazelcast cluster name |
-| discoveryToken                 | String  | Hazelcast Cloud discovery token |
+| Property       | Type    | Description                     |
+|----------------| ------- |---------------------------------|
+| user           | String  | Hazelcast cluster username      |
+| password       | String  | Hazelcast cluster password      |
+| clusterName    | String  | Hazelcast cluster name          |
+| discoveryToken | String  | Hazelcast Cloud discovery token |
+| cloudUrl       | String  | Hazelcast Cloud URL             |
 
 #### SSL properties
-| Property                       | Type    | Description   |
-| ------------------------------ | ------- | ------------- |
-| sslEnabled                     | Boolean | Enable SSL for client connection |
-| trustStore                     | String  | Path to truststore file. Alias for `trustCertCollectionFile` |
-| trustCertCollectionFile        | String  | Path to truststore file. Alias for `trustStore` |
-| trustStorePassword             | String  | Password to unlock the truststore file |
-| protocol                       | String  | Name of the algorithm which is used in your TLS/SSL; default to `TLS` |
-| keyStore                       | String  | Path to your keystore file |
-| keyStorePassword               | String  | Password to access the key from your keystore file |
-| keyCertChainFile               | String  | Path to an X.509 certificate chain file in PEM format |
-| factoryClassName               | String  | Fully qualified class name for the implementation of `SSLContextFactory` |
+| Property                | Type    | Description                                                              |
+|-------------------------| ------- |--------------------------------------------------------------------------|
+| sslEnabled              | Boolean | Enable SSL for client connection                                         |
+| trustStore              | String  | Path to truststore file. Alias for `trustCertCollectionFile`             |
+| trustCertCollectionFile | String  | Path to truststore file. Alias for `trustStore`                          |
+| trustStorePassword      | String  | Password to unlock the truststore file                                   |
+| keyStore                | String  | Path to your keystore file                                               |
+| keyFile                 | String  | Path to your keystore file                                               |
+| keyStorePassword        | String  | Password to access the key from your keystore file                       |
+| protocol                | String  | Name of the algorithm which is used in your TLS/SSL; default to `TLS`    |
+| keyCertChainFile        | String  | Path to an X.509 certificate chain file in PEM format                    |
+| factoryClassName        | String  | Fully qualified class name for the implementation of `SSLContextFactory` |
+| javax.net.ssl.*         | String  | Properties starting with this prefix are passed to `SSLConfig` directly. |
+
 
 #### GCP properties
 | Property                       | Type    | Description   |
@@ -142,6 +184,8 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 #### Hazelcast Cloud Configuration
 For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-name` as a host in
 the URL: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>`.
+
+If you're connecting to [Hazelcast Viridian](https://viridian.hazelcast.com/), also specify `cloudUrl=https://api.viridian.hazelcast.com`. 
 
 #### Additional Configuration
 Besides URL, it is possible to use [Configuration Files](https://docs.hazelcast.com/hazelcast/5.3/configuration/configuring-declaratively) and  [Overriding Configuration](https://docs.hazelcast.com/hazelcast/5.3/configuration/configuring-declaratively#overriding-configuration-with-system-properties-and-environment-variables) to configure the [Hazelcast Java Client](https://docs.hazelcast.com/hazelcast/5.3/clients/java)
