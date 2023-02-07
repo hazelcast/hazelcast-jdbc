@@ -1,29 +1,12 @@
 name: build
 on:
-  pull_request_target:
-    types:
-      - labeled
-    branches:
-      - main
-    paths-ignore:
-      - '**.md'
   pull_request:
-    branches:
-      - main
     paths-ignore:
       - '**.md'
 
 jobs:
   build:
-    if: >-
-      always() && (
-      (github.event_name == 'pull_request_target'
-        && github.event.action == 'labeled'
-        && github.event.label.name == 'safe-to-test'
-        && github.event.pull_request.head.repo.full_name != github.repository)
-      ||
-      (github.event_name == 'pull_request'
-        && github.event.pull_request.head.repo.full_name == github.repository) )
+    if: github.repository_owner == 'hazelcast'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -39,12 +22,7 @@ jobs:
           java-version: ${{ matrix.java }}
           architecture: ${{ matrix.architecture }}
           distribution: ${{ matrix.distribution }}
-
-      - uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          cache: 'maven'
 
       - name: Build with Maven
-        run: mvn package -P checkstyle,findbugs
+        run: mvn clean package -V -B -P checkstyle,findbugs

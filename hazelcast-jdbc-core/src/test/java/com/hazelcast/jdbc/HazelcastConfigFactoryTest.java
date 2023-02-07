@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2020, Hazelcast, Inc. All Rights Reserved.
+ * Copyright (c) 2008-2023, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.client.config.ClientSqlConfig;
 import com.hazelcast.client.config.ClientSqlResubmissionMode;
-import com.hazelcast.client.properties.ClientProperty;
 import com.hazelcast.config.AwsConfig;
 import com.hazelcast.config.GcpConfig;
 import com.hazelcast.config.SSLConfig;
@@ -48,11 +47,11 @@ class HazelcastConfigFactoryTest {
 
     @Test
     void shouldParseDiscoveryToken() {
-        ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://cluster-name/?discoveryToken=token-value-123", null));
-        assertThat(clientConfig).isEqualTo(defaultJdbcClientConfig()
-                .setProperty(ClientProperty.HAZELCAST_CLOUD_DISCOVERY_TOKEN.getName(), "token-value-123")
-                .setClusterName("cluster-name"));
+        ClientConfig clientConfig = configFactory
+                .clientConfig(new JdbcUrl("jdbc:hazelcast://cluster-name/?discoveryToken=token-value-123", null));
+        ClientConfig expectedClientConfig = defaultJdbcClientConfig().setClusterName("cluster-name");
+        expectedClientConfig.getNetworkConfig().getCloudConfig().setEnabled(true).setDiscoveryToken("token-value-123");
+        assertThat(clientConfig).isEqualTo(expectedClientConfig);
     }
 
     @Test
@@ -68,15 +67,16 @@ class HazelcastConfigFactoryTest {
     @Test
     void shouldParseSslConfigs() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://localhost:5701/?sslEnabled=true&trustStore=truststore" +
-                        "&trustStorePassword=123abc", null));
+                new JdbcUrl("jdbc:hazelcast://localhost:5701/?sslEnabled=true&trustStore=truststore"
+                        + "&trustStorePassword=123abc&javax.net.ssl.foo=bar", null));
         ClientConfig expectedConfig = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig()
                         .setAddresses(Collections.singletonList("localhost:5701"))
                         .setSSLConfig(new SSLConfig()
                                 .setEnabled(true)
                                 .setProperty("trustStorePassword", "123abc")
-                                .setProperty("trustStore", "truststore")));
+                                .setProperty("trustStore", "truststore")
+                                .setProperty("javax.net.ssl.foo", "bar")));
 
         assertThat(clientConfig).isEqualTo(expectedConfig);
     }
@@ -84,10 +84,10 @@ class HazelcastConfigFactoryTest {
     @Test
     void shouldParseAwsConfigs() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://localhost:5701/?awsTagKey=tagkey&awsTagValue=tagValue" +
-                        "&awsAccessKey=accessKey&awsSecretKey=secretKey&awsIamRole=ADMIN&awsRegion=us-west-2&awsHostHeader=ec2" +
-                        "&awsSecurityGroupName=securityGroup&awsConnectionTimeoutSeconds=10&awsReadTimeoutSeconds=5" +
-                        "&awsConnectionRetries=3&awsHzPort=5801-5808&awsUsePublicIp=true", null));
+                new JdbcUrl("jdbc:hazelcast://localhost:5701/?awsTagKey=tagkey&awsTagValue=tagValue"
+                        + "&awsAccessKey=accessKey&awsSecretKey=secretKey&awsIamRole=ADMIN&awsRegion=us-west-2&awsHostHeader=ec2"
+                        + "&awsSecurityGroupName=securityGroup&awsConnectionTimeoutSeconds=10&awsReadTimeoutSeconds=5"
+                        + "&awsConnectionRetries=3&awsHzPort=5801-5808&awsUsePublicIp=true", null));
 
         ClientConfig expectedConfig = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig()
@@ -112,9 +112,9 @@ class HazelcastConfigFactoryTest {
     @Test
     void shouldParseGcpConfigs() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://localhost:5701/?gcpPrivateKeyPath=/home/name/service/account/key.json" +
-                        "&gcpProjects=project-1,project-2&gcpRegion=us-east1&gcpHzPort=5701-5708" +
-                        "&gcpLabel=application=hazelcast&gcpUsePublicIp=true", null));
+                new JdbcUrl("jdbc:hazelcast://localhost:5701/?gcpPrivateKeyPath=/home/name/service/account/key.json"
+                        + "&gcpProjects=project-1,project-2&gcpRegion=us-east1&gcpHzPort=5701-5708"
+                        + "&gcpLabel=application=hazelcast&gcpUsePublicIp=true", null));
         ClientConfig expectedConfig = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig()
                         .setAddresses(Collections.singletonList("localhost:5701"))
@@ -133,9 +133,9 @@ class HazelcastConfigFactoryTest {
     @Test
     void shouldParseGcpConfigsWithMultipleLabels() {
         ClientConfig clientConfig = configFactory.clientConfig(
-                new JdbcUrl("jdbc:hazelcast://localhost:5701/?gcpPrivateKeyPath=/home/name/service/account/key.json" +
-                        "&gcpProjects=project-1,project-2&gcpRegion=us-east1&gcpHzPort=5701-5708" +
-                        "&gcpLabel=application=hazelcast,other=value&gcpUsePublicIp=true", null));
+                new JdbcUrl("jdbc:hazelcast://localhost:5701/?gcpPrivateKeyPath=/home/name/service/account/key.json"
+                        + "&gcpProjects=project-1,project-2&gcpRegion=us-east1&gcpHzPort=5701-5708"
+                        + "&gcpLabel=application=hazelcast,other=value&gcpUsePublicIp=true", null));
         ClientConfig expectedConfig = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig()
                         .setAddresses(Collections.singletonList("localhost:5701"))
@@ -172,16 +172,16 @@ class HazelcastConfigFactoryTest {
     void shouldParseSmartRouting() {
         String localMember = "localhost:5701";
         String baseUrl = "jdbc:hazelcast://" + localMember + "/";
-        
+
         ClientConfig clientConfigWithout = configFactory.clientConfig(
                 new JdbcUrl(baseUrl, null));
         ClientConfig clientConfigTrue = configFactory.clientConfig(
                 new JdbcUrl(baseUrl + "?smartRouting=true", null));
         ClientConfig clientConfigFalse = configFactory.clientConfig(
                 new JdbcUrl(baseUrl + "?smartRouting=false", null));
-        
+
         List<String> addresses = Collections.singletonList(localMember);
-        
+
         ClientConfig expectedClientConfigWithout = defaultJdbcClientConfig()
                 .setNetworkConfig(new ClientNetworkConfig()
                         .setAddresses(addresses));
@@ -271,7 +271,7 @@ class HazelcastConfigFactoryTest {
         String localMember = "localhost:5701";
         String baseUrl = "jdbc:hazelcast://" + localMember + "/";
         String propertyName = System.getProperty("user.name");
-        
+
         JdbcUrl urlNone = new JdbcUrl(baseUrl, null);
         JdbcUrl urlTrue = new JdbcUrl(baseUrl + "?" + propertyName + "=true", null);
         JdbcUrl urlFalse = new JdbcUrl(baseUrl + "?" + propertyName + "=false", null);
@@ -281,7 +281,7 @@ class HazelcastConfigFactoryTest {
         boolean resultNoneFalse = HazelcastConfigFactory.parseBoolean(urlNone, propertyName, false);
         boolean resultTrue = HazelcastConfigFactory.parseBoolean(urlTrue, propertyName, false);
         boolean resultFalse = HazelcastConfigFactory.parseBoolean(urlFalse, propertyName, true);
-        
+
         assertThat(resultNoneTrue).as("resultNoneTrue").isEqualTo(true);
         assertThat(resultNoneFalse).as("resultNoneFalse").isEqualTo(false);
         assertThat(resultTrue).as("resultTrue").isEqualTo(true);
@@ -289,7 +289,7 @@ class HazelcastConfigFactoryTest {
         assertThatExceptionOfType(RuntimeException.class)
         .as("resultOther")
         .isThrownBy(() -> HazelcastConfigFactory.parseBoolean(urlOther, propertyName, true));
-    }    
+    }
 
     private ClientConfig defaultJdbcClientConfig() {
         ClientConfig config = ClientConfig.load();
