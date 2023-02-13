@@ -48,9 +48,7 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
       - name: Deploy EE with Maven
-        run: |
-          cd hazelcast-jdbc-enterprise
-          ./mvnw -V -B deploy -Djdbc-release -DskipTests
+        run: ./mvnw -f hazelcast-jdbc-enterprise -V -B deploy -Djdbc-release -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.JFROG_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.JFROG_PASSWORD }}

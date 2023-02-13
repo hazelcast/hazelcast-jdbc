@@ -80,6 +80,14 @@
         <url>http://www.hazelcast.com/</url>
     </organization>
 
+    <developers>
+        <developer>
+            <id>viliam-durina</id>
+            <name>Viliam Durina</name>
+            <email>viliam@hazelcast.com</email>
+        </developer>
+    </developers>
+
     <repositories>
         <repository>
             <id>snapshot-repository</id>
