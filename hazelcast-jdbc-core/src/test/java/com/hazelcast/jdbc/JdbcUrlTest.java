@@ -16,7 +16,11 @@
 package com.hazelcast.jdbc;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,14 +29,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JdbcUrlTest {
 
-    @Test
-    void acceptsUrl_when_validUrl_then_true() {
-        assertThat(JdbcUrl.acceptsUrl("jdbc:hazelcast://localhost:5701/")).isTrue();
+    public static List<String> parameters() {
+        return Arrays.asList("hazelcast", "zdih");
     }
 
-    @Test
-    void acceptsUrl_when_validPrefixInvalidUrl_then_true() {
-        assertThat(JdbcUrl.acceptsUrl("jdbc:hazelcast:foo")).isTrue();
+    @ParameterizedTest
+    @MethodSource("parameters")
+    void acceptsUrl_when_validUrl_then_true(String productName) {
+        assertThat(JdbcUrl.acceptsUrl("jdbc:" + productName + "://localhost:5701/")).isTrue();
+    }
+
+    @ParameterizedTest
+    @MethodSource("parameters")
+    void acceptsUrl_when_validPrefixInvalidUrl_then_true(String productName) {
+        assertThat(JdbcUrl.acceptsUrl("jdbc:" + productName + ":foo")).isTrue();
     }
 
     @Test
@@ -46,39 +56,43 @@ class JdbcUrlTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test
-    void test_propertyParsing() {
-        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost:5701/?prop1=val1&prop2=val2", new Properties());
+    @ParameterizedTest
+    @MethodSource("parameters")
+    void test_propertyParsing(String productName) {
+        JdbcUrl url = new JdbcUrl("jdbc:" + productName + "://localhost:5701/?prop1=val1&prop2=val2", new Properties());
 
         assertThat(url).isNotNull();
         assertThat(url.getAuthorities()).contains("localhost:5701");
         assertThat(url.getProperty("prop1")).isEqualTo("val1");
 
-        JdbcUrl urlWithoutPort = new JdbcUrl("jdbc:hazelcast://clustername/", new Properties());
+        JdbcUrl urlWithoutPort = new JdbcUrl("jdbc:" + productName + "://clustername/", new Properties());
         assertThat(urlWithoutPort).isNotNull();
         assertThat(urlWithoutPort.getAuthorities()).contains("clustername");
     }
 
-    @Test
-    void test_propertyParsing_withEscaping() {
-        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://local%68ost:5701/?a=%26&b%3d=c", new Properties());
+    @ParameterizedTest
+    @MethodSource("parameters")
+    void test_propertyParsing_withEscaping(String productName) {
+        JdbcUrl url = new JdbcUrl("jdbc:" + productName + "://local%68ost:5701/?a=%26&b%3d=c", new Properties());
         assertThat(url).isNotNull();
         assertThat(url.getAuthorities()).containsExactly("localhost:5701");
         assertThat(url.getProperty("a")).isEqualTo("&");
         assertThat(url.getProperty("b=")).isEqualTo("c");
     }
 
-    @Test
-    public void when_sameKeyInUrlAndProperties_then_thatFromUrlTakesPrecedence() {
+    @ParameterizedTest
+    @MethodSource("parameters")
+    public void when_sameKeyInUrlAndProperties_then_thatFromUrlTakesPrecedence(String productName) {
         Properties props = new Properties();
         props.setProperty("a", "foo");
-        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost/?a=bar", props);
+        JdbcUrl url = new JdbcUrl("jdbc:" + productName + "://localhost/?a=bar", props);
         assertEquals("bar", url.getProperty("a"));
     }
 
-    @Test
-    public void when_duplicateKeyInUrl_then_lastOccurrenceUsed() {
-        JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost/?a=foo&a=bar", null);
+    @ParameterizedTest
+    @MethodSource("parameters")
+    public void when_duplicateKeyInUrl_then_lastOccurrenceUsed(String productName) {
+        JdbcUrl url = new JdbcUrl("jdbc:" + productName + "://localhost/?a=foo&a=bar", null);
         assertEquals("bar", url.getProperty("a"));
     }
 }

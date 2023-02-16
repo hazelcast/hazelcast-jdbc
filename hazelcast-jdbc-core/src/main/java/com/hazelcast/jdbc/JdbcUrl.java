@@ -27,8 +27,9 @@ import java.util.regex.Pattern;
 
 final class JdbcUrl {
 
-    private static final String PREFIX = "jdbc:hazelcast:";
-    private static final Pattern JDBC_URL_PATTERN = Pattern.compile(PREFIX + "//"
+    private static final String PREFIX_HZ = "jdbc:hazelcast:";
+    private static final String PREFIX_ZDIH = "jdbc:zdih:";
+    private static final Pattern JDBC_URL_PATTERN = Pattern.compile("(" + PREFIX_HZ + "|" + PREFIX_ZDIH + ")//"
             + "(?<authority>\\S+?)/?"
             + "(\\?(?<parameters>\\S*))?");
 
@@ -85,7 +86,7 @@ final class JdbcUrl {
     }
 
     static boolean acceptsUrl(String url) {
-        return url.startsWith(PREFIX);
+        return url.startsWith(PREFIX_HZ) || url.startsWith(PREFIX_ZDIH);
     }
 
     private static String decodeUrl(String raw) {
