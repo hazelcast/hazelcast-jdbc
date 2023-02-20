@@ -422,12 +422,14 @@
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>${maven.javadoc.plugin.version}</version>
                         <configuration>
-                            <maxmemory>1024</maxmemory>
                             <doclint>none</doclint>
+                            <includeDependencySources>true</includeDependencySources>
+                            <dependencySourceIncludes>
+                                <dependencySourceInclude>com.hazelcast:hazelcast-jdbc-core</dependencySourceInclude>
+                            </dependencySourceIncludes>
                         </configuration>
                         <executions>
                             <execution>
-                                <id>attach-javadocs</id>
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
@@ -450,11 +452,34 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <configuration>
+                            <createSourcesJar>true</createSourcesJar>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
         </profile>
     </profiles>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>findbugs-annotations</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <distributionManagement>
         <repository>
