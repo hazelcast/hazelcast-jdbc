@@ -22,7 +22,7 @@ Download directly the JAR file from [Releases](https://github.com/hazelcast/haze
 
 ### Maven Central
 
-#### Stable version:
+#### Stable versions
 
 Open source:
 ```xml
@@ -33,16 +33,32 @@ Open source:
 </dependency>
 ```
 
-Enterprise:
+Enterprise (located in Hazelcast Maven repository):
 ```xml
-<dependency>
-    <groupId>com.hazelcast</groupId>
-    <artifactId>hazelcast-jdbc-enterprise</artifactId>
-    <version>5.2.0</version>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>com.hazelcast</groupId>
+        <artifactId>hazelcast-jdbc-enterprise</artifactId>
+        <version>5.2.0</version>
+    </dependency>
+</dependencies>
+
+<repositories>
+    <repository>
+        <id>hazelcast-release</id>
+        <name>Hazelcast Repository</name>
+        <url>https://repository.hazelcast.com/release/</url>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+    </repository>
+</repositories>
 ```
 
-#### Release 4.2 (for Hazelcast 4.2, SQL in Beta):
+#### Release 4.2 (for Hazelcast 4.2, SQL in Beta)
 ```xml
 <dependency>
     <groupId>com.hazelcast</groupId>
@@ -51,33 +67,58 @@ Enterprise:
 </dependency>
 ```
 
-#### Snapshot version:
-To download the latest snapshot build (built from the `main` branch) you need to add the snapshot repository:
-```xml
-<repository>
-    <id>snapshot-repository</id>
-    <name>Maven2 Snapshot Repository</name>
-    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-</repository>
-```
-And the dependency:
+#### Snapshot versions
+To download the latest snapshot build you need to add
+the dependency and also the snapshot repository.
 
 Open source:
 ```xml
-<dependency>
-    <groupId>com.hazelcast</groupId>
-    <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.3.0-SNAPSHOT</version>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>com.hazelcast</groupId>
+        <artifactId>hazelcast-jdbc</artifactId>
+        <version>5.3.0-SNAPSHOT</version>
+    </dependency>
+</dependencies>
+
+<repositories>
+    <repository>
+        <id>snapshot-repository</id>
+        <name>Maven Snapshot Repository</name>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
 ```
 
 Enterprise:
 ```xml
-<dependency>
-    <groupId>com.hazelcast</groupId>
-    <artifactId>hazelcast-jdbc-enterprise</artifactId>
-    <version>5.3.0-SNAPSHOT</version>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>com.hazelcast</groupId>
+        <artifactId>hazelcast-jdbc-enterprise</artifactId>
+        <version>5.3.0-SNAPHSOT</version>
+    </dependency>
+</dependencies>
+
+<repositories>
+    <repository>
+        <id>hazelcast-snapshots</id>
+        <name>Hazelcast Snapshot Repository</name>
+        <url>https://repository.hazelcast.com/snapshot/</url>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
 ```
 
 ## Connection URL
