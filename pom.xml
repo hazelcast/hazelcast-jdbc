@@ -133,6 +133,25 @@
                     <suppressionFiles>owasp-check-suppressions.xml</suppressionFiles>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-third-party</id>
+                        <goals>
+                            <goal>add-third-party</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <fileTemplate>${main.basedir}/src/thirdparty.ftl</fileTemplate>
+                    <thirdPartyFilename>${project.artifactId}-${project.version}-thirdparty.txt</thirdPartyFilename>
+                    <excludedScopes>test,provided</excludedScopes>
+                </configuration>
+            </plugin>
+
         </plugins>
         <pluginManagement>
             <plugins>
