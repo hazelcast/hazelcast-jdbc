@@ -46,18 +46,18 @@ jobs:
           git tag v${{ github.event.inputs.release-version }}
           mvn clean install -V -B
 
-      - name: Deploy OS with Maven
-        run: mvn -V -B deploy -Djdbc-release -DskipTests
-        env:
-          MAVEN_USERNAME: ${{ secrets.SONATYPE_OSS_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.SONATYPE_OSS_PASSWORD }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-
       - name: Deploy EE with Maven
         run: mvn -f hazelcast-jdbc-enterprise -V -B deploy -Djdbc-release -DskipTests -DskipStaging
         env:
           MAVEN_USERNAME: ${{ secrets.JFROG_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+      - name: Deploy OS with Maven
+        run: mvn -V -B deploy -Djdbc-release -DskipTests
+        env:
+          MAVEN_USERNAME: ${{ secrets.SONATYPE_OSS_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.SONATYPE_OSS_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
       - name: Finish Deployment
