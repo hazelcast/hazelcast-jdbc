@@ -128,14 +128,14 @@ The URL must have the following structure, parts in `[]` are optional:
 jdbc:hazelcast://host[:port][,host[:port]...]/[?property1=value1[&property2=value2]...]
 ```
 
-For Viridian cluster connections, use:
+To connect to a Viridian Serverless cluster, use:
 ```
 jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.viridian.hazelcast.com&sslEnabled=true`
 ```
-Note that Viridian requires further client TLS configuration, as described [below](https://github.com/hazelcast/hazelcast-jdbc#hazelcast-cloud-configuration).
+Note: Viridian Serverless clusters require [additional client configuration for TLS](https://github.com/hazelcast/hazelcast-jdbc#hazelcast-cloud-configuration).
 
 
-For connecting to the legacy Cloud service, use:
+To connect to the legacy Cloud service, use:
 ```
 jdbc:hazelcast://cluster-id/discoveryToken=value[&property1=value1[&property2=value2]...]
 ```
@@ -233,9 +233,9 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-name` as a host in
 the URL: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>`.
 
-If you're connecting to [Hazelcast Viridian](https://viridian.hazelcast.com/), also specify `cloudUrl=https://api.viridian.hazelcast.com` and `sslEnabled=true`: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.viridian.hazelcast.com&sslEnabled=true`. 
+If you're connecting to a [Viridian Serverless cluster](https://viridian.hazelcast.com/), also specify `cloudUrl=https://api.viridian.hazelcast.com` and `sslEnabled=true`: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.viridian.hazelcast.com&sslEnabled=true`. 
 
-TLS is mandatory for Viridian cluster connections so pass TLS properties such as truststore, keystore etc along to `DriverManager.getConnection()`.
+TLS is mandatory for Viridian Serverless cluster connections so pass TLS properties such as truststore, keystore etc along to `DriverManager.getConnection()`.
 
 #### Additional Configuration
 Besides URL, it is possible to use [Configuration Files](https://docs.hazelcast.com/hazelcast/5.3/configuration/configuring-declaratively) and  [Overriding Configuration](https://docs.hazelcast.com/hazelcast/5.3/configuration/configuring-declaratively#overriding-configuration-with-system-properties-and-environment-variables) to configure the [Hazelcast Java Client](https://docs.hazelcast.com/hazelcast/5.3/clients/java)
