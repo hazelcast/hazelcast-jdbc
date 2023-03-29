@@ -82,9 +82,11 @@
 
     <developers>
         <developer>
-            <id>viliam-durina</id>
-            <name>Viliam Durina</name>
-            <email>viliam@hazelcast.com</email>
+            <id>hazelcast-team</id>
+            <name>Hazelcast team</name>
+            <email>info@hazelcast.com</email>
+            <organization>Hazelcast, Inc.</organization>
+            <organizationUrl>https://hazelcast.com</organizationUrl>
         </developer>
     </developers>
 
