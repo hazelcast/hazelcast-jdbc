@@ -130,7 +130,7 @@ jdbc:hazelcast://host[:port][,host[:port]...]/[?property1=value1[&property2=valu
 
 To connect to a Viridian Serverless cluster, use:
 ```
-jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.viridian.hazelcast.com&sslEnabled=true`
+jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.viridian.hazelcast.com&sslEnabled=true
 ```
 Note: Viridian Serverless clusters require [additional client configuration for TLS](https://github.com/hazelcast/hazelcast-jdbc#hazelcast-cloud-configuration).
 
