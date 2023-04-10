@@ -130,7 +130,7 @@ jdbc:hazelcast://host[:port][,host[:port]...]/[?property1=value1[&property2=valu
 
 To connect to a Viridian Serverless cluster, use:
 ```
-jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.viridian.hazelcast.com&sslEnabled=true
+jdbc:hazelcast://<cluster-id>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.viridian.hazelcast.com&sslEnabled=true
 ```
 Note: Viridian Serverless clusters require [additional client configuration for TLS](https://github.com/hazelcast/hazelcast-jdbc#hazelcast-cloud-configuration).
 
@@ -142,8 +142,8 @@ jdbc:hazelcast://cluster-id/discoveryToken=value[&property1=value1[&property2=va
 
 where:
 * **jdbc:hazelcast:**: (Required) is a sub-protocol and is a constant.
-* **host**: (Required) server address (or addresses separated with comma) to connect to, or the cluster name if the cluster is
-Hazelcast Cloud
+* **host**: (Required) server address (or addresses separated with comma) to connect to, or the `cluster id` if the cluster is
+in Hazelcast Viridian/Cloud (in which case you can find it in the Connect Client - Advanced Setup dialog).
 * **port**: (Optional) Server port. Defaults to 5701.
 * **propertyN**: (Optional) List of connection properties in the key-value form.
 
@@ -230,10 +230,10 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 | resubmissionMode               | String  | Strategy to retry failed queries. Valid values are: `NEVER` (the default), `RETRY_SELECTS`, `RETRY_SELECTS_ALLOW_DUPLICATES` and `RETRY_ALL`.                                           |
 
 #### Hazelcast Cloud Configuration
-For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-name` as a host in
-the URL: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>`.
+For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-id` as a host in
+the URL: `jdbc:hazelcast://<cluster-id>/?discoveryToken=<yourDiscoveryToken>`.
 
-If you're connecting to a [Viridian Serverless cluster](https://viridian.hazelcast.com/), also specify `cloudUrl=https://api.viridian.hazelcast.com` and `sslEnabled=true`: `jdbc:hazelcast://<cluster-name>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.viridian.hazelcast.com&sslEnabled=true`. 
+If you're connecting to a [Viridian Serverless cluster](https://viridian.hazelcast.com/), also specify `cloudUrl=https://api.viridian.hazelcast.com` and `sslEnabled=true`: `jdbc:hazelcast://<cluster-id>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.viridian.hazelcast.com&sslEnabled=true`. 
 
 TLS is mandatory for Viridian Serverless cluster connections so pass TLS properties such as truststore, keystore etc along to `DriverManager.getConnection()`.
 
