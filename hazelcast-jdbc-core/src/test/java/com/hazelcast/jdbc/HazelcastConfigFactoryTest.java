@@ -270,7 +270,8 @@ class HazelcastConfigFactoryTest {
     void shouldParseBinary() {
         String localMember = "localhost:5701";
         String baseUrl = "jdbc:hazelcast://" + localMember + "/";
-        String propertyName = System.getProperty("user.name");
+        // Windows usernames may contain spaces.
+        String propertyName = System.getProperty("user.name").replaceAll("\\s", "");
 
         JdbcUrl urlNone = new JdbcUrl(baseUrl, null);
         JdbcUrl urlTrue = new JdbcUrl(baseUrl + "?" + propertyName + "=true", null);

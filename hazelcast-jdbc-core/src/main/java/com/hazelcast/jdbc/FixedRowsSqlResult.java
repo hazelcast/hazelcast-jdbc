@@ -62,6 +62,11 @@ public class FixedRowsSqlResult extends AbstractSqlResult {
     }
 
     @Override
+    public int getPartitionArgumentIndex() {
+        return -1;
+    }
+
+    @Override
     public ResultIterator<SqlRow> iterator() {
         return new FixedRowsSqlResultIterator(this.rows.iterator());
     }
