@@ -755,7 +755,7 @@ public class JdbcDataBaseMetadata implements DatabaseMetaData {
                 new SqlColumnMetadata("TABLE_CATALOG", SqlColumnType.VARCHAR, true)
         ));
 
-        final List<SqlRow> rows = singletonList(makeSqlRow(new Object[]{"public", "hazelcast", "information_schema"}, metadata));
+        final List<SqlRow> rows = singletonList(makeSqlRow(new Object[]{"public", "hazelcast"}, metadata));
 
         return new JdbcResultSet(new FixedRowsSqlResult(metadata, rows), new JdbcStatement(null, connection));
     }
