@@ -346,6 +346,12 @@ class JdbcDataBaseMetadataTest {
                 dbMetaData.getPseudoColumns(null, null, null, null));
     }
 
+    @Test
+    public void test_getSchemas() throws SQLException {
+        assertsResultsExactly(singletonList(asList("public", "hazelcast")),
+                dbMetaData.getSchemas());
+    }
+
     private void assertsResultsExactly(List<List<Object>> expectedRows, ResultSet resultSet) throws SQLException {
         int columnCount = resultSet.getMetaData().getColumnCount();
         List<List<Object>> actualRows = new ArrayList<>();
