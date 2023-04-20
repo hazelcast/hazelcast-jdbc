@@ -39,7 +39,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <hazelcast.version>5.3.0-SNAPSHOT</hazelcast.version>
+        <hazelcast.version>5.3.0-BETA-2</hazelcast.version>
         <mockito.version>4.11.0</mockito.version>
         <maven.jacoco.plugin.version>0.8.8</maven.jacoco.plugin.version>
         <maven.findbugs.plugin.version>3.0.5</maven.findbugs.plugin.version>
