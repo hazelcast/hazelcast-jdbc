@@ -26,6 +26,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.release-branch }}
+          token: ${{ secrets.GH_PAT }}
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
