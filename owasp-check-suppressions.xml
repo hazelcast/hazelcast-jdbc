@@ -7,4 +7,18 @@
         <packageUrl regex="true">^pkg:maven/com\.hazelcast\.marketing/hazelcast\-license\-extractor@.*$</packageUrl>
         <cpe>cpe:/a:hazelcast:hazelcast</cpe>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+        False positive - json version 20230227 have already fix for listed CVE.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.json/json@20230227.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        False positive. The flaws are relatated to the Hazelcast version and not the jsurfer.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.hazelcast\.jsurfer/jsurfer\-.*$</packageUrl>
+        <cpe>cpe:/a:hazelcast:hazelcast</cpe>
+    </suppress>
 </suppressions>
