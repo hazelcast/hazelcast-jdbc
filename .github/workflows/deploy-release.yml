@@ -73,7 +73,7 @@ jobs:
           fi
 
       - name: Upload OS binaries to the GitHub release
-        uses: svenstaro/upload-release-action@7319e4733ec7a184d739a6f412c40ffc339b69c7
+        uses: svenstaro/upload-release-action@58d525808845e4c8ff229ea1d5d7c496504a79bc
         with:
           file: hazelcast-jdbc/target/hazelcast-jdbc-*.jar
           file_glob: true
