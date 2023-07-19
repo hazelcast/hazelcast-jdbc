@@ -108,3 +108,6 @@ out/
 atlassian-ide-plugin.xml
 
 hazelcast-jdbc.iml
+hazelcast-jdbc-root.iml
+hazelcast-jdbc-core/hazelcast-jdbc-core.iml
+hazelcast-jdbc-enterprise/hazelcast-jdbc-enterprise.iml
