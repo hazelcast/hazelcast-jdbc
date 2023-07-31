@@ -21,6 +21,17 @@ jobs:
   do-release:
     if: github.repository_owner == 'hazelcast'
     runs-on: ubuntu-latest
+    services:
+      hazelcast:
+        image: hazelcast/hazelcast
+        ports:
+          - 6701:5701
+      hazelcast-ee:
+        image: hazelcast/hazelcast-enterprise
+        ports:
+          - 6702:5701
+        env:
+          HZ_LICENSEKEY: ${{ secrets.HZ_ENTERPRISE_LICENSE }}
     name: Build and release version
     steps:
       - uses: actions/checkout@v3
@@ -46,6 +57,18 @@ jobs:
           git commit -am "Set version to ${{ github.event.inputs.release-version }}"
           git tag v${{ github.event.inputs.release-version }}
           mvn clean install -V -B
+
+      - name: Build and run smoke test
+        timeout-minutes: 2
+        run: |
+          mvn clean package -V -B -Psmoke-test -DskipTests
+          java -cp smoke-test/target/smoke-test-${{ github.event.inputs.release-version }}.jar:hazelcast-jdbc/target/hazelcast-jdbc-${{ github.event.inputs.release-version }}.jar com.hazelcast.smoke.test.SmokeTestDriver 6701
+
+      - name: Build and run ee smoke test
+        timeout-minutes: 2
+        run: |
+          mvn clean package -V -B -Psmoke-test-ee -DskipTests
+          java -cp smoke-test/target/smoke-test-${{ github.event.inputs.release-version }}.jar:hazelcast-jdbc-enterprise/target/hazelcast-jdbc-enterprise-${{ github.event.inputs.release-version }}.jar com.hazelcast.smoke.test.SmokeTestDriver 6702
 
       - name: Deploy EE with Maven
         run: mvn -f hazelcast-jdbc-enterprise -V -B deploy -Djdbc-release -DskipTests -DskipStaging
