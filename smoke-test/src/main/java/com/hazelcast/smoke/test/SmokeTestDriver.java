@@ -13,12 +13,17 @@ public class SmokeTestDriver {
 
     public static void main(String[] args) throws SQLException {
 
-        String hzPort = "5701";
-        if (args.length > 0) {
-            hzPort = args[0];
+        if (args.length < 2) {
+            logger.severe("Usage: 'java "
+                    + SmokeTestDriver.class.getName()
+                    + " <port> <clusterName>");
+            throw new IllegalArgumentException("Too few arguments");
         }
 
-        try (Connection con = DriverManager.getConnection("jdbc:hazelcast://localhost:" + hzPort + "/")) {
+        String hzPort = args[0];
+        String clusterName = args[1];
+        try (Connection con = DriverManager.getConnection(
+                "jdbc:hazelcast://localhost:" + hzPort + "/?clusterName=" + clusterName)) {
             logger.info("Database: " + con.getMetaData().getDatabaseProductName()
                     + ": " + con.getMetaData().getDatabaseProductVersion());
 
