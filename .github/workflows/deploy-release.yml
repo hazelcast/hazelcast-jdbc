@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       hazelcast:
-        image: hazelcast/hazelcast
+        image: hazelcast/hazelcast:latest-slim
         ports:
           - 6701:5701
       hazelcast-ee:
