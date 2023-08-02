@@ -27,7 +27,7 @@ jobs:
         ports:
           - 6701:5701
       hazelcast-ee:
-        image: hazelcast/hazelcast-enterprise
+        image: hazelcast/hazelcast-enterprise:latest-slim
         ports:
           - 6702:5701
         env:
