@@ -31,7 +31,7 @@ jobs:
         ports:
           - 6702:5701
         env:
-          HZ_LICENSEKEY: ${{ secrets.HZ_ENTERPRISE_LICENSE }}
+          HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
     name: Build and release version
     steps:
       - uses: actions/checkout@v3
