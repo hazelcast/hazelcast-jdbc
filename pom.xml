@@ -491,6 +491,24 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>smoke-test</id>
+            <modules>
+                <module>smoke-test</module>
+            </modules>
+            <properties>
+                <jdbcArtifact>hazelcast-jdbc</jdbcArtifact>
+            </properties>
+        </profile>
+        <profile>
+            <id>smoke-test-ee</id>
+            <modules>
+                <module>smoke-test</module>
+            </modules>
+            <properties>
+                <jdbcArtifact>hazelcast-jdbc-enterprise</jdbcArtifact>
+            </properties>
+        </profile>
     </profiles>
 
     <dependencies>
