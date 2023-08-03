@@ -68,13 +68,11 @@ jobs:
           mvn clean install -V -B
 
       - name: Build and run smoke test
-        timeout-minutes: 2
         run: |
           mvn clean package -V -B -Psmoke-test -DskipTests
           java -ea -cp smoke-test/target/smoke-test-${{ github.event.inputs.release-version }}.jar:hazelcast-jdbc/target/hazelcast-jdbc-${{ github.event.inputs.release-version }}.jar com.hazelcast.smoke.test.SmokeTestDriver 6701 $CLUSTER_NAME
 
       - name: Build and run ee smoke test
-        timeout-minutes: 2
         run: |
           mvn clean package -V -B -Psmoke-test-ee -DskipTests
           java -ea -cp smoke-test/target/smoke-test-${{ github.event.inputs.release-version }}.jar:hazelcast-jdbc-enterprise/target/hazelcast-jdbc-enterprise-${{ github.event.inputs.release-version }}.jar com.hazelcast.smoke.test.SmokeTestDriver 6702 $EE_CLUSTER_NAME
