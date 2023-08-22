@@ -29,7 +29,7 @@ Open source:
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.3.0</version>
+    <version>5.3.1</version>
 </dependency>
 ```
 
@@ -39,7 +39,7 @@ Enterprise (located in Hazelcast Maven repository):
     <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-jdbc-enterprise</artifactId>
-        <version>5.3.0</version>
+        <version>5.3.1</version>
     </dependency>
 </dependencies>
 
