@@ -29,7 +29,7 @@ jobs:
         ports:
           - 6701:5701
         env:
-          HZ_CLUSTERNAME: $CLUSTER_NAME
+          HZ_CLUSTERNAME: ${{ env.CLUSTER_NAME }}
           HZ_NETWORK_JOIN_MULTICAST_ENABLED: false
           HZ_NETWORK_JOIN_TCPIP_ENABLED: true
       hazelcast-ee:
@@ -37,7 +37,7 @@ jobs:
         ports:
           - 6702:5701
         env:
-          HZ_CLUSTERNAME: $EE_CLUSTER_NAME
+          HZ_CLUSTERNAME: ${{ env.EE_CLUSTER_NAME }}
           HZ_NETWORK_JOIN_MULTICAST_ENABLED: false
           HZ_NETWORK_JOIN_TCPIP_ENABLED: true
           HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
