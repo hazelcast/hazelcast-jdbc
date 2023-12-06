@@ -46,7 +46,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class JdbcStatementTest {
+class JdbcStatementTest {
 
     @Mock
     private HazelcastSqlClient client;
@@ -160,7 +160,7 @@ public class JdbcStatementTest {
         statement.setMaxRows(2);
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
 
-        assertThat(resultSet.getRow()).isEqualTo(0);
+        assertThat(resultSet.getRow()).isZero();
         assertThat(resultSet.isBeforeFirst()).isTrue();
         assertThat(resultSet.isFirst()).isFalse();
         assertThat(resultSet.isAfterLast()).isFalse();
@@ -181,7 +181,7 @@ public class JdbcStatementTest {
 
         assertThat(resultSet.next()).isFalse();
 
-        assertThat(resultSet.getRow()).isEqualTo(0);
+        assertThat(resultSet.getRow()).isZero();
         assertThat(resultSet.isBeforeFirst()).isFalse();
         assertThat(resultSet.isFirst()).isFalse();
         assertThat(resultSet.isAfterLast()).isTrue();

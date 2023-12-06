@@ -26,10 +26,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DriverTest {
 
-    private static final Condition<Throwable> THROWN_IN_DRIVER_CONNECT = new Condition<Throwable>(t -> {
+    private static final Condition<Throwable> THROWN_IN_DRIVER_CONNECT = new Condition<>(t -> {
         StackTraceElement[] stackTrace = t.getStackTrace();
         return stackTrace[0].getClassName().equals(Driver.class.getName())
-                && stackTrace[0].getMethodName().equals("connect");
+               && stackTrace[0].getMethodName().equals("connect");
     }, "thrown at Driver.connect()");
 
     @Test

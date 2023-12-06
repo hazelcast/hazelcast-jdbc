@@ -89,10 +89,6 @@ final class JdbcUrl {
     }
 
     private static String decodeUrl(String raw) {
-        try {
-            return URLDecoder.decode(raw, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException impossible) {
-            throw new RuntimeException(impossible);
-        }
+        return URLDecoder.decode(raw, StandardCharsets.UTF_8);
     }
 }
