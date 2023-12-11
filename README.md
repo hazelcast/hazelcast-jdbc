@@ -77,7 +77,7 @@ Open source:
     <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-jdbc</artifactId>
-        <version>5.4.0-SNAPSHOT</version>
+        <version>5.5.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
