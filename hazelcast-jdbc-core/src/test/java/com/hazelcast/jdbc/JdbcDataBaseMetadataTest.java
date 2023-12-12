@@ -46,6 +46,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class JdbcDataBaseMetadataTest {
 
     private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/";
+
+    private static Connection connection;
+
     private static DatabaseMetaData dbMetaData;
 
     @BeforeAll
@@ -60,12 +63,14 @@ class JdbcDataBaseMetadataTest {
         SqlResult sqlResult = member.getSql()
                 .execute("create view emp_dept_view as select * from emp join dept on emp.age=dept.__key");
         sqlResult.close();
-        Connection connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
+        connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         dbMetaData = connection.getMetaData();
     }
 
     @AfterAll
-    public static void tearDown() {
+    public static void tearDown() throws SQLException {
+        connection.close();
+
         HazelcastClient.shutdownAll();
         Hazelcast.shutdownAll();
     }
