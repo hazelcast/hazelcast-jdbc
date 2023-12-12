@@ -29,7 +29,7 @@ Open source:
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast-jdbc</artifactId>
-    <version>5.3.1</version>
+    <version>5.4.0</version>
 </dependency>
 ```
 
@@ -39,7 +39,7 @@ Enterprise (located in Hazelcast Maven repository):
     <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-jdbc-enterprise</artifactId>
-        <version>5.3.1</version>
+        <version>5.4.0</version>
     </dependency>
 </dependencies>
 
@@ -77,7 +77,7 @@ Open source:
     <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-jdbc</artifactId>
-        <version>5.4.0-SNAPSHOT</version>
+        <version>5.5.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
@@ -102,7 +102,7 @@ Enterprise:
     <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-jdbc-enterprise</artifactId>
-        <version>5.4.0-SNAPSHOT</version>
+        <version>5.5.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
