@@ -69,7 +69,7 @@ class JdbcUrlTest {
     }
 
     @Test
-    public void when_sameKeyInUrlAndProperties_then_thatFromUrlTakesPrecedence() {
+    void when_sameKeyInUrlAndProperties_then_thatFromUrlTakesPrecedence() {
         Properties props = new Properties();
         props.setProperty("a", "foo");
         JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost/?a=bar", props);
@@ -77,7 +77,7 @@ class JdbcUrlTest {
     }
 
     @Test
-    public void when_duplicateKeyInUrl_then_lastOccurrenceUsed() {
+    void when_duplicateKeyInUrl_then_lastOccurrenceUsed() {
         JdbcUrl url = new JdbcUrl("jdbc:hazelcast://localhost/?a=foo&a=bar", null);
         assertEquals("bar", url.getProperty("a"));
     }

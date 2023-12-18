@@ -65,7 +65,7 @@ class HazelcastConfigFactory {
     }
 
     private static void sslConfigMapping(Map<String, BiConsumer<ClientConfig, String>> map) {
-        map.put("sslEnabled", (c, p) -> sslConfig(c, (ssl) -> ssl.setEnabled(p.equalsIgnoreCase("true"))));
+        map.put("sslEnabled", (c, p) -> sslConfig(c, ssl -> ssl.setEnabled(p.equalsIgnoreCase("true"))));
         map.put("trustStore", (c, p) -> sslConfig(c, "trustStore", p));
         map.put("trustStorePassword", (c, p) -> sslConfig(c, "trustStorePassword", p));
         map.put("keyStore", (c, p) -> sslConfig(c, "keyStore", p));
@@ -74,7 +74,7 @@ class HazelcastConfigFactory {
         map.put("trustCertCollectionFile", (c, p) -> sslConfig(c, "trustCertCollectionFile", p));
         map.put("keyFile", (c, p) -> sslConfig(c, "keyFile", p));
         map.put("keyCertChainFile", (c, p) -> sslConfig(c, "keyCertChainFile", p));
-        map.put("factoryClassName", (c, p) -> sslConfig(c, (ssl) -> ssl.setFactoryClassName(p)));
+        map.put("factoryClassName", (c, p) -> sslConfig(c, ssl -> ssl.setFactoryClassName(p)));
     }
 
     private static void awsConfigMapping(Map<String, BiConsumer<ClientConfig, String>> map) {

@@ -203,10 +203,8 @@ class HazelcastConfigFactoryTest {
         .isEqualTo(expectedClientConfigFalse);
         assertThatExceptionOfType(RuntimeException.class)
         .as("clientConfigOther")
-        .isThrownBy(() -> {
-            configFactory.clientConfig(
-                    new JdbcUrl(baseUrl + "?smartRouting=other", null));
-        });
+        .isThrownBy(() -> configFactory.clientConfig(
+                new JdbcUrl(baseUrl + "?smartRouting=other", null)));
     }
 
     @Test

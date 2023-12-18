@@ -65,12 +65,12 @@ public class DriverImdgTest {
     }
 
     @Test
-    public void shouldHazelcastJdbcConnection() {
+    void shouldHazelcastJdbcConnection() {
         assertThat(connection).isNotNull();
     }
 
     @Test
-    public void shouldExecuteSimpleQuery() throws SQLException {
+    void shouldExecuteSimpleQuery() throws SQLException {
         Statement statement = connection.createStatement();
         assertThat(statement).isNotNull();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
@@ -84,7 +84,7 @@ public class DriverImdgTest {
     }
 
     @Test
-    public void shouldUnwrapResultSet() throws SQLException {
+    void shouldUnwrapResultSet() throws SQLException {
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
         resultSet.next();
@@ -94,7 +94,7 @@ public class DriverImdgTest {
     }
 
     @Test
-    public void shouldNotHaveTimeoutIfNotSetExplicitly() throws SQLException {
+    void shouldNotHaveTimeoutIfNotSetExplicitly() throws SQLException {
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
         resultSet.next();
@@ -102,7 +102,7 @@ public class DriverImdgTest {
     }
 
     @Test
-    public void shouldReturnResultSet() throws SQLException {
+    void shouldReturnResultSet() throws SQLException {
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
 
@@ -110,7 +110,7 @@ public class DriverImdgTest {
     }
 
     @Test
-    public void shouldExecuteSimplePreparedStatement() throws SQLException {
+    void shouldExecuteSimplePreparedStatement() throws SQLException {
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM person WHERE name=? AND age=?");
         statement.setString(1, "Jack1");
         statement.setInt(2, 1);
@@ -121,7 +121,7 @@ public class DriverImdgTest {
     }
 
     @Test
-    public void shouldCloseStatement() throws SQLException {
+    void shouldCloseStatement() throws SQLException {
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM person WHERE name='Jack1'");
         resultSet.next();

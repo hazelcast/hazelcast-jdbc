@@ -21,6 +21,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import com.hazelcast.sql.SqlResult;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -40,12 +41,14 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JdbcDataBaseMetadataTest {
 
     private static final String JDBC_HAZELCAST_LOCALHOST = "jdbc:hazelcast://localhost:5701/";
+
     private static Connection connection;
+
     private static DatabaseMetaData dbMetaData;
 
     @BeforeAll
@@ -57,19 +60,23 @@ class JdbcDataBaseMetadataTest {
         IMap<Integer, String> deptMap = member.getMap("dept");
         createMapping(member, empMap.getName(), int.class, Person.class);
         createMapping(member, deptMap.getName(), int.class, String.class);
-        member.getSql().execute("create view emp_dept_view as select * from emp join dept on emp.age=dept.__key");
+        SqlResult sqlResult = member.getSql()
+                .execute("create view emp_dept_view as select * from emp join dept on emp.age=dept.__key");
+        sqlResult.close();
         connection = DriverManager.getConnection(JDBC_HAZELCAST_LOCALHOST);
         dbMetaData = connection.getMetaData();
     }
 
     @AfterAll
-    public static void tearDown() {
+    public static void tearDown() throws SQLException {
+        connection.close();
+
         HazelcastClient.shutdownAll();
         Hazelcast.shutdownAll();
     }
 
     @Test
-    public void test_getTables() throws SQLException {
+    void test_getTables() throws SQLException {
         List<List<Object>> allTables = asList(
                 asList("hazelcast", "public", "dept", "MAPPING", null, null, null, null, null, null),
                 asList("hazelcast", "public", "emp", "MAPPING", null, null, null, null, null, null),
@@ -112,7 +119,7 @@ class JdbcDataBaseMetadataTest {
     }
 
     @Test
-    public void test_getColumns() throws SQLException {
+    void test_getColumns() throws SQLException {
         List<List<Object>> allColumns = asList(
                 asList("hazelcast", "public", "dept", "__key", Types.INTEGER, "INTEGER", 11, null, null, 10,
                         DatabaseMetaData.columnNullable, null, null, null, null, null, 1, "YES", null, null, null, null, "", ""),
@@ -189,25 +196,25 @@ class JdbcDataBaseMetadataTest {
     }
 
     @Test
-    public void test_getProcedures() throws SQLException {
+    void test_getProcedures() throws SQLException {
         assertEmptyResultSet(9,
                 dbMetaData.getProcedures(null, null, null));
     }
 
     @Test
-    public void test_getProcedureColumns() throws SQLException {
+    void test_getProcedureColumns() throws SQLException {
         assertEmptyResultSet(20,
                 dbMetaData.getProcedureColumns(null, null, null, null));
     }
 
     @Test
-    public void test_getCatalogs() throws SQLException {
+    void test_getCatalogs() throws SQLException {
         assertsResultsExactly(singletonList(singletonList("hazelcast")),
                 dbMetaData.getCatalogs());
     }
 
     @Test
-    public void test_getTableTypes() throws SQLException {
+    void test_getTableTypes() throws SQLException {
         assertsResultsExactly(asList(
                         singletonList("MAPPING"),
                         singletonList("VIEW")),
@@ -215,55 +222,55 @@ class JdbcDataBaseMetadataTest {
     }
 
     @Test
-    public void test_getColumnPrivileges() throws SQLException {
+    void test_getColumnPrivileges() throws SQLException {
         assertEmptyResultSet(8,
                 dbMetaData.getColumnPrivileges(null, null, null, null));
     }
 
     @Test
-    public void test_getTablePrivileges() throws SQLException {
+    void test_getTablePrivileges() throws SQLException {
         assertEmptyResultSet(7,
                 dbMetaData.getTablePrivileges(null, null, null));
     }
 
     @Test
-    public void test_getBestRowIdentifier() throws SQLException {
+    void test_getBestRowIdentifier() throws SQLException {
         assertEmptyResultSet(8,
                 dbMetaData.getBestRowIdentifier(null, null, null, 0, true));
     }
 
     @Test
-    public void test_getVersionColumns() throws SQLException {
+    void test_getVersionColumns() throws SQLException {
         assertEmptyResultSet(8,
                 dbMetaData.getVersionColumns(null, null, null));
     }
 
     @Test
-    public void test_getPrimaryKeys() throws SQLException {
+    void test_getPrimaryKeys() throws SQLException {
         assertEmptyResultSet(6,
                 dbMetaData.getPrimaryKeys(null, null, null));
     }
 
     @Test
-    public void test_getImportedKeys() throws SQLException {
+    void test_getImportedKeys() throws SQLException {
         assertEmptyResultSet(14,
                 dbMetaData.getImportedKeys(null, null, null));
     }
 
     @Test
-    public void test_getExportedKeys() throws SQLException {
+    void test_getExportedKeys() throws SQLException {
         assertEmptyResultSet(14,
                 dbMetaData.getExportedKeys(null, null, null));
     }
 
     @Test
-    public void test_getCrossReference() throws SQLException {
+    void test_getCrossReference() throws SQLException {
         assertEmptyResultSet(14,
                 dbMetaData.getCrossReference(null, null, null, null, null, null));
     }
 
     @Test
-    public void test_getTypeInfo() throws SQLException {
+    void test_getTypeInfo() throws SQLException {
         assertsResultsExactly(asList(
                         asList("TINYINT", Types.TINYINT, 0, null, null, null, 1, true, 3, true, false, false, null, 0, 0, null, null, 10),
                         asList("BIGINT", Types.BIGINT, 0, null, null, null, 1, true, 3, true, false, false, null, 0, 0, null, null, 10),
@@ -293,61 +300,61 @@ class JdbcDataBaseMetadataTest {
     }
 
     @Test
-    public void test_getIndexInfo() throws SQLException {
+    void test_getIndexInfo() throws SQLException {
         assertEmptyResultSet(13,
                 dbMetaData.getIndexInfo(null, null, null, false, false));
     }
 
     @Test
-    public void test_getUDTs() throws SQLException {
+    void test_getUDTs() throws SQLException {
         assertEmptyResultSet(7,
                 dbMetaData.getUDTs(null, null, null, null));
     }
 
     @Test
-    public void test_getSuperTypes() throws SQLException {
+    void test_getSuperTypes() throws SQLException {
         assertEmptyResultSet(6,
                 dbMetaData.getSuperTypes(null, null, null));
     }
 
     @Test
-    public void test_getSuperTables() throws SQLException {
+    void test_getSuperTables() throws SQLException {
         assertEmptyResultSet(4,
                 dbMetaData.getSuperTables(null, null, null));
     }
 
     @Test
-    public void test_getAttributes() throws SQLException {
+    void test_getAttributes() throws SQLException {
         assertEmptyResultSet(21,
                 dbMetaData.getAttributes(null, null, null, null));
     }
 
     @Test
-    public void test_getClientInfoProperties() throws SQLException {
+    void test_getClientInfoProperties() throws SQLException {
         assertEmptyResultSet(4,
                 dbMetaData.getClientInfoProperties());
     }
 
     @Test
-    public void test_getFunctions() throws SQLException {
+    void test_getFunctions() throws SQLException {
         assertEmptyResultSet(6,
                 dbMetaData.getFunctions(null, null, null));
     }
 
     @Test
-    public void test_getFunctionColumns() throws SQLException {
+    void test_getFunctionColumns() throws SQLException {
         assertEmptyResultSet(17,
                 dbMetaData.getFunctionColumns(null, null, null, null));
     }
 
     @Test
-    public void test_getPseudoColumns() throws SQLException {
+    void test_getPseudoColumns() throws SQLException {
         assertEmptyResultSet(12,
                 dbMetaData.getPseudoColumns(null, null, null, null));
     }
 
     @Test
-    public void test_getSchemas() throws SQLException {
+    void test_getSchemas() throws SQLException {
         assertsResultsExactly(singletonList(asList("public", "hazelcast")),
                 dbMetaData.getSchemas());
     }
@@ -366,7 +373,7 @@ class JdbcDataBaseMetadataTest {
     }
 
     private void assertEmptyResultSet(int expectedNumColumns, ResultSet resultSet) throws SQLException {
-        assertEquals("number of columns", expectedNumColumns, resultSet.getMetaData().getColumnCount());
+        assertEquals(expectedNumColumns, resultSet.getMetaData().getColumnCount(), "number of columns");
         assertsResultsExactly(emptyList(), resultSet);
     }
 }

@@ -40,7 +40,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class JdbcResultSetTest {
+class JdbcResultSetTest {
 
     @Mock
     private SqlResult sqlResult;
@@ -58,7 +58,7 @@ public class JdbcResultSetTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenFieldWasNull() throws SQLException {
+    void shouldReturnTrueWhenFieldWasNull() throws SQLException {
         when(sqlResult.getRowMetadata()).thenReturn(new SqlRowMetadata(Collections.singletonList(
                 new SqlColumnMetadata("name", SqlColumnType.VARCHAR, false))));
 

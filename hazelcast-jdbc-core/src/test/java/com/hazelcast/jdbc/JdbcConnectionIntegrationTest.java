@@ -19,6 +19,7 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -35,7 +36,7 @@ import static com.hazelcast.jdbc.JdbcTestSupport.createMapping;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class JdbcConnectionIntegrationTest {
+class JdbcConnectionIntegrationTest {
     private HazelcastInstance member;
     private HazelcastSqlClient client;
 
@@ -55,7 +56,7 @@ public class JdbcConnectionIntegrationTest {
     }
 
     @Test
-    public void test_connectionClose() throws SQLException {
+    void test_connectionClose() throws SQLException {
         Connection connection = new JdbcConnection(client);
         connection.close();
         assertThatThrownBy(connection::createStatement)
@@ -65,11 +66,12 @@ public class JdbcConnectionIntegrationTest {
     }
 
     @Test
-    void when_prepareCall_then_notSupported() {
-        Connection connection = new JdbcConnection(client);
-        assertThatThrownBy(() -> connection.prepareCall("{call getPerson(?, ?)}"))
-                .isInstanceOf(SQLFeatureNotSupportedException.class)
-                .hasMessage("CallableStatement not supported");
+    void when_prepareCall_then_notSupported() throws SQLException {
+        try (Connection connection = new JdbcConnection(client)) {
+            assertThatThrownBy(() -> connection.prepareCall("{call getPerson(?, ?)}"))
+                    .isInstanceOf(SQLFeatureNotSupportedException.class)
+                    .hasMessage("CallableStatement not supported");
+        }
     }
 
     @Test
@@ -88,17 +90,19 @@ public class JdbcConnectionIntegrationTest {
     void when_schemaChangedOnConnection_then_shouldNotAffectExistingStatements() throws SQLException {
         // test for https://github.com/hazelcast/hazelcast-jdbc/issues/58
         SqlService sql = member.getSql();
-        sql.execute("CREATE OR REPLACE MAPPING mappings(__key INT, this INT) TYPE IMap "
-                + "OPTIONS('keyFormat'='int', 'valueFormat'='int')");
+        SqlResult sqlResult = sql.execute("CREATE OR REPLACE MAPPING mappings(__key INT, this INT) TYPE IMap "
+                                          + "OPTIONS('keyFormat'='int', 'valueFormat'='int')");
+        sqlResult.close();
 
-        Connection connection = new JdbcConnection(client);
-        Statement statement = connection.createStatement();
-        connection.setSchema("information_schema");
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM mappings");
-        Assertions.assertEquals("__key", resultSet.getMetaData().getColumnName(1));
+        try (Connection connection = new JdbcConnection(client)) {
+            Statement statement = connection.createStatement();
+            connection.setSchema("information_schema");
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM mappings");
+            Assertions.assertEquals("__key", resultSet.getMetaData().getColumnName(1));
 
-        statement = connection.createStatement();
-        resultSet = statement.executeQuery("SELECT * FROM mappings");
-        Assertions.assertEquals("table_catalog", resultSet.getMetaData().getColumnName(1));
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery("SELECT * FROM mappings");
+            Assertions.assertEquals("table_catalog", resultSet.getMetaData().getColumnName(1));
+        }
     }
 }
