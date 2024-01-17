@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ '11' ]
+        java: [ '17' ]
         architecture: [ 'x64' ]
-        distribution: [ 'adopt' ]
+        distribution: [ 'temurin' ]
     name: Build SNAPSHOT version with JDK ${{ matrix.java }}
     steps:
       - uses: actions/checkout@v4
