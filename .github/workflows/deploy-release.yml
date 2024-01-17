@@ -43,7 +43,7 @@ jobs:
           HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
     name: Build and release version
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.release-branch }}
           token: ${{ secrets.GH_PAT }}

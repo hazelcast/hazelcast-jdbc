@@ -18,7 +18,7 @@ jobs:
         distribution: [ 'adopt' ]
     name: Build SNAPSHOT version with JDK ${{ matrix.java }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
