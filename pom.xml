@@ -40,12 +40,12 @@
         <maven.compiler.release>11</maven.compiler.release>
         <hazelcast.version>5.3.6</hazelcast.version>
         <mockito.version>5.9.0</mockito.version>
-        <maven.jacoco.plugin.version>0.8.8</maven.jacoco.plugin.version>
+        <maven.jacoco.plugin.version>0.8.11</maven.jacoco.plugin.version>
         <maven.findbugs.plugin.version>3.0.5</maven.findbugs.plugin.version>
         <maven.checkstyle.plugin.version>3.3.1</maven.checkstyle.plugin.version>
         <maven.sonar.plugin.version>5.1</maven.sonar.plugin.version>
         <maven.gpg.plugin.version>3.1.0</maven.gpg.plugin.version>
-        <maven.javadoc.plugin.version>3.5.0</maven.javadoc.plugin.version>
+        <maven.javadoc.plugin.version>3.6.3</maven.javadoc.plugin.version>
         <maven.source.plugin.version>3.3.0</maven.source.plugin.version>
 
         <!-- needed for CheckStyle -->
@@ -126,7 +126,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>8.0.2</version>
+                <version>9.0.9</version>
                 <configuration>
                     <format>ALL</format>
                     <skipProvidedScope>true</skipProvidedScope>
@@ -201,7 +201,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.2.5</version>
                     <configuration>
                         <excludedGroups>envs</excludedGroups>
                     </configuration>
