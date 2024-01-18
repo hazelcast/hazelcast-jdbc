@@ -9,7 +9,7 @@ jobs:
       matrix:
         java: [ '11' ]
         architecture: [ 'x64' ]
-        distribution: [ 'adopt' ]
+        distribution: [ 'temurin' ]
     name: Build
     steps:
       - uses: actions/checkout@v4
