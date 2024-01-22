@@ -11,23 +11,23 @@ jobs:
   build:
     if: github.repository_owner == 'hazelcast'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ '17' ]
-        architecture: [ 'x64' ]
-        distribution: [ 'temurin' ]
-    name: Build SNAPSHOT version with JDK ${{ matrix.java }}
+    name: Build SNAPSHOT version
     steps:
       - uses: actions/checkout@v4
+      - name: Read Java Config
+        uses: pietrobolcato/action-read-yaml@1.1.0
+        id: java-config
+        with:
+          config: ${{ github.workspace }}/.github/java-config.yml
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java }}
-          distribution: ${{ matrix.distribution }}
+          java-version: ${{ steps.java-config.outputs['java-version'] }}
+          distribution: ${{ steps.java-config.outputs['distribution'] }}
           server-id: deploy-repository
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-          architecture: ${{ matrix.architecture }}
+          architecture: 'x64'
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
           cache: 'maven'
