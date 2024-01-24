@@ -51,7 +51,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 11
-          distribution: 'adopt'
+          distribution: 'temurin'
           server-id: deploy-repository
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
