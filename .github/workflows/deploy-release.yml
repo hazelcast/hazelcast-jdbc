@@ -47,11 +47,16 @@ jobs:
         with:
           ref: ${{ github.event.inputs.release-branch }}
           token: ${{ secrets.GH_PAT }}
+      - name: Read Java Config
+        uses: pietrobolcato/action-read-yaml@1.1.0
+        id: java-config
+        with:
+          config: ${{ github.workspace }}/.github/java-config.yml
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: 11
-          distribution: 'temurin'
+          java-version: ${{ steps.java-config.outputs['java-version'] }}
+          distribution: ${{ steps.java-config.outputs['distribution'] }}
           server-id: deploy-repository
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD

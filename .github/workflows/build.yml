@@ -5,20 +5,20 @@ jobs:
   build:
     if: github.repository_owner == 'hazelcast'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ '11' ]
-        architecture: [ 'x64' ]
-        distribution: [ 'temurin' ]
     name: Build
     steps:
       - uses: actions/checkout@v4
+      - name: Read Java Config
+        uses: pietrobolcato/action-read-yaml@1.1.0
+        id: java-config
+        with:
+          config: ${{ github.workspace }}/.github/java-config.yml
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java }}
-          architecture: ${{ matrix.architecture }}
-          distribution: ${{ matrix.distribution }}
+          java-version: ${{ steps.java-config.outputs['java-version'] }}
+          architecture: 'x64'
+          distribution: ${{ steps.java-config.outputs['distribution'] }}
           cache: 'maven'
 
       - name: Build with Maven

@@ -37,7 +37,7 @@
     <properties>
         <main.basedir>${project.basedir}</main.basedir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>11</maven.compiler.release>
+        <jdk.version>17</jdk.version>
         <hazelcast.version>5.3.6</hazelcast.version>
         <mockito.version>5.10.0</mockito.version>
         <maven.jacoco.plugin.version>0.8.11</maven.jacoco.plugin.version>
@@ -169,6 +169,9 @@
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.12.1</version>
+                    <configuration>
+                        <release>${jdk.version}</release>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
