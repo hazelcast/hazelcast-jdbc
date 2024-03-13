@@ -18,7 +18,7 @@ The open source one isn't able to connect to Hazelcast EE clusters, but has an
 open source licence. The latter one uses proprietary licence, and can be used
 for connecting to both OS and EE clusters.
 
-Download directly the JAR file from [Releases](https://github.com/hazelcast/hazelcast-jdbc/releases) page.
+Download directly the JAR file from [Releases](https://github.com/hazelcast/hazelcast-jdbc/releases) page (open source) or [Hazelcast repository](https://repository.hazelcast.com/release/com/hazelcast/hazelcast-jdbc-enterprise/) (enterprise).
 
 ### Maven Central
 
