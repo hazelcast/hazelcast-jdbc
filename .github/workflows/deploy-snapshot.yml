@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Read Java Config
-        uses: pietrobolcato/action-read-yaml@1.1.0
+        uses: pietrobolcato/action-read-yaml@9f13718d61111b69f30ab4ac683e67a56d254e1d
         id: java-config
         with:
           config: ${{ github.workspace }}/.github/java-config.yml
