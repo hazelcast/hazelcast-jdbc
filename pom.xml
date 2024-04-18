@@ -239,6 +239,9 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
                     <version>2.4.0</version>
+                    <configuration>
+                        <excludedArtifacts>hazelcast-enterprise</excludedArtifacts>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
