@@ -238,7 +238,7 @@ If you're connecting to a [Viridian Serverless cluster](https://viridian.hazelca
 TLS is mandatory for Viridian Serverless cluster connections so pass TLS properties such as truststore, keystore etc along to `DriverManager.getConnection()`.
 
 #### Additional Configuration
-Besides URL, it is possible to use [Configuration Files](https://docs.hazelcast.com/hazelcast/5.3/configuration/configuring-declaratively) and  [Overriding Configuration](https://docs.hazelcast.com/hazelcast/5.3/configuration/configuring-declaratively#overriding-configuration-with-system-properties-and-environment-variables) to configure the [Hazelcast Java Client](https://docs.hazelcast.com/hazelcast/5.3/clients/java)
+Besides URL, it is possible to use [Configuration Files](https://docs.hazelcast.com/hazelcast/latest/configuration/configuring-declaratively) and  [Overriding Configuration](https://docs.hazelcast.com/hazelcast/latest/configuration/configuring-declaratively#overriding-configuration-with-system-properties-and-environment-variables) to configure the [Hazelcast Java Client](https://docs.hazelcast.com/hazelcast/latest/clients/java)
 
 ## SQL
-SQL support is in active development. Have a look at [SQL docs](https://docs.hazelcast.com/hazelcast/5.3/sql/sql-overview).
+SQL support is in active development. Have a look at [SQL docs](https://docs.hazelcast.com/hazelcast/latest/sql/sql-overview).
