@@ -19,4 +19,4 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        run: ./mvnw clean package -V -B -P checkstyle,findbugs
+        run: ./mvnw --settings settings.xml clean package -V -B -P checkstyle,findbugs -Dhz.snapshot.internal.username=${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }} -Dhz.snapshot.internal.password=${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}

@@ -30,7 +30,7 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        run: ./mvnw -V -B install
+        run: ./mvnw --settings settings.xml -V -B install -Dhz.snapshot.internal.username=${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }} -Dhz.snapshot.internal.password=${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}
 
       - name: Deploy OS with Maven
         run: ./mvnw -V -B deploy -Djdbc-release -DskipTests
