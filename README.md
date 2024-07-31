@@ -58,15 +58,6 @@ Enterprise (located in Hazelcast Maven repository):
 </repositories>
 ```
 
-#### Release 4.2 (for Hazelcast 4.2, SQL in Beta)
-```xml
-<dependency>
-    <groupId>com.hazelcast</groupId>
-    <artifactId>hazelcast-jdbc</artifactId>
-    <version>4.2</version>
-</dependency>
-```
-
 #### Snapshot versions
 To download the latest snapshot build you need to add
 the dependency and also the snapshot repository.
@@ -77,7 +68,7 @@ Open source:
     <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-jdbc</artifactId>
-        <version>5.5.0-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
@@ -102,7 +93,7 @@ Enterprise:
     <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-jdbc-enterprise</artifactId>
-        <version>5.5.0-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
