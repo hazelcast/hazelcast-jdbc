@@ -46,7 +46,7 @@ import static java.util.stream.Collectors.joining;
 @SuppressWarnings("checkstyle:TrailingComment")
 public class JdbcDataBaseMetadata implements DatabaseMetaData {
     private static final int JDBC_VERSION_MAJOR = 5;
-    private static final int JDBC_VERSION_MINOR = 4;
+    private static final int JDBC_VERSION_MINOR = 5;
     private static final int DEFAULT_NUMBER_RADIX = 10;
 
     private final JdbcConnection connection;
