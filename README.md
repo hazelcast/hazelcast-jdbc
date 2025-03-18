@@ -121,7 +121,7 @@ jdbc:hazelcast://host[:port][,host[:port]...]/[?property1=value1[&property2=valu
 
 To connect to a Viridian Serverless cluster, use:
 ```
-jdbc:hazelcast://<cluster-id>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.viridian.hazelcast.com&sslEnabled=true
+jdbc:hazelcast://<cluster-id>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.cloud.hazelcast.com&sslEnabled=true
 ```
 Note: Viridian Serverless clusters require [additional client configuration for TLS](https://github.com/hazelcast/hazelcast-jdbc#hazelcast-cloud-configuration).
 
@@ -224,7 +224,7 @@ The following list contains the properties supported by the `Hazelcast JDBC Driv
 For connecting to the Hazelcast cloud you only need to specify `discoveryToken` property and use the `cluster-id` as a host in
 the URL: `jdbc:hazelcast://<cluster-id>/?discoveryToken=<yourDiscoveryToken>`.
 
-If you're connecting to a [Viridian Serverless cluster](https://viridian.hazelcast.com/), also specify `cloudUrl=https://api.viridian.hazelcast.com` and `sslEnabled=true`: `jdbc:hazelcast://<cluster-id>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.viridian.hazelcast.com&sslEnabled=true`. 
+If you're connecting to a [Viridian Serverless cluster](https://viridian.hazelcast.com/), also specify `cloudUrl=https://api.cloud.hazelcast.com` and `sslEnabled=true`: `jdbc:hazelcast://<cluster-id>/?discoveryToken=<yourDiscoveryToken>&cloudUrl=https://api.cloud.hazelcast.com&sslEnabled=true`. 
 
 TLS is mandatory for Viridian Serverless cluster connections so pass TLS properties such as truststore, keystore etc along to `DriverManager.getConnection()`.
 
