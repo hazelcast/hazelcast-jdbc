@@ -6,6 +6,8 @@ jobs:
     if: github.repository_owner == 'hazelcast'
     runs-on: ubuntu-latest
     name: Build
+    env:
+      MAVEN_ARGS: --batch-mode --show-version
     steps:
       - uses: actions/checkout@v4
       - name: Read Java Config
@@ -19,4 +21,11 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        run: ./mvnw --settings settings.xml clean package -V -B -P checkstyle,findbugs -Dhz.snapshot.internal.username=${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }} -Dhz.snapshot.internal.password=${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}
+        run: |
+          ./mvnw \
+            --settings settings.xml \
+            clean \
+            package \
+            --activate-profiles checkstyle,findbugs \
+            -Dhz.snapshot.internal.username=${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }} \
+            -Dhz.snapshot.internal.password=${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}
