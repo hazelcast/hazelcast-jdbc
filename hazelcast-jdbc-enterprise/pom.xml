@@ -99,11 +99,11 @@
     <distributionManagement>
         <repository>
             <id>deploy-repository</id>
-            <url>https://hazelcast.jfrog.io/artifactory/release</url>
+            <url>https://repository.hazelcast.com/release</url>
         </repository>
         <snapshotRepository>
             <id>deploy-repository</id>
-            <url>https://hazelcast.jfrog.io/artifactory/snapshot</url>
+            <url>https://repository.hazelcast.com/snapshot</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
