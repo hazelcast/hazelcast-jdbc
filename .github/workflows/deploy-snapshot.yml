@@ -15,7 +15,7 @@ jobs:
     env:
       MAVEN_ARGS: --batch-mode --show-version
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Read Java Config
         run: cat ${{ github.workspace }}/.github/java-config.env >> $GITHUB_ENV
       - name: Setup JDK
