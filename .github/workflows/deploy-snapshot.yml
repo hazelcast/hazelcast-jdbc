@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build SNAPSHOT version
     env:
-      MAVEN_ARGS: --batch-mode --show-version
+      MAVEN_ARGS: --batch-mode --no-transfer-progress --show-version
     steps:
       - uses: actions/checkout@v5
       - name: Read Java Config
