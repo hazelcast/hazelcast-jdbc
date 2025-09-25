@@ -68,7 +68,7 @@ jobs:
 
       - name: Build and run smoke test
         run: |
-          ./mvnw clean package --activate-profiles smoke-test -DskipTests
+          ./mvnw clean install -DskipTests
 
       - name: Deploy OS with Maven
         run: ./mvnw deploy -Djdbc-release -DskipTests
