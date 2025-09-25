@@ -47,7 +47,9 @@ jobs:
       - name: Prepare Deployment
         run: |
           ./mvnw versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.release-version }}
-          ./mvnw --settings settings.xml clean install -DskipTests
+          ./mvnw --settings settings.xml clean install -DskipTests \
+            -Dhz.snapshot.internal.username=${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }} \
+            -Dhz.snapshot.internal.password=${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}
 
       - name: Deploy OS with Maven
         run: ./mvnw deploy -Djdbc-release -DskipTests
