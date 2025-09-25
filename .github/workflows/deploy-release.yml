@@ -47,7 +47,7 @@ jobs:
       - name: Prepare Deployment
         run: |
           ./mvnw versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.release-version }}
-          ./mvnw clean install -DskipTests
+          ./mvnw --settings settings.xml clean install -DskipTests
 
       - name: Deploy OS with Maven
         run: ./mvnw deploy -Djdbc-release -DskipTests
