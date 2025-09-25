@@ -64,10 +64,6 @@ jobs:
       - name: Prepare Deployment
         run: |
           ./mvnw versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.release-version }}
-          ./mvnw clean install
-
-      - name: Build and run smoke test
-        run: |
           ./mvnw clean install -DskipTests
 
       - name: Deploy OS with Maven
