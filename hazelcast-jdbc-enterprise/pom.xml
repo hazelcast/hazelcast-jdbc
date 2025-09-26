@@ -27,6 +27,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <name>Hazelcast EE JDBC Driver</name>
     <artifactId>hazelcast-jdbc-enterprise</artifactId>
 
     <properties>
