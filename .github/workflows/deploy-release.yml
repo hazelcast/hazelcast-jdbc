@@ -43,7 +43,7 @@ jobs:
           HZ_LICENSEKEY: ${{ secrets.HAZELCAST_ENTERPRISE_KEY }}
     name: Build and release version
     env:
-      MAVEN_ARGS: --batch-mode --show-version
+      MAVEN_ARGS: --batch-mode --no-transfer-progress --show-version
     steps:
       - uses: actions/checkout@v5
         with:

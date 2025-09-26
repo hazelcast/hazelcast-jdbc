@@ -76,7 +76,7 @@ Open source:
     <repository>
         <id>snapshot-repository</id>
         <name>Maven Snapshot Repository</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        <url>https://central.sonatype.com/repository/maven-snapshots</url>
         <releases>
             <enabled>false</enabled>
         </releases>

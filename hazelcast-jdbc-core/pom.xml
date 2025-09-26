@@ -27,6 +27,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <name>Hazelcast JDBC Driver Core</name>
     <artifactId>hazelcast-jdbc-core</artifactId>
 
     <properties>
