@@ -426,6 +426,25 @@
         </profile>
 
         <profile>
+            <id>release-central-staging</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.9.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <!-- server id comes from settings.xml -->
+                            <publishingServerId>deploy-repository</publishingServerId>
+                            <autoPublish>false</autoPublish>
+                            <checksums>required</checksums>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>release</id>
             <activation>
                 <property>
@@ -476,19 +495,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.sonatype.central</groupId>
-                        <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>0.9.0</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <!-- server id comes from settings.xml -->
-                            <publishingServerId>deploy-repository</publishingServerId>
-                            <autoPublish>false</autoPublish>
-                            <checksums>required</checksums>
-                        </configuration>
                     </plugin>
 
                     <plugin>
