@@ -543,6 +543,14 @@
     </dependencies>
 
     <distributionManagement>
+        <repository>
+            <id>deploy-repository</id>
+            <!--
+            Allows `hazelcast-jdbc-enterprise` to override and point to JFrog; otherwise, Maven
+            deploys using 'central-publishing-maven-plugin'
+            -->
+            <url>https://central.sonatype.com</url>
+        </repository>
         <snapshotRepository>
             <id>deploy-repository</id>
             <name>Maven2 Snapshot Repository</name>
