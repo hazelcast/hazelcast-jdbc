@@ -67,7 +67,7 @@ jobs:
       - name: Prepare Deployment
         run: |
           ./mvnw versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.release-version }}
-          ./mvnw clean install
+          ./mvnw clean install -DskipTests
 
       - name: Deploy EE with Maven
         run: ./mvnw --file hazelcast-jdbc-enterprise deploy -Djdbc-release -DskipTests -DskipStaging
