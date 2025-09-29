@@ -82,14 +82,14 @@ jobs:
           java -ea -cp smoke-test/target/smoke-test-${{ github.event.inputs.release-version }}.jar:hazelcast-jdbc-enterprise/target/hazelcast-jdbc-enterprise-${{ github.event.inputs.release-version }}.jar com.hazelcast.smoke.test.SmokeTestDriver 6702 $EE_CLUSTER_NAME
 
       - name: Deploy EE with Maven
-        run: ./mvnw --file hazelcast-jdbc-enterprise deploy -Djdbc-release -DskipTests -DskipStaging
+        run: ./mvnw --file hazelcast-jdbc-enterprise deploy -Djdbc-release -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.JFROG_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
       - name: Deploy OS with Maven
-        run: ./mvnw deploy -Djdbc-release -DskipTests
+        run: ./mvnw deploy --activate-profiles release-central-staging -Djdbc-release -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.SONATYPE_OSS_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.SONATYPE_OSS_PASSWORD }}
