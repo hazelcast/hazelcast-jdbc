@@ -37,6 +37,7 @@ jobs:
           ./mvnw \
             --settings settings.xml \
             install \
+            -DskipTests \
             -Dhz.snapshot.internal.username=${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }} \
             -Dhz.snapshot.internal.password=${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}
 
