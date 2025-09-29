@@ -100,11 +100,11 @@
     <distributionManagement>
         <repository>
             <id>deploy-repository</id>
-            <url>https://repository.hazelcast.com/release</url>
+            <url>https://hazelcast.jfrog.io/artifactory/nish-test-jdbc/</url>
         </repository>
         <snapshotRepository>
             <id>deploy-repository</id>
-            <url>https://repository.hazelcast.com/snapshot</url>
+            <url>https://hazelcast.jfrog.io/artifactory/nish-test-jdbc/</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
