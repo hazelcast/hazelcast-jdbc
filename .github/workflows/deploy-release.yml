@@ -70,7 +70,7 @@ jobs:
           ./mvnw clean install -DskipTests
 
       - name: Deploy EE with Maven
-        run: ./mvnw --file hazelcast-jdbc-enterprise deploy -Djdbc-release -DskipTests -DskipStaging
+        run: ./mvnw --file hazelcast-jdbc-enterprise deploy -Djdbc-release -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.JFROG_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
