@@ -89,7 +89,7 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
       - name: Deploy OS with Maven
-        run: ./mvnw deploy -Djdbc-release -DskipTests
+        run: ./mvnw deploy --activate-profiles release-central-staging -Djdbc-release -DskipTests
         env:
           MAVEN_USERNAME: ${{ secrets.SONATYPE_OSS_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.SONATYPE_OSS_PASSWORD }}
