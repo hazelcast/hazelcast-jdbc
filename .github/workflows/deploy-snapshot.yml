@@ -45,7 +45,8 @@ jobs:
           ./mvnw \
             deploy \
             -Djdbc-release \
-            -DskipTests
+            -DskipTests \
+            --activate-profiles release-central-staging
         env:
           MAVEN_USERNAME: ${{ secrets.SONATYPE_OSS_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.SONATYPE_OSS_PASSWORD }}
