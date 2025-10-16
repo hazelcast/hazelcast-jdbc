@@ -23,10 +23,11 @@
     <parent>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-jdbc-root</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>5.7.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <name>Hazelcast EE JDBC Driver</name>
     <artifactId>hazelcast-jdbc-enterprise</artifactId>
 
     <properties>
@@ -99,11 +100,11 @@
     <distributionManagement>
         <repository>
             <id>deploy-repository</id>
-            <url>https://hazelcast.jfrog.io/artifactory/release</url>
+            <url>https://repository.hazelcast.com/release</url>
         </repository>
         <snapshotRepository>
             <id>deploy-repository</id>
-            <url>https://hazelcast.jfrog.io/artifactory/snapshot</url>
+            <url>https://repository.hazelcast.com/snapshot</url>
         </snapshotRepository>
     </distributionManagement>
 </project>

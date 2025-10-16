@@ -24,7 +24,7 @@
     <artifactId>hazelcast-jdbc-root</artifactId>
     <packaging>pom</packaging>
 
-    <version>6.0.0-SNAPSHOT</version>
+    <version>5.7.0-SNAPSHOT</version>
     <name>Hazelcast JDBC Driver Root</name>
     <description>Hazelcast JDBC Driver allows Java applications to connect to Hazelcast using the standard JDBC API</description>
     <url>http://github.com/hazelcast/hazelcast-jdbc</url>
@@ -38,18 +38,18 @@
         <main.basedir>${project.basedir}</main.basedir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdk.version>17</jdk.version>
-        <hazelcast.version>5.5.0</hazelcast.version>
-        <mockito.version>5.16.1</mockito.version>
-        <maven.jacoco.plugin.version>0.8.12</maven.jacoco.plugin.version>
+        <hazelcast.version>5.6.0</hazelcast.version>
+        <mockito.version>5.20.0</mockito.version>
+        <maven.jacoco.plugin.version>0.8.14</maven.jacoco.plugin.version>
         <maven.findbugs.plugin.version>3.0.5</maven.findbugs.plugin.version>
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
         <maven.sonar.plugin.version>5.1</maven.sonar.plugin.version>
-        <maven.gpg.plugin.version>3.2.7</maven.gpg.plugin.version>
-        <maven.javadoc.plugin.version>3.11.2</maven.javadoc.plugin.version>
+        <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
+        <maven.javadoc.plugin.version>3.12.0</maven.javadoc.plugin.version>
         <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
 
         <!-- needed for CheckStyle -->
-        <checkstyle.version>10.21.4</checkstyle.version>
+        <checkstyle.version>12.0.1</checkstyle.version>
         <checkstyle.configLocation>${main.basedir}/checkstyle/checkstyle.xml</checkstyle.configLocation>
         <checkstyle.supressionsLocation>${main.basedir}/checkstyle/suppressions.xml</checkstyle.supressionsLocation>
         <checkstyle.headerLocation>${main.basedir}/checkstyle/ClassHeaderApache.txt</checkstyle.headerLocation>
@@ -93,7 +93,7 @@
         <repository>
             <id>snapshot-repository</id>
             <name>Maven2 Snapshot Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://central.sonatype.com/repository/maven-snapshots</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -119,14 +119,14 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.12.1</version>
+                <version>6.0.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.27.3</version>
+                <version>3.27.6</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -137,7 +137,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>12.1.0</version>
+                <version>12.1.8</version>
                 <configuration>
                     <format>ALL</format>
                     <skipProvidedScope>true</skipProvidedScope>
@@ -170,7 +170,7 @@
                 <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.4.1</version>
+                    <version>3.5.0</version>
                 </plugin>
                 <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
                 <plugin>
@@ -179,7 +179,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.14.0</version>
+                    <version>3.14.1</version>
                     <configuration>
                         <release>${jdk.version}</release>
                     </configuration>
@@ -215,7 +215,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.2</version>
+                    <version>3.5.4</version>
                     <configuration>
                         <excludedGroups>envs</excludedGroups>
                     </configuration>
@@ -224,7 +224,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.6.1</version>
                     <executions>
                         <execution>
                             <phase>package</phase>
@@ -249,7 +249,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.5.0</version>
+                    <version>2.7.0</version>
                     <configuration>
                         <excludedArtifacts>hazelcast-enterprise</excludedArtifacts>
                     </configuration>
@@ -278,7 +278,6 @@
                             <configLocation>${checkstyle.configLocation}</configLocation>
                             <suppressionsLocation>${checkstyle.supressionsLocation}</suppressionsLocation>
                             <headerLocation>${checkstyle.headerLocation}</headerLocation>
-                            <enableRSS>false</enableRSS>
                             <linkXRef>false</linkXRef>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
@@ -371,7 +370,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>3.5.2</version>
+                        <version>3.5.4</version>
                         <configuration>
                             <failIfNoTests>true</failIfNoTests>
                             <includes>
@@ -424,6 +423,32 @@
             <modules>
                 <module>hazelcast-jdbc-enterprise</module>
             </modules>
+        </profile>
+
+        <profile>
+            <id>release-central-staging</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.9.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <!-- server id comes from settings.xml -->
+                            <publishingServerId>deploy-repository</publishingServerId>
+                            <!--
+                            wait until the artifacts are actually published automatically using 'autoPublish'.
+                            the default is `validated` which would then require manual publishing
+                            -->
+                            <waitUntil>published</waitUntil>
+                            <autoPublish>true</autoPublish>
+                            <checksums>required</checksums>
+                            <centralSnapshotsUrl>https://central.sonatype.com/repository/maven-snapshots</centralSnapshotsUrl>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <profile>
@@ -480,18 +505,6 @@
                     </plugin>
 
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.7.0</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>deploy-repository</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                        </configuration>
-                    </plugin>
-
-                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <executions>
@@ -542,16 +555,4 @@
         </dependency>
     </dependencies>
 
-    <distributionManagement>
-        <repository>
-            <id>deploy-repository</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-        <snapshotRepository>
-            <id>deploy-repository</id>
-            <name>Maven2 Snapshot Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-    </distributionManagement>
 </project>

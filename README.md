@@ -68,7 +68,7 @@ Open source:
     <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-jdbc</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>5.6.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
@@ -76,7 +76,7 @@ Open source:
     <repository>
         <id>snapshot-repository</id>
         <name>Maven Snapshot Repository</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        <url>https://central.sonatype.com/repository/maven-snapshots</url>
         <releases>
             <enabled>false</enabled>
         </releases>
@@ -93,7 +93,7 @@ Enterprise:
     <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-jdbc-enterprise</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>5.6.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
