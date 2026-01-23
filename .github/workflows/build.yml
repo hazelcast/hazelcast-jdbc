@@ -5,6 +5,8 @@ jobs:
   build:
     if: github.repository_owner == 'hazelcast'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     name: Build
     env:
       MAVEN_ARGS: --batch-mode --show-version
@@ -20,12 +22,13 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           cache: 'maven'
 
+      - uses: hazelcast/docker-actions/setup-maven-snapshot-internal@master
+        with:
+          aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+
       - name: Build with Maven
         run: |
           ./mvnw \
-            --settings settings.xml \
             clean \
             package \
-            --activate-profiles checkstyle,findbugs \
-            -Dhz.snapshot.internal.username=${{ secrets.HZ_SNAPSHOT_INTERNAL_USERNAME }} \
-            -Dhz.snapshot.internal.password=${{ secrets.HZ_SNAPSHOT_INTERNAL_PASSWORD }}
+            --activate-profiles checkstyle,findbugs
