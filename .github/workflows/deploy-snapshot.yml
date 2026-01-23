@@ -37,10 +37,14 @@ jobs:
       - uses: hazelcast/docker-actions/setup-maven-snapshot-internal@master
         with:
           aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          # Don't overwrite default - we want one config for building/resolving dependencies, another for deploying & authentication
+          maven-settings-path: settings.xml
 
       - name: Build with Maven
         run: |
-          ./mvnw install
+          ./mvnw \
+            --settings settings.xml \
+            install
 
       - name: Deploy OS with Maven
         run: |
@@ -54,6 +58,12 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.SONATYPE_OSS_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
+      - uses: hazelcast/docker-actions/get-jfrog-credentials@master
+        id: jfrog
+        with:
+          aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          jfrog-oidc-provider-name: ${{ github.repository_owner }}-write-dev-account
+
       - name: Deploy EE with Maven
         run: |
           ./mvnw \
@@ -62,6 +72,6 @@ jobs:
             -Djdbc-release \
             -DskipTests
         env:
-          MAVEN_USERNAME: ${{ secrets.JFROG_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
+          MAVEN_USERNAME: ${{ steps.jfrog.outputs.user }}
+          MAVEN_PASSWORD: ${{ steps.jfrog.outputs.token }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
