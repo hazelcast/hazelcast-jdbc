@@ -23,6 +23,8 @@ jobs:
   do-release:
     if: github.repository_owner == 'hazelcast'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     services:
       hazelcast:
         image: hazelcast/hazelcast:latest-slim
@@ -80,12 +82,18 @@ jobs:
         run: |
           ./mvnw clean package --activate-profiles smoke-test-ee -DskipTests
           java -ea -cp smoke-test/target/smoke-test-${{ github.event.inputs.release-version }}.jar:hazelcast-jdbc-enterprise/target/hazelcast-jdbc-enterprise-${{ github.event.inputs.release-version }}.jar com.hazelcast.smoke.test.SmokeTestDriver 6702 $EE_CLUSTER_NAME
+ 
+      - uses: hazelcast/docker-actions/get-jfrog-credentials@master
+        id: jfrog
+        with:
+          aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
+          jfrog-oidc-provider-name: ${{ github.repository_owner }}-write-dev-account
 
       - name: Deploy EE with Maven
         run: ./mvnw --file hazelcast-jdbc-enterprise deploy -Djdbc-release -DskipTests
         env:
-          MAVEN_USERNAME: ${{ secrets.JFROG_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
+          MAVEN_USERNAME: ${{ steps.jfrog.outputs.user }}
+          MAVEN_PASSWORD: ${{ steps.jfrog.outputs.token }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
       - name: Deploy OS with Maven
