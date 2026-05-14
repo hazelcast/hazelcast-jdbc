@@ -84,5 +84,6 @@ jobs:
           file: hazelcast-jdbc/target/hazelcast-jdbc-*.jar
           file_glob: true
           tag: v${{ github.event.inputs.release-version }}
+          release_name: v${{ github.event.inputs.release-version }}
           overwrite: true
           draft: true
