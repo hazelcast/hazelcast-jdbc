@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: v${{ github.event.inputs.release-branch }}
+          ref: v5.7.0
           token: ${{ secrets.GH_PAT }}
 
       - name: Read Java Config
