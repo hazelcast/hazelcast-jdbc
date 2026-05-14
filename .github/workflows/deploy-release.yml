@@ -49,8 +49,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.inputs.release-branch }}
+          ref: v${{ github.event.inputs.release-branch }}
           token: ${{ secrets.GH_PAT }}
+
       - name: Read Java Config
         run: cat ${{ github.workspace }}/.github/java-config.env >> $GITHUB_ENV
       - name: Setup JDK
@@ -68,55 +69,12 @@ jobs:
 
       - name: Prepare Deployment
         run: |
-          ./mvnw versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.release-version }}
-          git commit -am "Set version to ${{ github.event.inputs.release-version }}"
-          git tag v${{ github.event.inputs.release-version }}
           ./mvnw clean install
-
-      - name: Build and run smoke test
-        run: |
-          ./mvnw clean package --activate-profiles smoke-test -DskipTests
-          java -ea -cp smoke-test/target/smoke-test-${{ github.event.inputs.release-version }}.jar:hazelcast-jdbc/target/hazelcast-jdbc-${{ github.event.inputs.release-version }}.jar com.hazelcast.smoke.test.SmokeTestDriver 6701 $CLUSTER_NAME
-
-      - name: Build and run ee smoke test
-        run: |
-          ./mvnw clean package --activate-profiles smoke-test-ee -DskipTests
-          java -ea -cp smoke-test/target/smoke-test-${{ github.event.inputs.release-version }}.jar:hazelcast-jdbc-enterprise/target/hazelcast-jdbc-enterprise-${{ github.event.inputs.release-version }}.jar com.hazelcast.smoke.test.SmokeTestDriver 6702 $EE_CLUSTER_NAME
- 
-      - uses: hazelcast/docker-actions/get-jfrog-credentials@master
-        id: jfrog
-        with:
-          aws-role-to-assume: ${{ secrets.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
-          jfrog-oidc-provider-name: ${{ github.repository_owner }}-write-dev-account
-
-      - name: Deploy EE with Maven
-        run: ./mvnw --file hazelcast-jdbc-enterprise deploy -Djdbc-release -DskipTests
-        env:
-          MAVEN_USERNAME: ${{ steps.jfrog.outputs.user }}
-          MAVEN_PASSWORD: ${{ steps.jfrog.outputs.token }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-
-      - name: Deploy OS with Maven
-        run: ./mvnw deploy --activate-profiles release-central-staging -Djdbc-release -DskipTests
-        env:
-          MAVEN_USERNAME: ${{ secrets.SONATYPE_OSS_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.SONATYPE_OSS_PASSWORD }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-
-      - name: Finish Deployment
-        run: |
-          ./mvnw versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.next-snapshot-version }}
-          git commit -am "Set version to ${{ github.event.inputs.next-snapshot-version }}"
-          git push origin v${{ github.event.inputs.release-version }}
-          if [ -n "${{ github.event.inputs.release-branch }}" ]; then
-            git push origin "${{ github.event.inputs.release-branch }}"
-          else
-            git push
-          fi
 
       - name: Upload OS binaries to the GitHub release
         uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # 2.11.5
         with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: hazelcast-jdbc/target/hazelcast-jdbc-*.jar
           file_glob: true
           tag: v${{ github.event.inputs.release-version }}
