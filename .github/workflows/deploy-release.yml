@@ -47,6 +47,7 @@ jobs:
     name: Build and release version
     env:
       MAVEN_ARGS: --batch-mode --no-transfer-progress --show-version
+      TAG: v${{ github.event.inputs.release-version }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -83,7 +84,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: hazelcast-jdbc/target/hazelcast-jdbc-*.jar
           file_glob: true
-          tag: v${{ github.event.inputs.release-version }}
-          release_name: v${{ github.event.inputs.release-version }}
+          tag: ${{ env.TAG }}
+          release_name: ${{ env.TAG }}
           overwrite: true
           draft: true
