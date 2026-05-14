@@ -71,11 +71,17 @@ jobs:
         run: |
           ./mvnw clean install
 
-      - name: Upload OS binaries to the GitHub release
-        uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # 2.11.5
-        with:
-          repo_token: ${{ secrets.GH_PAT }}
-          file: hazelcast-jdbc/target/hazelcast-jdbc-*.jar
-          file_glob: true
-          tag: v${{ github.event.inputs.release-version }}
-          overwrite: true
+      - name: Inspect Submodule Target Directories
+        run: |
+          echo "=== Core Target Directory Contents ==="
+          ls -l hazelcast-jdbc-core/target/
+
+      # - name: Upload OS binaries to the GitHub release
+      #   uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # 2.11.5
+      #   with:
+      #     repo_token: ${{ secrets.GH_PAT }}
+      #     file: hazelcast-jdbc/target/hazelcast-jdbc-*.jar
+      #     file_glob: true
+      #     tag: v${{ github.event.inputs.release-version }}
+      #     overwrite: true
+      #     draft: true
