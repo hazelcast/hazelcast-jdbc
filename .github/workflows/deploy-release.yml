@@ -69,7 +69,7 @@ jobs:
 
       - name: Prepare Deployment
         run: |
-          ./mvnw clean install -Djdbc-release -DskipTests
+          ./mvnw clean install -Djdbc-release -DskipTests -Dgpg.skip=true
 
       - name: Inspect Submodule Target Directories
         run: |
