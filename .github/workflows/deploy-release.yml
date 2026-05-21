@@ -119,7 +119,6 @@ jobs:
       - name: Upload OS binaries to the GitHub release
         uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # 2.11.5
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: hazelcast-jdbc/target/hazelcast-jdbc-*.jar
           file_glob: true
           tag: ${{ env.TAG }}
