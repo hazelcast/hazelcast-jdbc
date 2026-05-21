@@ -109,7 +109,7 @@ jobs:
         run: |
           ./mvnw versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.next-snapshot-version }}
           git commit -am "Set version to ${{ github.event.inputs.next-snapshot-version }}"
-          git push origin ${{ env.TAG }}
+          git push origin ${TAG}
           if [ -n "${{ github.event.inputs.release-branch }}" ]; then
             git push origin "${{ github.event.inputs.release-branch }}"
           else
