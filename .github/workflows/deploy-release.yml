@@ -72,7 +72,7 @@ jobs:
         run: |
           ./mvnw versions:set -DgenerateBackupPoms=false -DnewVersion=${{ github.event.inputs.release-version }}
           git commit -am "Set version to ${{ github.event.inputs.release-version }}"
-          git tag ${{ env.TAG }}
+          git tag ${TAG}
           ./mvnw clean install
 
       - name: Build and run smoke test
