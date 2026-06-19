@@ -49,7 +49,7 @@ jobs:
       MAVEN_ARGS: --batch-mode --no-transfer-progress --show-version
       TAG: v${{ github.event.inputs.release-version }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.inputs.release-branch }}
           token: ${{ secrets.GH_PAT }}
