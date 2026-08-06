@@ -68,7 +68,7 @@ Open source:
     <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-jdbc</artifactId>
-        <version>5.8.0-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
@@ -93,7 +93,7 @@ Enterprise:
     <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-jdbc-enterprise</artifactId>
-        <version>5.8.0-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
